@@ -1,0 +1,2 @@
+Mon, 31 Oct 2016 04:24:25 +0100	[2]mysql_fetch_array() expects parameter 1 to be resource, boolean given	\eccore\model\mysql.php	233
+Mon, 31 Oct 2016 04:24:28 +0100	[2]mysql_fetch_array() expects parameter 1 to be resource, boolean given	\eccore\model\mysql.php	233
