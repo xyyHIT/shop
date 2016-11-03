@@ -7,6 +7,9 @@ include(ROOT_PATH . '/eccore/ecmall.php');
 ecm_define(ROOT_PATH . '/data/config.inc.php');
 $ECMall = new ECMall();
 
+// 配置时区
+date_default_timezone_set('PRC');
+
 /* 启动ECMall */
 $ECMall->startup(array(
     'default_app'   =>  'default',

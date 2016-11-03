@@ -1,0 +1,8 @@
+# 临时文件
+/temp
+
+# IDE
+.idea
+
+# 配置
+/data/config.inc.php

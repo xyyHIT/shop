@@ -38,9 +38,9 @@ SESSION_MEMCACHED : 存储session数据的memcached服务器(服务器地址1:�
 */
 
 return array (
-  'SITE_URL' => 'http://localhost/ejmall',
-  'DB_CONFIG' => 'mysql://root:@localhost:3306/ecmall24',
-  'DB_PREFIX' => 'ejm_',
+  'SITE_URL' => 'http://127.0.0.1',
+  'DB_CONFIG' => 'mysql://root:abc@192.168.1.23:3306/ejmall',
+  'DB_PREFIX' => 'ecm_',
   'LANG' => 'sc-utf-8',
   'COOKIE_DOMAIN' => '',
   'COOKIE_PATH' => '/',
