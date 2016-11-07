@@ -6,3 +6,5 @@
 
 # 配置
 /data/config.inc.php
+/data/payments.inc.php
+/data/tasks.inc.php
