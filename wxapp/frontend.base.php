@@ -11,6 +11,13 @@ class FrontendApp extends ECBaseApp
     function __construct()
     {
         $this->FrontendApp();
+		//用户保持常登录状态
+		if (!$this->visitor->has_login)
+        {
+			if(OPENID){
+				$this->_do_login(OPENID);
+			}
+		}
     }
     function FrontendApp()
     {
