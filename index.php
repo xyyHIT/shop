@@ -10,11 +10,17 @@ $ECMall = new ECMall();
 // 配置时区
 date_default_timezone_set('PRC');
 
+if(isset($_GET['api'])){
+	$app_con = '/wxapp';
+}else{
+	$app_con = '/app';
+}
+
 /* 启动ECMall */
 $ECMall->startup(array(
     'default_app'   =>  'default',
     'default_act'   =>  'index',
-    'app_root'      =>  ROOT_PATH . '/wxapp',
+    'app_root'      =>  ROOT_PATH . $app_con,
     'external_libs' =>  array(
         ROOT_PATH . '/includes/global.lib.php',
         ROOT_PATH . '/includes/libraries/time.lib.php',
@@ -22,6 +28,7 @@ $ECMall->startup(array(
         ROOT_PATH . '/includes/plugin.base.php',
         ROOT_PATH . '/app/frontend.base.php',
         ROOT_PATH . '/includes/subdomain.inc.php',
+        ROOT_PATH . '/includes/wx.base.php'
     ),
 ));
 ?>
