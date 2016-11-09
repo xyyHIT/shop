@@ -1,0 +1,18 @@
+{
+  "name": "yijia/yijiao-mall",
+  "description": "yijia mall",
+  "authors": [
+    {
+      "name": "yijia"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "quickj/dubbo-php-client": ">=0.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "6584142a0d22e90c839b874773fd97a3",
+    "content-hash": "6971dc759f6b6419982abd5291276ec5",
+    "packages": [
+        {
+            "name": "quickj/dubbo-php-client",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/quickj/dubbo-php-client.git",
+                "reference": "83f00d88e188617044d32cdbafa35c7f17d72954"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/quickj/dubbo-php-client/83f00d88e188617044d32cdbafa35c7f17d72954.zip",
+                "reference": "83f00d88e188617044d32cdbafa35c7f17d72954",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "dubbo\\": "src",
+                    "dubbo\\invok\\": "src/invok",
+                    "dubbo\\protocols\\": "src/invok/protocols"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "jquick",
+                    "email": "314127900@qq.com"
+                }
+            ],
+            "description": "dubbo php client",
+            "time": "2016-01-20 09:28:24"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.5.9"
+    },
+    "platform-dev": []
+}

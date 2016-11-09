@@ -8,3 +8,6 @@
 /data/config.inc.php
 /data/payments.inc.php
 /data/tasks.inc.php
+
+# 去除composer 依赖包
+/vendor
