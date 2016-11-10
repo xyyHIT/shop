@@ -13,6 +13,9 @@ $ECMall = new ECMall();
 // 配置时区
 date_default_timezone_set('PRC');
 
+// 配置错误码
+define('ERROR_CODE',json_encode(require ROOT_PATH.'/data/errcode.cfg.php'));
+
 /* 启动ECMall */
 $ECMall->startup(array(
     'default_app'   =>  'default',
