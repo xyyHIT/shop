@@ -263,6 +263,29 @@ class Tree extends Object
         return $data;
 
     }
+	
+	/**
+     * 先根遍历，数组格式      为满足兼容图片添加此方法
+     * array(
+     *     array('id' => '', 'value' => '', children => array(
+     *         array('id' => '', 'value' => '', children => array()),
+     *     ))
+     * )
+	 * author:xxy   by   20161110
+     */
+    function ejgetArrayList($root = 0 , $layer = NULL)
+    {
+        $data = array();
+        foreach ($this->child[$root] as $id)
+        {
+            if($layer && $this->layer[$this->parent[$id]] > $layer-1)
+            {
+                continue;
+            }
+            $data[] = array('id' => $id, 'value' => $this->getValue($id),'imageurl'=>$this->data[$id]['imageurl'], 'children' => $this->child[$id] ? $this->ejgetArrayList($id , $layer) : array());
+        }
+        return $data;
+    }
 }
 
 ?>

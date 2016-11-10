@@ -6,28 +6,12 @@ class CategoryApp extends MallbaseApp
     /* 商品分类 */
     function index()
     {
-        /* 取得导航 */
-        $this->assign('navs', $this->_get_navs());
-
         /* 取得商品分类 */
         $gcategorys = $this->_list_gcategory();
-
-        /* 当前位置 */
-        $_curlocal=array(
-            array(
-                'text'  => Lang::get('index'),
-                'url'   => 'index.php',
-            ),
-            array(
-                'text'  => Lang::get('gcategory'),
-                'url'   => '',
-            ),
-        );
-        $this->assign('_curlocal',$_curlocal);
-        $this->assign('gcategorys', $gcategorys);
-
-        $this->_config_seo('title', Lang::get('goods_category') . ' - '. Conf::get('site_title'));
-        $this->display('category.goods.html');
+		$result['code'] = '0';
+		$result['msg'] = '成功获取分类';
+		$result['data'] = $gcategorys;
+		die(ecm_json_encode($result));
     }
 
         /* 店铺分类 */
@@ -71,15 +55,13 @@ class CategoryApp extends MallbaseApp
         {
             $gcategory_mod =& bm('gcategory', array('_store_id' => 0));
             $gcategories = $gcategory_mod->get_list(-1,true);
-    
+			
             import('tree.lib');
             $tree = new Tree();
-            $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name');
-            $data = $tree->getArrayList(0);
-
+            $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name','imageurl');
+            $data = $tree->ejgetArrayList(0);
             $cache_server->set($key, $data, 3600);
         }
-
         return $data;
     }
 
