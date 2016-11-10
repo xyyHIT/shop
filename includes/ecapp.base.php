@@ -11,8 +11,8 @@ define('SIZE_CSV_TAOBAO', '2097152');     // 淘宝助理CSV大小限制2M
 
 /* 店铺状态 */
 define('STORE_APPLYING', 0); // 申请中
-define('STORE_OPEN',     1); // 开启
-define('STORE_CLOSED',   2); // 关闭
+define('STORE_OPEN', 1); // 开启
+define('STORE_CLOSED', 2); // 关闭
 
 /* 订单状态 */
 define('ORDER_SUBMITTED', 10);                 // 针对货到付款而言，他的下一个状态是卖家已发货
@@ -23,10 +23,10 @@ define('ORDER_FINISHED', 40);                  // 交易成功
 define('ORDER_CANCELED', 0);                   // 交易已取消
 
 /* 特殊文章分类ID */
-define('STORE_NAV',    -1); // 店铺导航
-define('ACATE_HELP',    1); // 商城帮助
-define('ACATE_NOTICE',  2); // 商城快讯（公告）
-define('ACATE_SYSTEM',  3); // 内置文章
+define('STORE_NAV', -1); // 店铺导航
+define('ACATE_HELP', 1); // 商城帮助
+define('ACATE_NOTICE', 2); // 商城快讯（公告）
+define('ACATE_SYSTEM', 3); // 内置文章
 
 /* 系统文章分类code字段 */
 define('ACC_NOTICE', 'notice');                 //acategory表中code字段为notice时——商城公告类别
@@ -34,76 +34,71 @@ define('ACC_SYSTEM', 'system');                 //acategory表中code字段为sy
 define('ACC_HELP', 'help');                     //acategory表中code字段为help时——商城帮助类别
 
 /* 邮件的优先级 */
-define('MAIL_PRIORITY_LOW',     1);
-define('MAIL_PRIORITY_MID',     2);
-define('MAIL_PRIORITY_HIGH',    3);
+define('MAIL_PRIORITY_LOW', 1);
+define('MAIL_PRIORITY_MID', 2);
+define('MAIL_PRIORITY_HIGH', 3);
 
 /* 发送邮件的协议类型 */
-define('MAIL_PROTOCOL_LOCAL',       0, true);
-define('MAIL_PROTOCOL_SMTP',        1, true);
+define('MAIL_PROTOCOL_LOCAL', 0, true);
+define('MAIL_PROTOCOL_SMTP', 1, true);
 
 /* 数据调用的类型 */
 define('TYPE_GOODS', 1);
 
 /* 上传文件归属 */
-define('BELONG_ARTICLE',    1);
-define('BELONG_GOODS',      2);
-define('BELONG_STORE',      3);
+define('BELONG_ARTICLE', 1);
+define('BELONG_GOODS', 2);
+define('BELONG_STORE', 3);
 
 /* 二级域名开关 */
 !defined('ENABLED_SUBDOMAIN') && define('ENABLED_SUBDOMAIN', 0);
 
 /* 环境 */
 define('CHARSET', substr(LANG, 3));
-define('IS_AJAX', isset($_REQUEST['ajax']));
+define('IS_AJAX', isset( $_REQUEST['ajax'] ));
 /* 短消息的标志 */
-define('MSG_SYSTEM' , 0); //系统消息
+define('MSG_SYSTEM', 0); //系统消息
 
 /* 团购活动状态 */
-define('GROUP_PENDING',  0);            // 未发布
-define('GROUP_ON',       1);            // 正在进行
-define('GROUP_END',      2);            // 已结束
+define('GROUP_PENDING', 0);            // 未发布
+define('GROUP_ON', 1);            // 正在进行
+define('GROUP_END', 2);            // 已结束
 define('GROUP_FINISHED', 3);            // 已完成
 define('GROUP_CANCELED', 4);            // 已取消
 
 define('GROUP_CANCEL_INTERVAL', 5);     // 团购结束后自动取消的间隔天数
 
 /* 通知类型 */
-define('NOTICE_MAIL',   1); // 邮件通知
-define('NOTICE_MSG',    2); // 站内短消息
+define('NOTICE_MAIL', 1); // 邮件通知
+define('NOTICE_MSG', 2); // 站内短消息
 
 /**
  *    ECBaseApp
  *
- *    @author    Garbin
- *    @usage    none
+ * @author    Garbin
+ * @usage     none
  */
-class ECBaseApp extends BaseApp
-{
+class ECBaseApp extends BaseApp {
     var $outcall;
-    function __construct()
-    {
+
+    function __construct() {
         $this->ECBaseApp();
     }
-    function ECBaseApp()
-    {
+
+    function ECBaseApp() {
         parent::__construct();
 
-        if (!defined('MODULE')) // 临时处理方案，此处不应对模块进行特殊处理
+        if ( !defined('MODULE') ) // 临时处理方案，此处不应对模块进行特殊处理
         {
             /* GZIP */
-            if ($this->gzip_enabled())
-            {
+            if ( $this->gzip_enabled() ) {
                 ob_start('ob_gzhandler');
-            }
-            else
-            {
+            } else {
                 ob_start();
             }
 
             /* 非utf8转码 */
-            if (CHARSET != 'utf-8' && isset($_REQUEST['ajax']))
-            {
+            if ( CHARSET != 'utf-8' && isset( $_REQUEST['ajax'] ) ) {
                 $_FILES = ecm_iconv_deep('utf-8', CHARSET, $_FILES);
                 $_GET = ecm_iconv_deep('utf-8', CHARSET, $_GET);
                 $_POST = ecm_iconv_deep('utf-8', CHARSET, $_POST);
@@ -120,68 +115,63 @@ class ECBaseApp extends BaseApp
             $this->_run_cron();
         }
     }
-    function _init_visitor()
-    {
+
+    function _init_visitor() {
     }
 
     /**
      *    初始化Session
      *
-     *    @author    Garbin
-     *    @param    none
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param    none
+     *
+     * @return    void
      */
-    function _init_session()
-    {
+    function _init_session() {
         import('session.lib');
-        if(!defined('SESSION_TYPE'))
-        {
-           define('SESSION_TYPE','mysql');
+        if ( !defined('SESSION_TYPE') ) {
+            define('SESSION_TYPE', 'mysql');
         }
-        if (SESSION_TYPE == 'mysql' || defined('IN_BACKEND'))
-        {
+        if ( SESSION_TYPE == 'mysql' || defined('IN_BACKEND') ) {
             $this->_session = new SessionProcessor(db(), '`ecm_sessions`', '`ecm_sessions_data`', 'ECM_ID');
             /* 清理超时的购物车项目 */
             $this->_session->add_related_table('`ecm_cart`', 'cart', 'session_id', 'user_id=0');
-        }
-        else if (SESSION_TYPE == 'memcached')
-        {
+        } else if ( SESSION_TYPE == 'memcached' ) {
             $this->_session = new MemcacheSession(SESSION_MEMCACHED, 'ECM_ID');
-        }
-        else
-        {
-            exit('Unkown session type.');
+        } else {
+            exit( 'Unkown session type.' );
         }
         define('SESS_ID', $this->_session->get_session_id());
 
         $this->_session->my_session_start();
         env('session', $this->_session);
     }
-    function _config_view()
-    {
-        $this->_view->caching       = ((DEBUG_MODE & 1) == 0);  // 是否缓存
-        $this->_view->force_compile = ((DEBUG_MODE & 2) == 2);  // 是否需要强制编译
-        $this->_view->direct_output = ((DEBUG_MODE & 4) == 4);  // 是否直接输出
-        $this->_view->gzip          = (defined('ENABLED_GZIP') && ENABLED_GZIP === 1);
-        $this->_view->lib_base      = site_url() . '/includes/libraries/javascript';
+
+    function _config_view() {
+        $this->_view->caching = ( ( DEBUG_MODE & 1 ) == 0 );  // 是否缓存
+        $this->_view->force_compile = ( ( DEBUG_MODE & 2 ) == 2 );  // 是否需要强制编译
+        $this->_view->direct_output = ( ( DEBUG_MODE & 4 ) == 4 );  // 是否直接输出
+        $this->_view->gzip = ( defined('ENABLED_GZIP') && ENABLED_GZIP === 1 );
+        $this->_view->lib_base = site_url() . '/includes/libraries/javascript';
     }
 
     /**
      *    转发至模块
      *
-     *    @author    Garbin
-     *    @param    none
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param    none
+     *
+     * @return    void
      */
-    function do_action($action)
-    {
+    function do_action( $action ) {
         /* 指定了要运行的模块则调用模块控制器 */
-        (!empty($_GET['module']) && !defined('MODULE')) && $action = 'run_module';
+        ( !empty( $_GET['module'] ) && !defined('MODULE') ) && $action = 'run_module';
         parent::do_action($action);
     }
 
-    function _run_action()
-    {
+    function _run_action() {
         /*
         if (!$this->visitor->i_can('do_action'))
         {
@@ -197,47 +187,41 @@ class ECBaseApp extends BaseApp
             return;
         }
         */
-        if ($this->_hook('on_run_action'))
-        {
+        if ( $this->_hook('on_run_action') ) {
             return;
         }
         parent::_run_action();
 
-        if ($this->_hook('end_run_action'))
-        {
+        if ( $this->_hook('end_run_action') ) {
             return;
         }
     }
 
-    function run_module()
-    {
-        $module_name = empty($_REQUEST['module']) ? false : strtolower(preg_replace('/(\W+)/', '', $_REQUEST['module']));
-        if (!$module_name)
-        {
+    function run_module() {
+        $module_name = empty( $_REQUEST['module'] ) ? false : strtolower(preg_replace('/(\W+)/', '', $_REQUEST['module']));
+        if ( !$module_name ) {
             $this->show_warning('no_such_module');
 
             return;
         }
         $file = defined('IN_BACKEND') ? 'admin' : 'index';
         $module_class_file = ROOT_PATH . '/external/modules/' . $module_name . '/' . $file . '.module.php';
-        require(ROOT_PATH . '/includes/module.base.php');
-        require($module_class_file);
+        require( ROOT_PATH . '/includes/module.base.php' );
+        require( $module_class_file );
         define('MODULE', $module_name);
         $module_class_name = ucfirst($module_name) . 'Module';
 
         /* 判断模块是否启用 */
         $model_module =& m('module');
         $find_data = $model_module->find('index:' . $module_name);
-        if (empty($find_data))
-        {
+        if ( empty( $find_data ) ) {
             /* 没有安装 */
             $this->show_warning('no_such_module');
 
             return;
         }
         $info = current($find_data);
-        if (!$info['enabled'])
-        {
+        if ( !$info['enabled'] ) {
             /* 尚未启用 */
             $this->show_warning('module_disabled');
 
@@ -245,7 +229,7 @@ class ECBaseApp extends BaseApp
         }
 
         /* 加载模块配置 */
-        Conf::load(array($module_name . '_config' => unserialize($info['module_config'])));
+        Conf::load([ $module_name . '_config' => unserialize($info['module_config']) ]);
 
         /* 运行模块 */
         $module = new $module_class_name();
@@ -255,25 +239,21 @@ class ECBaseApp extends BaseApp
     }
 
 
-    function login()
-    {
+    function login() {
         $this->display('login.html');
     }
-    function logout()
-    {
+
+    function logout() {
         $this->visitor->logout();
     }
-    function jslang($lang)
-    {
-        header('Content-Encoding:'.CHARSET);
+
+    function jslang( $lang ) {
+        header('Content-Encoding:' . CHARSET);
         header("Content-Type: application/x-javascript\n");
-        header("Expires: " .date(DATE_RFC822, strtotime("+1 hour")). "\n");
-        if (!$lang)
-        {
+        header("Expires: " . date(DATE_RFC822, strtotime("+1 hour")) . "\n");
+        if ( !$lang ) {
             echo 'var lang = null;';
-        }
-        else
-        {
+        } else {
             echo 'var lang = ' . ecm_json_encode($lang) . ';';
             echo <<<EOT
 lang.get = function(key){
@@ -291,43 +271,37 @@ EOT;
     /**
      *    插件
      *
-     *    @author    Garbin
-     *    @param    none
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param    none
+     *
+     * @return    void
      */
-    function _hook($event, $data = array())
-    {
-        if ($this->outcall)
-        {
+    function _hook( $event, $data = [] ) {
+        if ( $this->outcall ) {
             return;
         }
         static $plugins = null;
         $conf_file = ROOT_PATH . '/data/plugins.inc.php';
-        if ($plugins === null)
-        {
-            is_file($conf_file) && $plugins = include($conf_file);
-            if (!is_array($plugins))
-            {
+        if ( $plugins === null ) {
+            is_file($conf_file) && $plugins = include( $conf_file );
+            if ( !is_array($plugins) ) {
                 $plugins = false;
             }
         }
-        if (!isset($plugins[$event]))
-        {
+        if ( !isset( $plugins[ $event ] ) ) {
             return null;
         }
 
         /* 获取可用插件列表 */
-        $plugin_list = $plugins[$event];
-        if (empty($plugin_list))
-        {
+        $plugin_list = $plugins[ $event ];
+        if ( empty( $plugin_list ) ) {
             return null;
         }
-        foreach ($plugin_list as $plugin_name => $plugin_info)
-        {
+        foreach ( $plugin_list as $plugin_name => $plugin_info ) {
             $plugin_main_file = ROOT_PATH . "/external/plugins/{$plugin_name}/main.plugin.php";
-            if (is_file($plugin_main_file))
-            {
-                include_once($plugin_main_file);
+            if ( is_file($plugin_main_file) ) {
+                include_once( $plugin_main_file );
             }
             $plugin_class_name = ucfirst($plugin_name) . 'Plugin';
             $plugin = new $plugin_class_name($data, $plugin_info);
@@ -338,8 +312,7 @@ EOT;
             $plugin = null;
             $this->outcall = false;
             /* 停止原控制器流程 */
-            if ($stop_flow)
-            {
+            if ( $stop_flow ) {
                 return $stop_flow;
             }
         }
@@ -348,24 +321,26 @@ EOT;
     /**
      *    运行插件
      *
-     *    @author    Garbin
-     *    @param     Plugin $plugin
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param     Plugin $plugin
+     *
+     * @return    void
      */
-    function _run_plugin(&$plugin)
-    {
+    function _run_plugin( &$plugin ) {
         return $plugin->execute();
     }
 
     /**
      *    head标签内的内容
      *
-     *    @author    Garbin
-     *    @param     string $contents
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param     string $contents
+     *
+     * @return    void
      */
-    function headtag($string)
-    {
+    function headtag( $string ) {
         $this->_init_view();
         $this->assign('_head_tags', $this->_view->fetch('str:' . $string));
     }
@@ -373,27 +348,23 @@ EOT;
     /**
      *    导入资源到模板
      *
-     *    @author    Garbin
-     *    @param     mixed $resources
-     *    @return    string
+     * @author    Garbin
+     *
+     * @param     mixed $resources
+     *
+     * @return    string
      */
-    function import_resource($resources, $spec_type = null)
-    {
+    function import_resource( $resources, $spec_type = null ) {
         $headtag = '';
-        if (is_string($resources) || $spec_type)
-        {
+        if ( is_string($resources) || $spec_type ) {
             !$spec_type && $spec_type = 'script';
             $resources = $this->_get_resource_data($resources);
-            foreach ($resources as $params)
-            {
+            foreach ( $resources as $params ) {
                 $headtag .= $this->_get_resource_code($spec_type, $params) . "\r\n";
             }
             $this->headtag($headtag);
-        }
-        elseif (is_array($resources))
-        {
-            foreach ($resources as $type => $res)
-            {
+        } elseif ( is_array($resources) ) {
+            foreach ( $resources as $type => $res ) {
                 $headtag .= $this->import_resource($res, $type);
             }
             $this->headtag($headtag);
@@ -401,52 +372,41 @@ EOT;
 
         return $headtag;
     }
-    
+
     /**
      * 配置seo信息
      *
-     * @param array/string $seo_info
+     * @param array /string $seo_info
+     *
      * @return void
      */
-    function _config_seo($seo_info, $ext_info = null)
-    {
-        if (is_string($seo_info))
-        {
+    function _config_seo( $seo_info, $ext_info = null ) {
+        if ( is_string($seo_info) ) {
             $this->_assign_seo($seo_info, $ext_info);
-        }
-        elseif (is_array($seo_info))
-        {
-            foreach ($seo_info as $type => $info)
-            {
+        } elseif ( is_array($seo_info) ) {
+            foreach ( $seo_info as $type => $info ) {
                 $this->_assign_seo($type, $info);
             }
         }
     }
-    
-    function _assign_seo($type, $info)
-    {
+
+    function _assign_seo( $type, $info ) {
         $this->_init_view();
         $_seo_info = $this->_view->get_template_vars('_seo_info');
-        if (is_array($_seo_info))
-        {
-            $_seo_info[$type] = $info;
-        }
-        else
-        {
-            $_seo_info = array($type => $info);
+        if ( is_array($_seo_info) ) {
+            $_seo_info[ $type ] = $info;
+        } else {
+            $_seo_info = [ $type => $info ];
         }
         $this->assign('_seo_info', $_seo_info);
         $this->assign('page_seo', $this->_get_seo_code($_seo_info));
     }
-    
-    function _get_seo_code($_seo_info)
-    {
+
+    function _get_seo_code( $_seo_info ) {
         $html = '';
-        foreach ($_seo_info as $type => $info)
-        {
+        foreach ( $_seo_info as $type => $info ) {
             $info = trim(htmlspecialchars($info));
-            switch ($type)
-            {
+            switch ( $type ) {
                 case 'title' :
                     $html .= "<{$type}>{$info}</{$type}>";
                     break;
@@ -457,34 +417,31 @@ EOT;
                     break;
             }
             $html .= "\r\n";
-        }        
+        }
+
         return $html;
     }
 
     /**
      *    获取资源数据
      *
-     *    @author    Garbin
-     *    @param     mixed $resources
-     *    @return    array
+     * @author    Garbin
+     *
+     * @param     mixed $resources
+     *
+     * @return    array
      */
-    function _get_resource_data($resources)
-    {
-        $return = array();
-        if (is_string($resources))
-        {
+    function _get_resource_data( $resources ) {
+        $return = [];
+        if ( is_string($resources) ) {
             $items = explode(',', $resources);
             array_walk($items, create_function('&$val, $key', '$val = trim($val);'));
-            foreach ($items as $path)
-            {
-                $return[] = array('path' => $path, 'attr' => '');
+            foreach ( $items as $path ) {
+                $return[] = [ 'path' => $path, 'attr' => '' ];
             }
-        }
-        elseif (is_array($resources))
-        {
-            foreach ($resources as $item)
-            {
-                !isset($item['attr']) && $item['attr'] = '';
+        } elseif ( is_array($resources) ) {
+            foreach ( $resources as $item ) {
+                !isset( $item['attr'] ) && $item['attr'] = '';
                 $return[] = $item;
             }
         }
@@ -495,27 +452,27 @@ EOT;
     /**
      *    获取资源文件的HTML代码
      *
-     *    @author    Garbin
-     *    @param     string $type
-     *    @param     array  $params
-     *    @return    string
+     * @author    Garbin
+     *
+     * @param     string $type
+     * @param     array  $params
+     *
+     * @return    string
      */
-    function _get_resource_code($type, $params)
-    {
-        switch ($type)
-        {
+    function _get_resource_code( $type, $params ) {
+        switch ( $type ) {
             case 'script':
                 $pre = '<script charset="utf-8" type="text/javascript"';
-                $path= ' src="' . $this->_get_resource_url($params['path']) . '"';
-                $attr= ' ' . $params['attr'];
-                $tail= '></script>';
-            break;
+                $path = ' src="' . $this->_get_resource_url($params['path']) . '"';
+                $attr = ' ' . $params['attr'];
+                $tail = '></script>';
+                break;
             case 'style':
                 $pre = '<link rel="stylesheet" type="text/css"';
-                $path= ' href="' . $this->_get_resource_url($params['path']) . '"';
-                $attr= ' ' . $params['attr'];
-                $tail= ' />';
-            break;
+                $path = ' href="' . $this->_get_resource_url($params['path']) . '"';
+                $attr = ' ' . $params['attr'];
+                $tail = ' />';
+                break;
         }
         $html = $pre . $path . $attr . $tail;
 
@@ -525,36 +482,34 @@ EOT;
     /**
      *    获取真实的资源路径
      *
-     *    @author    Garbin
-     *    @param     string $res
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param     string $res
+     *
+     * @return    void
      */
-    function _get_resource_url($res)
-    {
+    function _get_resource_url( $res ) {
         $res_par = explode(':', $res);
         $url_type = $res_par[0];
-        $return  = '';
-        switch ($url_type)
-        {
+        $return = '';
+        switch ( $url_type ) {
             case 'url':
                 $return = $res_par[1];
-            break;
+                break;
             case 'res':
                 $return = '{res file="' . $res_par[1] . '"}';
-            break;
+                break;
             default:
-                $res_path = empty($res_par[1]) ? $res : $res_par[1];
+                $res_path = empty( $res_par[1] ) ? $res : $res_par[1];
                 $return = '{lib file="' . $res_path . '"}';
-            break;
+                break;
         }
 
         return $return;
     }
 
-    function display($f)
-    {
-        if ($this->_hook('on_display', array('display_file' => & $f)))
-        {
+    function display( $f ) {
+        if ( $this->_hook('on_display', [ 'display_file' => & $f ]) ) {
             return;
         }
         $this->assign('site_url', SITE_URL);
@@ -566,9 +521,9 @@ EOT;
         $this->assign('lang', Lang::get());
 
         /* 用户信息 */
-        $this->assign('visitor', isset($this->visitor) ? $this->visitor->info : array());
+        $this->assign('visitor', isset( $this->visitor ) ? $this->visitor->info : []);
 
-        
+
         $this->assign('charset', CHARSET);
         $this->assign('price_format', Conf::get('price_format'));
         $this->assign('async_sendmail', $this->_async_sendmail());
@@ -576,15 +531,13 @@ EOT;
 
         parent::display($f);
 
-        if ($this->_hook('end_display', array('display_file' => & $f)))
-        {
+        if ( $this->_hook('end_display', [ 'display_file' => & $f ]) ) {
             return;
         }
     }
 
     /* 页面查询信息 */
-    function _assign_query_info()
-    {
+    function _assign_query_info() {
         $query_time = ecm_microtime() - START_TIME;
 
         $this->assign('query_time', $query_time);
@@ -593,8 +546,7 @@ EOT;
         $this->assign('query_user_count', $this->_session->get_users_count());
 
         /* 内存占用情况 */
-        if (function_exists('memory_get_usage'))
-        {
+        if ( function_exists('memory_get_usage') ) {
             $this->assign('memory_info', memory_get_usage() / 1048576);
         }
 
@@ -603,13 +555,11 @@ EOT;
         $this->assign('ecm_version', VERSION . ' ' . RELEASE);
     }
 
-    function gzip_enabled()
-    {
-        static $enabled_gzip = NULL;
+    function gzip_enabled() {
+        static $enabled_gzip = null;
 
-        if ($enabled_gzip === NULL)
-        {
-            $enabled_gzip = (defined('ENABLED_GZIP') && ENABLED_GZIP === 1 && function_exists('ob_gzhandler'));
+        if ( $enabled_gzip === null ) {
+            $enabled_gzip = ( defined('ENABLED_GZIP') && ENABLED_GZIP === 1 && function_exists('ob_gzhandler') );
         }
 
         return $enabled_gzip;
@@ -618,12 +568,13 @@ EOT;
     /**
      *    显示错误警告
      *
-     *    @author    Garbin
-     *    @param    none
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param    none
+     *
+     * @return    void
      */
-    function show_warning()
-    {
+    function show_warning() {
         $args = func_get_args();
         call_user_func_array('show_warning', $args);
     }
@@ -632,38 +583,34 @@ EOT;
     /**
      *    显示提示消息
      *
-     *    @author    Garbin
-     *    @return    void
+     * @author    Garbin
+     * @return    void
      */
-    function show_message()
-    {
+    function show_message() {
         $args = func_get_args();
         call_user_func_array('show_message', $args);
     }
+
     /**
      * Make a error message by JSON format
      *
-     * @param   string  $msg
+     * @param   string $msg
      *
      * @return  void
      */
-    function json_error ($msg='', $retval=null, $jqremote = false)
-    {
-        if (!empty($msg))
-        {
+    function json_error( $msg = '', $retval = null, $jqremote = false ) {
+        if ( !empty( $msg ) ) {
             $msg = Lang::get($msg);
         }
-        $result = array('done' => false , 'msg' => $msg);
-        if (isset($retval)) $result['retval'] = $retval;
+        $result = [ 'done' => false, 'msg' => $msg ];
+        if ( isset( $retval ) ) $result['retval'] = $retval;
 
         $this->json_header();
         $json = ecm_json_encode($result);
-        if ($jqremote === false)
-        {
-            $jqremote = isset($_GET['jsoncallback']) ? trim($_GET['jsoncallback']) : false;
+        if ( $jqremote === false ) {
+            $jqremote = isset( $_GET['jsoncallback'] ) ? trim($_GET['jsoncallback']) : false;
         }
-        if ($jqremote)
-        {
+        if ( $jqremote ) {
             $json = $jqremote . '(' . $json . ')';
         }
 
@@ -673,29 +620,70 @@ EOT;
     /**
      * Make a successfully message
      *
-     * @param   mixed   $retval
-     * @param   string  $msg
+     * @param   mixed  $retval
+     * @param   string $msg
      *
      * @return  void
      */
-    function json_result ($retval = '', $msg = '', $jqremote = false)
-    {
-        if (!empty($msg))
-        {
+    function json_result( $retval = '', $msg = '', $jqremote = false ) {
+        if ( !empty( $msg ) ) {
             $msg = Lang::get($msg);
         }
         $this->json_header();
-        $json = ecm_json_encode(array('done' => true , 'msg' => $msg , 'retval' => $retval));
-        if ($jqremote === false)
-        {
-            $jqremote = isset($_GET['jsoncallback']) ? trim($_GET['jsoncallback']) : false;
+        $json = ecm_json_encode([ 'done' => true, 'msg' => $msg, 'retval' => $retval ]);
+        if ( $jqremote === false ) {
+            $jqremote = isset( $_GET['jsoncallback'] ) ? trim($_GET['jsoncallback']) : false;
         }
-        if ($jqremote)
-        {
+        if ( $jqremote ) {
             $json = $jqremote . '(' . $json . ')';
         }
 
         echo $json;
+    }
+
+    /**
+     * 请求成功 返回json
+     *
+     * @param mixed $data // 返回的数据
+     *
+     * by Gavin 2016-11-10 14:32:03
+     */
+    function ej_json_success( $data = '' ) {
+        $this->json_header();
+
+        $result = [
+            'code' => 0,
+            'msg'  => 'ok',
+            'data' => $data
+        ];
+
+        echo json_encode($result);
+    }
+
+    /**
+     * 请求失败 返回json
+     * @param $errCode  // 失败码
+     */
+    function ej_json_failed( $errCode ) {
+        $this->json_header();
+
+        if(!defined('ERROR_CODE')){
+            define('ERROR_CODE',json_encode(require ROOT_PATH.'/data/errcode.cfg.php'));
+        }
+
+        $errorCodeArr = json_decode(ERROR_CODE,1);
+
+        if(!array_key_exists($errCode,$errorCodeArr)){
+            $errCode = -1;
+        }
+
+        $result = [
+            'code' => $errCode,
+            'msg'  => $errorCodeArr[$errCode],
+            'data' => ''
+        ];
+
+        echo ecm_json_encode($result);
     }
 
     /**
@@ -705,63 +693,57 @@ EOT;
      *
      * @return  void
      */
-    function json_header()
-    {
+    function json_header() {
         header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-        header("Content-type:text/plain;charset=" . CHARSET, true);
+        header("Content-type:application/json;charset=" . CHARSET, true);
     }
 
     /**
      *    验证码
      *
-     *    @author    Garbin
-     *    @return    void
+     * @author    Garbin
+     * @return    void
      */
-    function _captcha($width, $height)
-    {
+    function _captcha( $width, $height ) {
         import('captcha.lib');
         $word = generate_code();
         $_SESSION['captcha'] = base64_encode($word);
-        $code = new Captcha(array(
-            'width' => $width,
-            'height'=> $height,
-        ));
+        $code = new Captcha([
+            'width'  => $width,
+            'height' => $height,
+        ]);
         $code->display($word);
     }
 
     /**
      *    获取分页信息
      *
-     *    @author    Garbin
-     *    @return    array
+     * @author    Garbin
+     * @return    array
      */
-    function _get_page($page_per = 10)
-    {
-        $page = empty($_REQUEST['page']) ? 1 : intval($_REQUEST['page']);
-        $start = ($page -1) * $page_per;
+    function _get_page( $page_per = 10 ) {
+        $page = empty( $_REQUEST['page'] ) ? 1 : intval($_REQUEST['page']);
+        $start = ( $page - 1 ) * $page_per;
 
-        return array('limit' => "{$start},{$page_per}", 'curr_page' => $page, 'pageper' => $page_per);
+        return [ 'limit' => "{$start},{$page_per}", 'curr_page' => $page, 'pageper' => $page_per ];
     }
 
     /**
      * 格式化分页信息
-     * @param   array   $page
-     * @param   int     $num    显示几页的链接
+     *
+     * @param   array $page
+     * @param   int   $num 显示几页的链接
      */
-    function _format_page(&$page, $num = 7)
-    {
+    function _format_page( &$page, $num = 7 ) {
         $page['page_count'] = ceil($page['item_count'] / $page['pageper']);
         $mid = ceil($num / 2) - 1;
-        if ($page['page_count'] <= $num)
-        {
+        if ( $page['page_count'] <= $num ) {
             $from = 1;
-            $to   = $page['page_count'];
-        }
-        else
-        {
+            $to = $page['page_count'];
+        } else {
             $from = $page['curr_page'] <= $mid ? 1 : $page['curr_page'] - $mid + 1;
-            $to   = $from + $num - 1;
+            $to = $from + $num - 1;
             $to > $page['page_count'] && $to = $page['page_count'];
         }
 
@@ -777,88 +759,76 @@ EOT;
         */
 
         /* 生成app=goods&act=view之类的URL */
-        if (preg_match('/[&|\?]?page=\w+/i', $_SERVER['QUERY_STRING']) > 0)
-        {
+        if ( preg_match('/[&|\?]?page=\w+/i', $_SERVER['QUERY_STRING']) > 0 ) {
             $url_format = preg_replace('/[&|\?]?page=\w+/i', '', $_SERVER['QUERY_STRING']);
-        }
-        else
-        {
+        } else {
             $url_format = $_SERVER['QUERY_STRING'];
         }
 
-        $page['page_links'] = array();
+        $page['page_links'] = [];
         $page['first_link'] = ''; // 首页链接        
         $page['first_suspen'] = ''; // 首页省略号
         $page['last_link'] = ''; // 尾页链接
         $page['last_suspen'] = ''; // 尾页省略号
-        for ($i = $from; $i <= $to; $i++)
-        {
-            $page['page_links'][$i] = url("{$url_format}&page={$i}");
+        for ( $i = $from; $i <= $to; $i++ ) {
+            $page['page_links'][ $i ] = url("{$url_format}&page={$i}");
         }
-        if (($page['curr_page'] - $from) < ($page['curr_page'] -1) && $page['page_count'] > $num)
-        {
+        if ( ( $page['curr_page'] - $from ) < ( $page['curr_page'] - 1 ) && $page['page_count'] > $num ) {
             $page['first_link'] = url("{$url_format}&page=1");
-            if (($page['curr_page'] -1) - ($page['curr_page'] - $from) != 1)
-            {
+            if ( ( $page['curr_page'] - 1 ) - ( $page['curr_page'] - $from ) != 1 ) {
                 $page['first_suspen'] = '..';
             }
         }
-        if (($to - $page['curr_page']) < ($page['page_count'] - $page['curr_page']) && $page['page_count'] > $num)
-        {
+        if ( ( $to - $page['curr_page'] ) < ( $page['page_count'] - $page['curr_page'] ) && $page['page_count'] > $num ) {
             $page['last_link'] = url("{$url_format}&page=" . $page['page_count']);
-            if (($page['page_count'] - $page['curr_page']) - ($to - $page['curr_page']) != 1)
-            {
+            if ( ( $page['page_count'] - $page['curr_page'] ) - ( $to - $page['curr_page'] ) != 1 ) {
                 $page['last_suspen'] = '..';
             }
         }
 
-        $page['prev_link'] = $page['curr_page'] > $from ? url("{$url_format}&page=" . ($page['curr_page'] - 1)) : "";
-        $page['next_link'] = $page['curr_page'] < $to ? url("{$url_format}&page=" . ($page['curr_page'] + 1)) : "";
+        $page['prev_link'] = $page['curr_page'] > $from ? url("{$url_format}&page=" . ( $page['curr_page'] - 1 )) : "";
+        $page['next_link'] = $page['curr_page'] < $to ? url("{$url_format}&page=" . ( $page['curr_page'] + 1 )) : "";
     }
 
     /**
      *    获取查询条件
      *
-     *    @author    Garbin
-     *    @param    none
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param    none
+     *
+     * @return    void
      */
-    function _get_query_conditions($query_item){
+    function _get_query_conditions( $query_item ) {
         $str = '';
-        $query = array();
-        foreach ($query_item as $options)
-        {
-            if (is_string($options))
-            {
+        $query = [];
+        foreach ( $query_item as $options ) {
+            if ( is_string($options) ) {
                 $field = $options;
                 $options['field'] = $field;
-                $options['name']  = $field;
+                $options['name'] = $field;
             }
-            !isset($options['equal']) && $options['equal'] = '=';
-            !isset($options['assoc']) && $options['assoc'] = 'AND';
-            !isset($options['type'])  && $options['type']  = 'string';
-            !isset($options['name'])  && $options['name']  = $options['field'];
-            !isset($options['handler']) && $options['handler'] = 'trim';
-            if (isset($_GET[$options['name']]))
-            {
-                $input = $_GET[$options['name']];
+            !isset( $options['equal'] ) && $options['equal'] = '=';
+            !isset( $options['assoc'] ) && $options['assoc'] = 'AND';
+            !isset( $options['type'] ) && $options['type'] = 'string';
+            !isset( $options['name'] ) && $options['name'] = $options['field'];
+            !isset( $options['handler'] ) && $options['handler'] = 'trim';
+            if ( isset( $_GET[ $options['name'] ] ) ) {
+                $input = $_GET[ $options['name'] ];
                 $handler = $options['handler'];
-                $value = ($input == '' ? $input : $handler($input));
-                if ($value === '' || $value === false)  //若未输入，未选择，或者经过$handler处理失败就跳过
+                $value = ( $input == '' ? $input : $handler($input) );
+                if ( $value === '' || $value === false )  //若未输入，未选择，或者经过$handler处理失败就跳过
                 {
                     continue;
                 }
                 strtoupper($options['equal']) == 'LIKE' && $value = "%{$value}%";
-                if ($options['type'] != 'numeric')
-                {
+                if ( $options['type'] != 'numeric' ) {
                     $value = "'{$value}'";      //加上单引号，安全第一
-                }
-                else
-                {
+                } else {
                     $value = floatval($value);  //安全起见，将其转换成浮点型
                 }
                 $str .= " {$options['assoc']} {$options['field']} {$options['equal']} {$value}";
-                $query[$options['name']] = $input;
+                $query[ $options['name'] ] = $input;
             }
         }
         $this->assign('query', stripslashes_deep($query));
@@ -869,44 +839,38 @@ EOT;
     /**
      *    使用编辑器
      *
-     *    @author    Garbin
-     *    @param     array $params
-     *    @return    string
+     * @author    Garbin
+     *
+     * @param     array $params
+     *
+     * @return    string
      */
-    function _build_editor($params = array())
-    {
-        $name = isset($params['name']) ?  $params['name'] : null;
-        $theme = isset($params['theme']) ?  $params['theme'] : 'normal';
-        $ext_js = isset($params['ext_js']) ? $params['ext_js'] : true;
-        $content_css = isset($params['content_css']) ? 'content_css:"' . $params['content_css'] . '",' : null;
+    function _build_editor( $params = [] ) {
+        $name = isset( $params['name'] ) ? $params['name'] : null;
+        $theme = isset( $params['theme'] ) ? $params['theme'] : 'normal';
+        $ext_js = isset( $params['ext_js'] ) ? $params['ext_js'] : true;
+        $content_css = isset( $params['content_css'] ) ? 'content_css:"' . $params['content_css'] . '",' : null;
         $if_media = false;
         $visit = $this->visitor->get('manage_store');
-        $store_id = isset($visit) ? intval($visit) : 0;
+        $store_id = isset( $visit ) ? intval($visit) : 0;
         $privs = $this->visitor->get('privs');
-        if (!empty($privs))
-        {
-            if ($privs == 'all')
-            {
+        if ( !empty( $privs ) ) {
+            if ( $privs == 'all' ) {
                 $if_media = true;
-            }
-            else
-            {
+            } else {
                 $privs_array = explode(',', $privs);
-                if (in_array('article|all', $privs_array))
-                {
+                if ( in_array('article|all', $privs_array) ) {
                     $if_media = true;
                 }
             }
         }
-        if (!empty($store_id) && !$if_media)
-        {
+        if ( !empty( $store_id ) && !$if_media ) {
             $store_mod =& m('store');
             $store = $store_mod->get_info($store_id);
-            $sgrade_mod =& m('sgrade') ;
+            $sgrade_mod =& m('sgrade');
             $sgrade = $sgrade_mod->get_info($store['sgrade']);
             $functions = explode(',', $sgrade['functions']);
-            if (in_array('editor_multimedia', $functions))
-            {
+            if ( in_array('editor_multimedia', $functions) ) {
                 $if_media = true;
             }
         }
@@ -914,54 +878,49 @@ EOT;
         $include_js = $ext_js ? '<script type="text/javascript" src="{lib file="tiny_mce/tiny_mce.js"}"></script>' : '';
 
         /* 指定哪个(些)textarea需要编辑器 */
-        if ($name === null)
-        {
+        if ( $name === null ) {
             $mode = 'mode:"textareas",';
-        }
-        else
-        {
+        } else {
             $mode = 'mode:"exact",elements:"' . $name . '",';
         }
 
         /* 指定使用哪种主题 */
-        $themes = array(
-            'normal'    =>  'plugins:"inlinepopups,preview,fullscreen,paste'.($if_media ? ',media' : '' ).'",
+        $themes = [
+            'normal' => 'plugins:"inlinepopups,preview,fullscreen,paste' . ( $if_media ? ',media' : '' ) . '",
             theme:"advanced",
-            theme_advanced_buttons1:"code,fullscreen'.($content_css ? ',preview' : '' ).',removeformat,|,bold,italic,underline,strikethrough,|," +
+            theme_advanced_buttons1:"code,fullscreen' . ( $content_css ? ',preview' : '' ) . ',removeformat,|,bold,italic,underline,strikethrough,|," +
                 "formatselect,fontsizeselect,|,forecolor,backcolor",
             theme_advanced_buttons2:"bullist,numlist,|,outdent,indent,blockquote,|,justifyleft,justifycenter," +
                 "justifyright,justifyfull,|,link,unlink,charmap,image,|,pastetext,pasteword,|,undo,redo,|,media",
             theme_advanced_buttons3 : "",',
-            'simple'    =>  'theme:"simple",',
-        );
-        switch ($theme)
-        {
+            'simple' => 'theme:"simple",',
+        ];
+        switch ( $theme ) {
             case 'simple':
                 $theme_config = $themes['simple'];
-            break;
+                break;
             case 'normal':
                 $theme_config = $themes['normal'];
-            break;
+                break;
             default:
                 $theme_config = $themes['normal'];
-            break;
+                break;
         }
         /* 配置界面语言 */
         $_lang = substr(LANG, 0, 2);
-        switch ($_lang)
-        {
+        switch ( $_lang ) {
             case 'sc':
                 $lang = 'zh_cn';
-            break;
+                break;
             case 'tc':
                 $lang = 'zh';
-            break;
+                break;
             case 'en':
                 $lang = 'en';
-            break;
+                break;
             default:
                 $lang = 'zh_cn';
-            break;
+                break;
         }
 
         /* 输出 */
@@ -988,25 +947,26 @@ EOT;
     /**
      *    使用swfupload
      *
-     *    @author    Hyber
-     *    @param     array $params
-     *    @return    string
+     * @author    Hyber
+     *
+     * @param     array $params
+     *
+     * @return    string
      */
-    function _build_upload($params = array())
-    {
-        $belong = isset($params['belong']) ? $params['belong'] : 0; //上传文件所属模型
-        $item_id = isset($params['item_id']) ? $params['item_id']: 0; //所属模型的ID
-        $file_size_limit = isset($params['file_size_limit']) ? $params['file_size_limit']: '2 MB'; //默认最大2M
-        $button_text = isset($params['button_text']) ? Lang::get($params['button_text']) : Lang::get('bat_upload'); //上传按钮文本
-        $image_file_type = isset($params['image_file_type']) ? $params['image_file_type'] : IMAGE_FILE_TYPE;
-        $upload_url = isset($params['upload_url']) ? $params['upload_url'] : 'index.php?app=swfupload';
-        $button_id = isset($params['button_id']) ? $params['button_id'] : 'spanButtonPlaceholder';
-        $progress_id = isset($params['progress_id']) ? $params['progress_id'] : 'divFileProgressContainer';
-        $if_multirow = isset($params['if_multirow']) ? $params['if_multirow'] : 0;
-        $define = isset($params['obj']) ? 'var ' . $params['obj'] . ';' : '';
-        $assign = isset($params['obj']) ? $params['obj'] . ' = ' : '';
-        $ext_js = isset($params['ext_js']) ? $params['ext_js'] : true;
-        $ext_css = isset($params['ext_css']) ? $params['ext_css'] : true;
+    function _build_upload( $params = [] ) {
+        $belong = isset( $params['belong'] ) ? $params['belong'] : 0; //上传文件所属模型
+        $item_id = isset( $params['item_id'] ) ? $params['item_id'] : 0; //所属模型的ID
+        $file_size_limit = isset( $params['file_size_limit'] ) ? $params['file_size_limit'] : '2 MB'; //默认最大2M
+        $button_text = isset( $params['button_text'] ) ? Lang::get($params['button_text']) : Lang::get('bat_upload'); //上传按钮文本
+        $image_file_type = isset( $params['image_file_type'] ) ? $params['image_file_type'] : IMAGE_FILE_TYPE;
+        $upload_url = isset( $params['upload_url'] ) ? $params['upload_url'] : 'index.php?app=swfupload';
+        $button_id = isset( $params['button_id'] ) ? $params['button_id'] : 'spanButtonPlaceholder';
+        $progress_id = isset( $params['progress_id'] ) ? $params['progress_id'] : 'divFileProgressContainer';
+        $if_multirow = isset( $params['if_multirow'] ) ? $params['if_multirow'] : 0;
+        $define = isset( $params['obj'] ) ? 'var ' . $params['obj'] . ';' : '';
+        $assign = isset( $params['obj'] ) ? $params['obj'] . ' = ' : '';
+        $ext_js = isset( $params['ext_js'] ) ? $params['ext_js'] : true;
+        $ext_css = isset( $params['ext_css'] ) ? $params['ext_css'] : true;
 
         $include_js = $ext_js ? '<script type="text/javascript" charset="utf-8" src="{lib file="swfupload/swfupload.js"}"></script>
 <script type="text/javascript" charset="utf-8" src="{lib file="swfupload/js/handlers.js"}"></script>' : '';
@@ -1014,9 +974,8 @@ EOT;
         /* 允许类型 */
         $file_types = '';
         $image_file_type = explode('|', $image_file_type);
-        foreach ($image_file_type as $type)
-        {
-            $file_types .=  '*.' . $type . ';';
+        foreach ( $image_file_type as $type ) {
+            $file_types .= '*.' . $type . ';';
         }
         $file_types = trim($file_types, ';');
         $str = <<<EOT
@@ -1067,35 +1026,36 @@ $(function(){
 });
 </script>
 EOT;
+
         return $this->_view->fetch('str:' . $str);
     }
 
     /**
      *    发送邮件
      *
-     *    @author    Garbin
-     *    @param     mixed  $to
-     *    @param     string $subject
-     *    @param     string $message
-     *    @param     int    $priority
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param     mixed  $to
+     * @param     string $subject
+     * @param     string $message
+     * @param     int    $priority
+     *
+     * @return    void
      */
-    function _mailto($to, $subject, $message, $priority = MAIL_PRIORITY_LOW)
-    {
+    function _mailto( $to, $subject, $message, $priority = MAIL_PRIORITY_LOW ) {
         /* 加入邮件队列，并通知需要发送 */
         $model_mailqueue =& m('mailqueue');
-        $mails = array();
-        $to_emails = is_array($to) ? $to : array($to);
-        foreach ($to_emails as $_to)
-        {
-            $mails[] = array(
+        $mails = [];
+        $to_emails = is_array($to) ? $to : [ $to ];
+        foreach ( $to_emails as $_to ) {
+            $mails[] = [
                 'mail_to'       => $_to,
                 'mail_encoding' => CHARSET,
                 'mail_subject'  => $subject,
                 'mail_body'     => $message,
                 'priority'      => $priority,
                 'add_time'      => gmtime(),
-            );
+            ];
         }
 
         $model_mailqueue->add($mails);
@@ -1107,23 +1067,21 @@ EOT;
     /**
      *    发送邮件
      *
-     *    @author    Garbin
-     *    @param     bool $is_sync
-     *    @return    void
+     * @author    Garbin
+     *
+     * @param     bool $is_sync
+     *
+     * @return    void
      */
-    function _sendmail($is_sync = false)
-    {
-        if (!$is_sync)
-        {
+    function _sendmail( $is_sync = false ) {
+        if ( !$is_sync ) {
             /* 采用异步方式发送邮件，与模板引擎配合达到目的 */
             $_SESSION['ASYNC_SENDMAIL'] = true;
 
             return true;
-        }
-        else
-        {
+        } else {
             /* 同步发送邮件，将异步发送的命令去掉 */
-            unset($_SESSION['ASYNC_SENDMAIL']);
+            unset( $_SESSION['ASYNC_SENDMAIL'] );
             $model_mailqueue =& m('mailqueue');
 
             return $model_mailqueue->send(5);
@@ -1133,14 +1091,12 @@ EOT;
     /**
      *     获取异步发送邮件代码
      *
-     *    @author    Garbin
-     *    @return    string
+     * @author    Garbin
+     * @return    string
      */
-    function _async_sendmail()
-    {
+    function _async_sendmail() {
         $script = '';
-        if (isset($_SESSION['ASYNC_SENDMAIL']) && $_SESSION['ASYNC_SENDMAIL'])
-        {
+        if ( isset( $_SESSION['ASYNC_SENDMAIL'] ) && $_SESSION['ASYNC_SENDMAIL'] ) {
             /* 需要异步发送 */
             $async_sendmail = SITE_URL . '/index.php?app=sendmail';
             $script = '<script type="text/javascript">sendmail("' . $async_sendmail . '");</script>';
@@ -1148,25 +1104,24 @@ EOT;
 
         return $script;
     }
-    function _get_new_message()
-    {
+
+    function _get_new_message() {
         $user_id = $this->visitor->get('user_id');
-        if(empty($user_id))
-        {
+        if ( empty( $user_id ) ) {
             return '';
         }
         $ms =& ms();
+
         return $ms->pm->check_new($user_id);
     }
 
     /**
      *    计划任务守护进程
      *
-     *    @author    Garbin
-     *    @return    void
+     * @author    Garbin
+     * @return    void
      */
-    function _run_cron()
-    {
+    function _run_cron() {
 
         register_shutdown_function(create_function('', '
             /*if (ob_get_level() > 0)
@@ -1198,21 +1153,20 @@ EOT;
      * 发送Feed
      *
      * @author Garbin
+     *
      * @param
+     *
      * @return void
      **/
-    function send_feed($event, $data)
-    {
+    function send_feed( $event, $data ) {
         $ms = &ms();
-        if (!$ms->feed->feed_enabled())
-        {
+        if ( !$ms->feed->feed_enabled() ) {
             return;
         }
 
         $feed_config = $this->visitor->get('feed_config');
-        $feed_config = empty($feed_config) ? Conf::get('default_feed_config') : unserialize($feed_config);
-        if (!$feed_config[$event])
-        {
+        $feed_config = empty( $feed_config ) ? Conf::get('default_feed_config') : unserialize($feed_config);
+        if ( !$feed_config[ $event ] ) {
             return;
         }
 
@@ -1224,59 +1178,52 @@ EOT;
 /**
  *    访问者基础类，集合了当前访问用户的操作
  *
- *    @author    Garbin
- *    @return    void
+ * @author    Garbin
+ * @return    void
  */
-class BaseVisitor extends Object
-{
+class BaseVisitor extends Object {
     var $has_login = false;
-    var $info      = null;
+    var $info = null;
     var $privilege = null;
     var $_info_key = '';
-    function __construct()
-    {
+
+    function __construct() {
         $this->BaseVisitor();
     }
-    function BaseVisitor()
-    {
-        if (!empty($_SESSION[$this->_info_key]['user_id']))
-        {
-            $this->info         = $_SESSION[$this->_info_key];
-            $this->has_login    = true;
-        }
-        else
-        {
-            $this->info         = array(
+
+    function BaseVisitor() {
+        if ( !empty( $_SESSION[ $this->_info_key ]['user_id'] ) ) {
+            $this->info = $_SESSION[ $this->_info_key ];
+            $this->has_login = true;
+        } else {
+            $this->info = [
                 'user_id'   => 0,
                 'user_name' => Lang::get('guest')
-            );
-            $this->has_login    = false;
+            ];
+            $this->has_login = false;
         }
     }
-    function assign($user_info)
-    {
-        $_SESSION[$this->_info_key]   =   $user_info;
+
+    function assign( $user_info ) {
+        $_SESSION[ $this->_info_key ] = $user_info;
     }
 
     /**
      *    获取当前登录用户的详细信息
      *
-     *    @author    Garbin
-     *    @return    array      用户的详细信息
+     * @author    Garbin
+     * @return    array      用户的详细信息
      */
-    function get_detail()
-    {
+    function get_detail() {
         /* 未登录，则无详细信息 */
-        if (!$this->has_login)
-        {
-            return array();
+        if ( !$this->has_login ) {
+            return [];
         }
 
         /* 取出详细信息 */
         static $detail = null;
 
-        if ($detail === null)
-        {
+        if ( $detail === null ) {
             $detail = $this->_get_detail();
         }
 
@@ -1286,28 +1233,27 @@ class BaseVisitor extends Object
     /**
      *    获取用户详细信息
      *
-     *    @author    Garbin
-     *    @return    array
+     * @author    Garbin
+     * @return    array
      */
-    function _get_detail()
-    {
+    function _get_detail() {
         $model_member =& m('member');
 
         /* 获取当前用户的详细信息，包括权限 */
-        $member_info = $model_member->findAll(array(
-            'conditions'    => "member.user_id = '{$this->info['user_id']}'",
-            'join'          => 'has_store',                 //关联查找看看是否有店铺
-            'fields'        => 'email, password, real_name, logins, ugrade, portrait, store_id, state, sgrade , feed_config',
-            'include'       => array(                       //找出所有该用户管理的店铺
-                'manage_store'  =>  array(
-                    'fields'    =>  'user_priv.privs, store.store_name',
-                ),
-            ),
-        ));
+        $member_info = $model_member->findAll([
+            'conditions' => "member.user_id = '{$this->info['user_id']}'",
+            'join'       => 'has_store',                 //关联查找看看是否有店铺
+            'fields'     => 'email, password, real_name, logins, ugrade, portrait, store_id, state, sgrade , feed_config',
+            'include'    => [                       //找出所有该用户管理的店铺
+                'manage_store' => [
+                    'fields' => 'user_priv.privs, store.store_name',
+                ],
+            ],
+        ]);
         $detail = current($member_info);
 
         /* 如果拥有店铺，则默认管理的店铺为自己的店铺，否则需要用户自行指定 */
-        if ($detail['store_id'] && $detail['state'] != STORE_APPLYING) // 排除申请中的店铺
+        if ( $detail['store_id'] && $detail['state'] != STORE_APPLYING ) // 排除申请中的店铺
         {
             $detail['manage_store'] = $detail['has_store'] = $detail['store_id'];
         }
@@ -1318,33 +1264,28 @@ class BaseVisitor extends Object
     /**
      *    获取当前用户的指定信息
      *
-     *    @author    Garbin
-     *    @param     string $key  指定用户信息
-     *    @return    string  如果值是字符串的话
+     * @author    Garbin
+     *
+     * @param     string $key 指定用户信息
+     *
+     * @return    string  如果值是字符串的话
      *               array   如果是数组的话
      */
-    function get($key = null)
-    {
+    function get( $key = null ) {
         $info = null;
 
-        if (empty($key))
-        {
+        if ( empty( $key ) ) {
             /* 未指定key，则返回当前用户的所有信息：基础信息＋详细信息 */
             $info = array_merge((array)$this->info, (array)$this->get_detail());
-        }
-        else
-        {
+        } else {
             /* 指定了key，则返回指定的信息 */
-            if (isset($this->info[$key]))
-            {
+            if ( isset( $this->info[ $key ] ) ) {
                 /* 优先查找基础数据 */
-                $info = $this->info[$key];
-            }
-            else
-            {
+                $info = $this->info[ $key ];
+            } else {
                 /* 若基础数据中没有，则查询详细数据 */
                 $detail = $this->get_detail();
-                $info = isset($detail[$key]) ? $detail[$key] : null;
+                $info = isset( $detail[ $key ] ) ? $detail[ $key ] : null;
             }
         }
 
@@ -1354,35 +1295,29 @@ class BaseVisitor extends Object
     /**
      *    登出
      *
-     *    @author    Garbin
-     *    @return    void
+     * @author    Garbin
+     * @return    void
      */
-    function logout()
-    {
-        unset($_SESSION[$this->_info_key]);
+    function logout() {
+        unset( $_SESSION[ $this->_info_key ] );
     }
-    function i_can($event, $privileges = array())
-    {
+
+    function i_can( $event, $privileges = [] ) {
         $fun_name = 'check_' . $event;
 
         return $this->$fun_name($privileges);
     }
 
-    function check_do_action($privileges)
-    {
+    function check_do_action( $privileges ) {
         $mp = APP . '|' . ACT;
 
-        if ($privileges == 'all')
-        {
+        if ( $privileges == 'all' ) {
             /* 拥有所有权限 */
             return true;
-        }
-        else
-        {
+        } else {
             /* 查看当前操作是否在白名单中，如果在，则允许，否则不允许 */
             $privs = explode(',', $privileges);
-            if (in_array(APP . '|all', $privs) || in_array($mp, $privs))
-            {
+            if ( in_array(APP . '|all', $privs) || in_array($mp, $privs) ) {
                 return true;
             }
 
@@ -1391,4 +1326,5 @@ class BaseVisitor extends Object
     }
 
 }
+
 ?>
