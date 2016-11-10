@@ -23,7 +23,7 @@ $ECMall->startup(array(
         ROOT_PATH . '/includes/libraries/time.lib.php',
         ROOT_PATH . '/includes/ecapp.base.php',
         ROOT_PATH . '/includes/plugin.base.php',
-        ROOT_PATH . '/app/frontend.base.php',
+        ROOT_PATH . '/wxapp/frontend.base.php',
         ROOT_PATH . '/includes/subdomain.inc.php',
         ROOT_PATH . '/includes/wx.base.php'
     ),
