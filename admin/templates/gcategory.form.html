@@ -83,7 +83,16 @@ $(function(){
                   {$lang.no}</label> <label class="field_notice">{$lang.add_if_show}</label>
               </p></td>
             </tr>
-
+			<tr>
+				<th class="paddingT15">分类图片:</th>
+				<td class="paddingT15 wordSpacing5"><p>
+					<label>
+						<input class="infoTableFile2" type="file" name="portrait" id="portrait" />
+						<label class="field_notice">*支持格式gif,jpg,jpeg,png</label>
+						{if $gcategory.imageurl}<br /><img src="../{$gcategory.imageurl}" alt="" width="100" height="100" />{/if} 
+					<label>
+				</td>
+            </tr>
           <tr>
             <th></th>
             <td class="ptb20">

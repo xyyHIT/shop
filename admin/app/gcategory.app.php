@@ -135,7 +135,16 @@ class GcategoryApp extends BackendApp
                 $this->show_warning($this->_gcategory_mod->get_error());
                 return;
             }
-
+			//添加分类图片   by xxy
+			if (!empty($_FILES['portrait']))
+            {
+                $portrait = $this->_caejupload_portrait($cate_id);
+                if ($portrait === false)
+                {
+                    return;
+                }
+                $portrait && $this->_gcategory_mod->edit($cate_id, array('imageurl' => $portrait));
+            }
             $this->show_message('add_ok',
                 'back_list',    'index.php?app=gcategory',
                 'continue_add', 'index.php?app=gcategory&amp;act=add&amp;pid=' . $data['parent_id']
@@ -254,7 +263,16 @@ class GcategoryApp extends BackendApp
                     $mod_goods->db->query($sql);
                 }
             }
-
+			//添加分类图片   by xxy
+			if (!empty($_FILES['portrait']))
+            {
+                $portrait = $this->_caejupload_portrait($id);
+                if ($portrait === false)
+                {
+                    return;
+                }
+                $portrait && $this->_gcategory_mod->edit($id, array('imageurl' => $portrait));
+            }
             $this->show_message('edit_ok',
                 'back_list',    'index.php?app=gcategory',
                 'edit_again',   'index.php?app=gcategory&amp;act=edit&amp;id=' . $id
@@ -486,6 +504,33 @@ class GcategoryApp extends BackendApp
         $tree =& $this->_tree($gcategories);
 
         return $tree->getOptions(MAX_LAYER - 1, 0, $except);
+    }
+	
+	/**
+     * 上传分类图片
+     * by  xxy
+     * @param int $user_id
+     * @return mix false表示上传失败,空串表示没有上传,string表示上传文件地址
+     */
+    function _caejupload_portrait($cat_id)
+    {
+        $file = $_FILES['portrait'];
+        if ($file['error'] != UPLOAD_ERR_OK)
+        {
+            return '';
+        }
+        import('uploader.lib');
+        $uploader = new Uploader();
+        $uploader->allowed_type(IMAGE_FILE_TYPE);
+        $uploader->addFile($file);
+        if ($uploader->file_info() === false)
+        {
+            $this->show_warning($uploader->get_error(), 'go_back', 'index.php?app=gcategory');
+            return false;
+        }
+
+        $uploader->root_dir(ROOT_PATH);
+        return $uploader->save('data/files/mall/cat/' . ceil($cat_id / 500), $cat_id);
     }
 }
 
