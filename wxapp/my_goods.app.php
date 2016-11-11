@@ -392,16 +392,16 @@ class My_goodsApp extends StoreadminbaseApp {
          * 改为传json字符串, 所以这里需要decode
          */
         if ( isset( $_POST['sgcate_id'] ) ) {
-            $_POST['sgcate_id'] = json_decode( stripslashes($_POST['sgcate_id']) ,1);
-        }else{
+            $_POST['sgcate_id'] = json_decode(stripslashes($_POST['sgcate_id']), 1);
+        } else {
             // 如果没有初始化本店铺分类
-            $_POST['sgcate_id'] = [0];
+            $_POST['sgcate_id'] = [ 0 ];
         }
         if ( isset( $_POST['goods_file_id'] ) ) {
-            $_POST['goods_file_id'] = json_decode( stripslashes($_POST['goods_file_id']),1);
+            $_POST['goods_file_id'] = json_decode(stripslashes($_POST['goods_file_id']), 1);
         }
         if ( isset( $_POST['desc_file_id'] ) ) {
-            $_POST['desc_file_id'] = json_decode( stripslashes($_POST['desc_file_id']),1);
+            $_POST['desc_file_id'] = json_decode(stripslashes($_POST['desc_file_id']), 1);
         }
 
         // 必须post请求
@@ -1647,16 +1647,16 @@ class My_goodsApp extends StoreadminbaseApp {
         $payments = $payment_mod->get_enabled($this->_store_id);
         if ( empty( $payments ) ) {
             $res = Lang::get('please_install_payment');
-            $this->ej_json_failed(-1,$res);
-            exit (0);
+            $this->ej_json_failed(-1, $res);
+            exit ( 0 );
         }
 
         $shipping_mod =& m('shipping');
         $shippings = $shipping_mod->find("store_id = '{$this->_store_id}' AND enabled = 1");
         if ( empty( $shippings ) ) {
             $res = Lang::get('please_install_shipping');
-            $this->ej_json_failed(-1,$res);
-            exit (0);
+            $this->ej_json_failed(-1, $res);
+            exit ( 0 );
         }
 
         /* 判断商品数是否已超过限制 */
@@ -1666,8 +1666,8 @@ class My_goodsApp extends StoreadminbaseApp {
             $goods_count = $this->_goods_mod->get_count();
             if ( $goods_count >= $settings['goods_limit'] ) {
                 $res = Lang::get('goods_limit_arrived');
-                $this->ej_json_failed(-1,$res);
-                exit (0);
+                $this->ej_json_failed(-1, $res);
+                exit ( 0 );
             }
         }
 
