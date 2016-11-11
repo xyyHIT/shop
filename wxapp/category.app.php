@@ -8,10 +8,7 @@ class CategoryApp extends MallbaseApp
     {
         /* 取得商品分类 */
         $gcategorys = $this->_list_gcategory();
-		$result['code'] = '0';
-		$result['msg'] = '成功获取分类';
-		$result['data'] = $gcategorys;
-		die(ecm_json_encode($result));
+		return $this->ej_json_success($gcategorys);
     }
 
         /* 店铺分类 */

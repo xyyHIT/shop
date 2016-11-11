@@ -20,32 +20,24 @@ class GoodsApp extends StorebaseApp
         $id = empty($_GET['id']) ? 0 : intval($_GET['id']);
         if (!$id)
         {
-            $this->show_warning('Hacking Attempt');
-            return;
+			return $this->ej_json_failed(-1);
         }
 
         /* 可缓存数据 */
         $data = $this->_get_common_info($id);
+		$res = array();
         if ($data === false)
         {
-            return;
+            return $this->ej_json_failed(3001);
         }
         else
         {
-            $this->_assign_common_info($data);
+            $res = $this->_assign_common_info($data);//抽取接口所需要的对应数据  by newrain
         }
 
         /* 更新浏览次数 */
         $this->_update_views($id);
-
-        //是否开启验证码
-        if (Conf::get('captcha_status.goodsqa'))
-        {
-            $this->assign('captcha', 1);
-        }
-
-        $this->assign('guest_comment_enable', Conf::get('guest_comment'));
-        $this->display('goods.index.html');
+		return $this->ej_json_success($res);
     }
 
     /* 商品评论 */
@@ -252,7 +244,6 @@ class GoodsApp extends StorebaseApp
         {
             $this->set_store($data['goods']['store_id']);
         }
-
         return $data;
     }
 
@@ -268,37 +259,31 @@ class GoodsApp extends StorebaseApp
         return $ms->tag_get($tag);
     }
 
-    /* 赋值公共信息 */
+    /* 赋值公共信息*/
     function _assign_common_info($data)
     {
         /* 商品信息 */
         $goods = $data['goods'];
-        $this->assign('goods', $goods);
-        $this->assign('sales_info', sprintf(LANG::get('sales'), $goods['sales'] ? $goods['sales'] : 0));
-        $this->assign('comments', sprintf(LANG::get('comments'), $goods['comments'] ? $goods['comments'] : 0));
-
-        /* 店铺信息 */
-        $this->assign('store', $data['store_data']);
-
-        /* 浏览历史 */
-        $this->assign('goods_history', $this->_get_goods_history($data['id']));
-
-        /* 默认图片 */
-        $this->assign('default_image', Conf::get('default_goods_image'));
-
-        /* 当前位置 */
-        $this->_curlocal($data['cur_local']);
-
-        /* 配置seo信息 */
-        $this->_config_seo($this->_get_seo_info($data['goods']));
-
-        /* 商品分享 */
-        $this->assign('share', $data['share']);
-
-        $this->import_resource(array(
-            'script' => 'jquery.jqzoom.js',
-            'style' => 'res:jqzoom.css'
-        ));
+		//print_r($goods);
+		$result['goods']['goods_id'] = $data['goods']['goods_id'];
+		$result['goods']['store_id'] = $data['goods']['store_id'];
+		$result['goods']['cate_id'] = $data['goods']['cate_id'];
+		$result['goods']['default_image'] = $data['goods']['default_image'];//商品图片地址
+		$result['goods']['price'] = $data['goods']['price'];
+		$result['goods']['sales'] = $data['goods']['sales'];//商品被售出的数目
+		$result['goods']['good_comment'] = '90%';//好评量，目前先放假数据，待评价完成  继续编写
+		$result['goods']['ship_price'] = '10.00';//单件商品的运费，为满足平台需求，后续用真实数据替换假数据
+		$result['goods']['vediourl'] = 'http://www.baidu.com';//视频地址
+		$result['goods']['detail_image'] = 'http://www.baidu.com';//详情图片地址   用假数据，后续用真实替换
+		$result['goods']['detail_desc'] = $data['goods']['description'];//详情文字描述
+		$result['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'],6);//店铺精品推荐   默认显示六个
+		$result['store']['logo'] = $data['store_data']['store_logo'];
+		$result['store']['sgrade'] = $data['store_data']['sgrade'];//店铺等级
+		$result['store']['name'] = $data['store_data']['store_name'];
+		$result['store']['goods_count'] = $data['store_data']['goods_count'];
+		$result['store']['collect_count'] = $this->_ejget_collect_num('store',$data['goods']['store_id']);
+		$result['store']['tel'] = $data['store_data']['tel'];//店铺联系电话（和卖家的区分）
+		return $result;
     }
 
     /* 取得浏览历史 */
@@ -505,6 +490,29 @@ class GoodsApp extends StorebaseApp
         $seo_info['description'] = sub_str(strip_tags($data['description']), 10, true);
         return $seo_info;
     }
+	
+	/* 取得推荐商品 by newrain*/
+    function _get_ejrecommended_goods($id, $num = 6)
+    {
+        $goods_mod =& bm('goods', array('_store_id' => $id));
+        $goods_list = $goods_mod->find(array(
+            'conditions' => "closed = 0 AND if_show = 1 AND recommended = 1",
+            'fields'     => 'goods_name, default_image, price',
+            'limit'      => $num,
+        ));
+        foreach ($goods_list as $key => $goods)
+        {
+            empty($goods['default_image']) && $goods_list[$key]['default_image'] = Conf::get('default_goods_image');
+        }
+
+        return $goods_list;
+    }
+	/*添加用户关注方法 by newrain*/
+	function _ejget_collect_num($type='store',$id){
+		$model_store =& m('store');
+        $collect_store = $model_store->getOne('select count(*) from '.DB_PREFIX."collect where type = '".$type."' and item_id=".$id);
+		return empty($collect_store)?0:intval($collect_store);
+	}
 }
 
 ?>
