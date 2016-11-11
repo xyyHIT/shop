@@ -664,7 +664,7 @@ EOT;
      * 请求失败 返回json
      * @param $errCode  // 失败码
      */
-    function ej_json_failed( $errCode ) {
+    function ej_json_failed( $errCode , $errStr = null) {
         $this->json_header();
 
         if(!defined('ERROR_CODE')){
@@ -679,7 +679,7 @@ EOT;
 
         $result = [
             'code' => $errCode,
-            'msg'  => $errorCodeArr[$errCode],
+            'msg'  => $errStr ? $errStr : $errorCodeArr[$errCode],
             'data' => ''
         ];
 
