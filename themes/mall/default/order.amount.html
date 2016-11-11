@@ -34,7 +34,8 @@
                     </p>
                     {/if}
                     <p>
-                        <a href="javascript:void($('#order_form').submit());" class="btn">{$lang.shopping_step_three}</a>
+					<input type="submit" class="btn"  value="{$lang.shopping_step_three}"><!--  屏蔽因js兼容问题报错-->
+                      <!--   <a href="javascript:void($('#order_form').submit());" class="btn">{$lang.shopping_step_three}</a>-->
                         <a href="{url app=cart&store_id=$goods_info.store_id}" class="back">{$lang.backto_cart}</a>
                     </p>
                 </div>
