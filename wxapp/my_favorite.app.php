@@ -41,9 +41,7 @@ class My_favoriteApp extends MemberbaseApp
         $keyword = empty($_GET['keyword'])  ? '' : trim($_GET['keyword']);
         if (!$item_id)
         {
-            $this->show_warning('no_such_collect_item');
-
-            return;
+			return $this->ej_json_failed(-1);
         }
         if ($type == 'goods')
         {
@@ -53,6 +51,7 @@ class My_favoriteApp extends MemberbaseApp
         {
             $this->_add_collect_store($item_id, $keyword);
         }
+		return $this->ej_json_success();
     }
     /**
      *    删除收藏的项目
@@ -280,8 +279,7 @@ class My_favoriteApp extends MemberbaseApp
         if (empty($goods_info))
         {
             /* 商品不存在 */
-            $this->json_error('no_such_goods');
-            return;
+			return $this->ej_json_failed(1003);
         }
         $model_user =& m('member');
         $model_user->createRelation('collect_goods', $this->visitor->get('user_id'), array(
@@ -308,7 +306,8 @@ class My_favoriteApp extends MemberbaseApp
         ));
 
         /* 收藏成功 */
-        $this->json_result('', 'collect_goods_ok');
+		return true;
+       // $this->json_result('', 'collect_goods_ok');
     }
 
     /**
@@ -327,7 +326,7 @@ class My_favoriteApp extends MemberbaseApp
         if (empty($store_info))
         {
             /* 店铺不存在 */
-            return;
+            return $this->ej_json_failed(1002);
         }
         $model_user =& m('member');
         $model_user->createRelation('collect_store', $this->visitor->get('user_id'), array(
@@ -344,7 +343,8 @@ class My_favoriteApp extends MemberbaseApp
         ));
 
         /* 收藏成功 */
-        $this->json_result('', 'collect_store_ok');
+		return true;
+       // $this->json_result('', 'collect_store_ok');
     }
 
     function _get_member_submenu()
