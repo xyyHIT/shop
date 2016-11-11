@@ -23,8 +23,8 @@ class ComuploadApp extends StoreadminbaseApp {
             $this->belong = intval($_REQUEST['belong']);
         }
         /* 实例 */
-        if ( isset( $_GET['instance'] ) ) {
-            $this->instance = $_GET['instance'];
+        if ( isset( $_REQUEST['instance'] ) ) {
+            $this->instance = $_REQUEST['instance'];
         }
         $this->store_id = $this->visitor->get('manage_store');
 
