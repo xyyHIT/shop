@@ -286,6 +286,39 @@ class Tree extends Object
         }
         return $data;
     }
+	
+	
+    /**
+     * ej取得options   by newrain
+     *
+     * @param int $layer
+     * @param int $root
+     * @param string $space
+     * @return array (id=>value)
+     */
+    function ejgetOptions($layer = 0, $root = 0, $except = NULL, $space = '&nbsp;&nbsp;')
+    {
+        $options = array();
+        $childs = $this->getChilds($root, $except);
+        foreach ($childs as $id)
+        {
+            if ($id > 0 && ($layer <= 0 || $this->getLayer($id) <= $layer))
+            {
+                $options[$id] = $this->getLayer($id, $space) . htmlspecialchars($this->getValue($id));
+            }
+        }
+		//去除子级分类
+		$newoptions = array();
+		if($options){
+			foreach($options as $key=>$value){
+				if(substr_count($value,'&nbsp;')==2){
+					$newoptions[$key] = $value;
+				}
+			}
+		}
+        return $newoptions;
+    }
+
 }
 
 ?>

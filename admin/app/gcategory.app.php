@@ -96,7 +96,6 @@ class GcategoryApp extends BackendApp
             $pid = empty($_GET['pid']) ? 0 : intval($_GET['pid']);
             $gcategory = array('parent_id' => $pid, 'sort_order' => 255, 'if_show' => 1);
             $this->assign('gcategory', $gcategory);
-
             $this->assign('parents', $this->_get_options());
             /* 导入jQuery的表单验证插件 */
             $this->import_resource(array(
@@ -503,7 +502,8 @@ class GcategoryApp extends BackendApp
         $gcategories = $this->_gcategory_mod->get_list();
         $tree =& $this->_tree($gcategories);
 
-        return $tree->getOptions(MAX_LAYER - 1, 0, $except);
+       // return $tree->getOptions(MAX_LAYER - 1, 0, $except);
+        return $tree->ejgetOptions(MAX_LAYER - 1, 0, $except);
     }
 	
 	/**
