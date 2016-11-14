@@ -1,13 +1,4 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006~2016 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
-// +----------------------------------------------------------------------
 
     include ROOT_PATH . '/includes/cache/Driver.php';
 
@@ -16,7 +7,7 @@
      *
      * Class Redis
      */
-    class Redis extends Driver {
+    class EJRedis extends Driver {
         protected $options = [
             'host'       => '127.0.0.1',
             'port'       => 6379,
@@ -43,7 +34,7 @@
                 $this->options = array_merge($this->options, $options);
             }
             $func = $this->options['persistent'] ? 'pconnect' : 'connect';
-            $this->handler = new \Redis;
+            $this->handler = new Redis();
             $this->handler->$func($this->options['host'], $this->options['port'], $this->options['timeout']);
 
             if ( '' != $this->options['password'] ) {

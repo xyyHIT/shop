@@ -135,14 +135,11 @@
 
 
         /**
-         * 易加 - 获取首页历史记录
+         * 易加 - 获取首页历史记录 (前端来做)
          */
         function history(){
-            Cache::set('abc','1111');
+//            Cache::set('abc','1111',10);
 
-//            new Redis();
-//            cache_server()->set()
-//            return $this->ej_json_success($all);
         }
 
         /* 搜索商品 */

@@ -31,11 +31,8 @@
             }
 
             if ( true === $name || !isset( self::$instance[ $name ] ) ) {
-//                $class = false !== strpos($type, '\\') ? $type : '\\think\\cache\\driver\\' . ucwords($type);
-                include_once ROOT_PATH . '/includes/cache/driver/'.ucwords($type) . '.php';
-//                $class = ROOT_PATH . '/includes/cache/driver/'.ucwords($type) . '.php';
-
-                $class = ucwords($type);
+                include_once ROOT_PATH . '/includes/cache/driver/EJ'.ucwords($type) . '.php';
+                $class = 'EJ'.ucwords($type);
                 // 记录初始化信息
                 if ( true === $name ) {
                     return new $class($options);
@@ -66,6 +63,7 @@
                 } else {
                     // 导入缓存设置文件
                     self::$options = include_once ROOT_PATH . '/data/cache.cfg.php';
+//                    print_r(self::$options);
                     self::connect(self::$options);
                 }
             }
