@@ -7,7 +7,6 @@
      */
     class CartApp extends MallbaseApp {
 
-
         /**
          * 获取购物车列表
          *
@@ -96,6 +95,63 @@
 
             // 返回购物车状态
             return $this->ej_json_success($cart_status['status']);
+        }
+
+        /**
+         * 更新购物车商品数量
+         *
+         * by Gavin 20161114
+         */
+        function ejUpdate() {
+            $spec_id = isset( $_REQUEST['spec_id'] ) ? intval($_REQUEST['spec_id']) : 0;
+            $quantity = isset( $_REQUEST['quantity'] ) ? intval($_REQUEST['quantity']) : 0;
+            if ( !$spec_id || !$quantity ) {
+                // 参数错误
+                return $this->ej_json_failed(2001);
+            }
+
+            /* 判断库存是否足够 */
+            $model_spec =& m('goodsspec');
+            $spec_info = $model_spec->get($spec_id);
+            if ( empty( $spec_info ) ) {
+                return $this->ej_json_failed(-1,Lang::get('no_such_spec'));
+            }
+
+            if ( $quantity > $spec_info['stock'] ) {
+                return $this->ej_json_failed(-1,Lang::get('no_enough_goods'));
+            }
+
+            /* 修改数量 */
+            $where = "spec_id={$spec_id} AND session_id='" . SESS_ID . "'";
+            $model_cart =& m('cart');
+
+            /* 获取购物车中的信息，用于获取价格并计算小计 */
+            $cart_spec_info = $model_cart->get($where);
+            if ( empty( $cart_spec_info ) ) {
+                /* 并没有添加该商品到购物车 */
+                return $this->ej_json_failed(1010);
+            }
+
+            $store_id = $cart_spec_info['store_id'];
+
+            /* 修改数量 */
+            $model_cart->edit($where, [
+                'quantity' => $quantity,
+            ]);
+
+            /* 小计 */
+            $subtotal = $quantity * $cart_spec_info['price'];
+
+            /* 返回JSON结果 */
+            $cart_status = $this->_get_cart_status();
+
+            $ret = [
+                'cart'     => $cart_status['status'],                     //返回总的购物车状态
+                'subtotal' => $subtotal,                                  //小计
+                'amount'   => $cart_status['carts'][ $store_id ]['amount']  //店铺购物车总计
+            ];
+
+            return $this->ej_json_success($ret);
         }
 
         /**
