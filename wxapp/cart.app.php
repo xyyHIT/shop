@@ -155,6 +155,38 @@
         }
 
         /**
+         * 删除购物车中商品
+         *
+         * by Gavin 20161114
+         */
+        function ejDrop() {
+            /* 传入rec_id，删除并返回购物车统计即可 */
+            $rec_id = isset( $_REQUEST['rec_id'] ) ? intval($_REQUEST['rec_id']) : 0;
+            if ( !$rec_id ) {
+                return $this->ej_json_failed(2001);
+            }
+
+            /* 从购物车中删除 */
+            $model_cart =& m('cart');
+            $droped_rows = $model_cart->drop('rec_id=' . $rec_id . ' AND session_id=\'' . SESS_ID . '\'', 'store_id');
+            if ( !$droped_rows ) {
+                return $this->ej_json_failed(1010);
+            }
+
+            /* 返回结果 */
+            $dropped_data = $model_cart->getDroppedData();
+            $store_id = $dropped_data[ $rec_id ]['store_id'];
+            $cart_status = $this->_get_cart_status();
+
+            $ret = [
+                'cart'   => $cart_status['status'],                      //返回总的购物车状态
+                'amount' => $cart_status['carts'][ $store_id ]['amount']   //返回指定店铺的购物车状态
+            ];
+
+            return $this->ej_json_success($ret);
+        }
+
+        /**
          *    列出购物车中的商品
          *
          * @author    Garbin
