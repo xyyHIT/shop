@@ -400,6 +400,90 @@ class BaseOrder extends Object
 
         return $regions;
     }
+	
+	/**
+     *    处理订单基本信息,返回有效的多个订单信息数组
+     *
+     *    @author    newrain
+     *    @param     array $goods_info
+     *    @param     array $post
+     *    @return    array
+     */
+    function ej_handle_order_info($goods_info, $post)
+    {
+        /* 默认都是待付款 */
+        $order_status = ORDER_PENDING;
+        /* 买家信息 */
+        $visitor     =& env('visitor');
+        $user_id     =  $visitor->get('user_id');
+        $user_name   =  $visitor->get('user_name');
+		//循环生成多个订单信息
+		$resultarr = array();
+		$addtime = gmtime();
+		foreach($goods_info as $value){
+			$temp['order_sn'] = $this->_gen_order_sn();
+			$temp['type'] = $value['type'];
+			$temp['extension'] =  $this->_name;
+			$temp['seller_id'] = $value['store_id'];
+			$temp['seller_name'] = addslashes($value['store_name']);
+			$temp['buyer_id'] = $user_id;
+			$temp['buyer_name'] = addslashes($user_name);
+			$temp['buyer_email'] = $visitor->get('email');
+			$temp['status'] = $order_status;
+			$temp['add_time'] = $addtime;
+			$temp['goods_amount'] = $value['amount']-$value['shiprice'];   //不含有运费的总计
+			$temp['order_amount'] = $value['amount'];   //订单总金额
+			$temp['discount'] = isset($value['discount']) ? $value['discount'] : 0;
+			$temp['anonymous'] = isset($post['anonymous'])?intval($post['anonymous']):0; // 是否匿名，当前系统无匿名操作
+			$temp['postscript'] =  isset($post['postscript'])?trim($post['postscript']):'';
+			array_push($resultarr,$temp);
+		}
+        /* 返回基本信息 */
+		return $resultarr;
+    }
+	
+   /**
+     *    处理收货人信息，返回有效的收货人信息
+     *
+     *    @author    newrain
+     *    @param     array $goods_info
+     *    @param     array $post
+     *    @return    array
+     */
+    function ej_handle_consignee_info($goods_info, $post)
+    {
+        /* 验证收货人信息填写是否完整 */
+		if (!$post['consignee'])
+        {
+            return false;
+        }
+        if (!$post['address'])
+        {
+            return false;
+        }
+        if (!$post['phone_mob'])
+        {
+            return false;
+        }
+        /* 计算配送费用 此处代码已经注释  详情查看_handle_consignee_info方法*/
+        /* 配送费用=首件费用＋超出的件数*续件费用  目前商品运费需求变更   by  newrain*/
+        //$shipping_fee = $shipping_info['first_price'] + ($goods_info['quantity'] - 1) * $shipping_info['step_price'];
+		//针对每一单运费不同改造代码
+		$shippingarr = array();//不同商家对应不同的运费
+		foreach($goods_info as $value){
+			$shippingarr[$value['store_id']] = $value['shiprice'];
+		}
+		$shipping_fee = $shippingarr;
+        return array(
+            'consignee'     =>  $post['consignee'],
+            'region_id'     =>  '1',
+            'region_name'   =>  '中国',
+            'address'       =>  $post['address'],
+            'phone_mob'     =>  $post['phone_mob'],
+            'shipping_fee'  =>  $shipping_fee
+        );
+    }
+
 }
 
 ?>

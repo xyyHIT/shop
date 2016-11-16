@@ -151,6 +151,94 @@ class NormalOrder extends BaseOrder
 
         return $order_id;
     }
+	
+	   /**
+     *    提交生成订单，外部告诉我要下的单的商品类型及用户填写的表单数据以及商品数据，我生成好订单后返回订单ID
+     *	  修改   改为多订单提交
+     *    @author    newrain   
+     *    @param     array $data
+     *    @return    int
+     */
+    function ejsubmit_order($data,$goodslist)
+    {
+        /* 释放goods_info和post两个变量 */
+        extract($data);
+        /* 处理订单基本信息 */
+        $base_info = $this->ej_handle_order_info($goods_info, $post);
+        if (!$base_info)
+        {
+            /* 基本信息验证不通过 */
+            return 0;
+        }
+        /* 处理订单收货人信息 */
+        $consignee_info = $this->ej_handle_consignee_info($goods_info, $post);
+        if (!$consignee_info)
+        {
+            /* 收货人信息验证不通过 */
+            return 0;
+        }
+        /* 至此说明订单的信息都是可靠的，可以开始入库了 以下注释层请查看对应的submit_order方法 */
+        /* 插入订单基本信息 */
+        //订单总实际总金额，可能还会在此减去折扣等费用
+		/* 如果优惠金额大于商品总额和运费的总和 */
+		$insertsql = '';
+		$ordersnarr = array();
+		$endarr = end($base_info);
+		foreach($base_info as $value){
+			$insertsql .= "('".$value['order_sn']."','".$value['type']."','".$value['extension']."','".
+					$value['seller_id']."','".$value['seller_name']."','".$value['buyer_id']."','".
+					$value['buyer_name']."','".$value['buyer_email']."','".$value['status']."','".
+					$value['add_time']."','".$value['goods_amount']."','".$value['order_amount']."','".
+					$value['discount']."','".$value['anonymous']."','".$value['postscript']."')";
+			if($endarr != $value){
+				$insertsql .= ',';
+			}
+			array_push($ordersnarr,$value['order_sn']);
+		}
+		//保证效率采用多条插入的方式
+		/*适当时机加上事务和锁*/
+        $order_model =& m('order');
+		$sqlfields = 'order(order_sn,type,extension,seller_id,seller_name,buyer_id,buyer_name,buyer_email,status,add_time,goods_amount,order_amount,discount,anonymous,postscript)';
+		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$insertsql);
+		//采取办法获取orderid
+		$orderidarr = $order_model->getAll("select order_id,order_sn,seller_id from ".DB_PREFIX."order where order_sn in (".implode(',',$ordersnarr).")");
+        if (empty($orderidarr))
+        {
+            return 0;
+        }
+        /* 插入收货人信息 */
+		$inconsignee = '';
+		$endarr = end($orderidarr);
+		foreach($orderidarr as $value){
+			$inconsignee .= "('".$value['order_id']."','".$consignee_info['consignee']."','".$consignee_info['region_id']."','".
+				$consignee_info['region_name']."','".$consignee_info['address']."','".$consignee_info['phone_mob']."','".
+				$consignee_info['shipping_fee'][$value['seller_id']]."')";
+				//获取storeid  匹配orderid方便订单商品操作
+				$goodorder[$value['seller_id']] = $value['order_id'];
+			if($endarr != $value){
+				$inconsignee .= ',';
+			}
+		}
+		$sqlfields = 'order_extm(order_id,consignee,region_id,region_name,address,phone_mob,shipping_fee)';
+		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inconsignee);
+        /* 插入商品信息 */
+		if(empty($goodslist)){
+			return 0;
+		}
+		$endarr = end($goodslist);
+		$inordergoods = '';
+        foreach ($goodslist as $key => $value)
+        {
+			$inordergoods .= "('".$goodorder[$value['store_id']]."','".$value['goods_id']."','".$value['goods_name']."','".
+			$value['spec_id']."','".$value['specification']."','".$value['price']."','".$value['quantity']."','".$value['goods_image']."')";
+			if($endarr != $value){
+				$inordergoods .= ',';
+			}
+        }
+		$sqlfields = 'order_goods(order_id,goods_id,goods_name,spec_id,specification,price,quantity,goods_image)';
+		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inordergoods);
+        return $orderidarr;
+    }
 }
 
 ?>
