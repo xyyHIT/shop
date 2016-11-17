@@ -1,5 +1,4 @@
 <?php
-
     /**
      *    买家的订单管理控制器
      *
@@ -8,6 +7,8 @@
      */
     class Buyer_orderApp extends MemberbaseApp {
 
+		//var $ejstatus = array('0'=>'交易取消','11'=>'待付款','20'=>'待发货','30'=>'待收货','40'=>'交易完成');
+		var $ejstatus = array('0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成');
         /**
          * 评价订单
          *
@@ -105,42 +106,8 @@
 
         function index() {
             /* 获取订单列表 */
-            $this->_get_orders();
-
-            /* 当前位置 */
-            $this->_curlocal(LANG::get('member_center'), 'index.php?app=member',
-                LANG::get('my_order'), 'index.php?app=buyer_order',
-                LANG::get('order_list'));
-
-            /* 当前用户中心菜单 */
-            $this->_curitem('my_order');
-            $this->_curmenu('order_list');
-            $this->_config_seo('title', Lang::get('member_center') . ' - ' . Lang::get('my_order'));
-            $this->import_resource([
-                'script' => [
-                    [
-                        'path' => 'dialog/dialog.js',
-                        'attr' => 'id="dialog_js"',
-                    ],
-                    [
-                        'path' => 'jquery.ui/jquery.ui.js',
-                        'attr' => '',
-                    ],
-                    [
-                        'path' => 'jquery.ui/i18n/' . i18n_code() . '.js',
-                        'attr' => '',
-                    ],
-                    [
-                        'path' => 'jquery.plugins/jquery.validate.js',
-                        'attr' => '',
-                    ],
-                ],
-                'style'  => 'jquery.ui/themes/ui-lightness/jquery.ui.css',
-            ]);
-
-
-            /* 显示订单列表 */
-            $this->display('buyer_order.index.html');
+            $orderlist = $this->_get_orders();
+			return $this->ej_json_success($orderlist);
         }
 
         /**
@@ -500,27 +467,36 @@
                 'limit'      => $page['limit'],
                 'order'      => 'add_time DESC',
                 'include'    => [
-                    'has_ordergoods',       //取出商品
+					'has_ordergoods',       //取出商品
                 ],
             ]);
+			$result = array();
             foreach ( $orders as $key1 => $order ) {
-                foreach ( $order['order_goods'] as $key2 => $goods ) {
-                    empty( $goods['goods_image'] ) && $orders[ $key1 ]['order_goods'][ $key2 ]['goods_image'] = Conf::get('default_goods_image');
-                }
+				$temp['order_id'] = $order['order_id'];
+				$temp['seller_id'] = $order['seller_id'];
+				$temp['seller_name'] = $order['seller_name'];
+				$temp['buyer_id'] = $order['buyer_id'];
+				$temp['status'] = $order['status'];
+				$temp['statusname'] = $this->ejstatus[$order['status']];
+				$temp['order_amount'] = $order['order_amount'];
+				$tmpgoods = array();
+				foreach($order['order_goods'] as $v){
+					$tmp['rec_id'] = $v['rec_id'];
+					$tmp['order_id'] = $v['order_id'];
+					$tmp['goods_id'] = $v['goods_id'];
+					$tmp['goods_name'] = $v['goods_name'];
+					$tmp['quantity'] = $v['quantity'];
+					$tmp['price'] = $v['price'];
+					$tmp['goods_image'] = $v['goods_image'];
+					array_push($tmpgoods,$tmp);
+				}
+				$temp['order_goods'] = $tmpgoods;
+				array_push($result,$temp);
             }
-
             $page['item_count'] = $model_order->getCount();
-            $this->assign('types', [ 'all'       => Lang::get('all_orders'),
-                                     'pending'   => Lang::get('pending_orders'),
-                                     'submitted' => Lang::get('submitted_orders'),
-                                     'accepted'  => Lang::get('accepted_orders'),
-                                     'shipped'   => Lang::get('shipped_orders'),
-                                     'finished'  => Lang::get('finished_orders'),
-                                     'canceled'  => Lang::get('canceled_orders') ]);
-            $this->assign('type', $_GET['type']);
-            $this->assign('orders', $orders);
-            $this->_format_page($page);
-            $this->assign('page_info', $page);
+			$res['orderlist'] = $result;
+			$res['page'] = $page;
+			return $res;
         }
 
         function _get_member_submenu() {
