@@ -1,13 +1,13 @@
 <?php
 
     /**
-     *    买家的订单管理控制器
+     *    卖家的订单管理控制器
      *
-     * @author    Garbin
+     * @author    newrain
      * @usage     none
      */
     class Seller_orderApp extends StoreadminbaseApp {
-
+		var $ejstatus = array('0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成');
         /**
          * 回复商品评价
          *
@@ -64,41 +64,8 @@
 
         function index() {
             /* 获取订单列表 */
-            $this->_get_orders();
-
-            /* 当前位置 */
-            $this->_curlocal(LANG::get('member_center'), 'index.php?app=member',
-                LANG::get('order_manage'), 'index.php?app=seller_order',
-                LANG::get('order_list'));
-
-            /* 当前用户中心菜单 */
-            $type = ( isset( $_GET['type'] ) && $_GET['type'] != '' ) ? trim($_GET['type']) : 'all_orders';
-            $this->_curitem('order_manage');
-            $this->_curmenu($type);
-            $this->_config_seo('title', Lang::get('member_center') . ' - ' . Lang::get('order_manage'));
-            $this->import_resource([
-                'script' => [
-                    [
-                        'path' => 'dialog/dialog.js',
-                        'attr' => 'id="dialog_js"',
-                    ],
-                    [
-                        'path' => 'jquery.ui/jquery.ui.js',
-                        'attr' => '',
-                    ],
-                    [
-                        'path' => 'jquery.ui/i18n/' . i18n_code() . '.js',
-                        'attr' => '',
-                    ],
-                    [
-                        'path' => 'jquery.plugins/jquery.validate.js',
-                        'attr' => '',
-                    ],
-                ],
-                'style'  => 'jquery.ui/themes/ui-lightness/jquery.ui.css',
-            ]);
-            /* 显示订单列表 */
-            $this->display('seller_order.index.html');
+            $result = $this->_get_orders();
+			return $this->ej_json_success($result);
         }
 
         /**
@@ -364,77 +331,61 @@
         }
 
         /**
-         *    待发货的订单发货
+         * 待发货的订单发货
          *
-         * @author    Garbin
+         * @author    newrain
          * @return    void
          */
         function shipped() {
-            list( $order_id, $order_info ) = $this->_get_valid_order_info([ ORDER_ACCEPTED, ORDER_SHIPPED ]);
-            if ( !$order_id ) {
-                echo Lang::get('no_such_order');
-
-                return;
+			$order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+			$invoice_no = isset( $_GET['invoice_no'] ) ? intval($_GET['invoice_no']) : 0;
+			if ( !$order_id || !$invoice_no) {
+				return $this->ej_json_failed(2001);
             }
             $model_order =& m('order');
-            if ( !IS_POST ) {
-                /* 显示发货表单 */
-                header('Content-Type:text/html;charset=' . CHARSET);
-                $this->assign('order', $order_info);
-                $this->display('seller_order.shipped.html');
-            } else {
-                if ( !$_POST['invoice_no'] ) {
-                    $this->pop_warning('invoice_no_empty');
+            $order_info = $model_order->findAll([
+                'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
+                'join'       => 'has_orderextm',
+            ]);
+			//判断订单详情是否为空
+			if(empty($order_info)){
+				return $this->ej_json_failed(2001);
+			}
+			//非本店卖家不能操作
+			if($order_info[$order_id]['seller_id'] != $this->visitor->get('user_id') ){
+				return $this->ej_json_failed(3001);
+			}
+			//判断当前状态是否可以发货
+			if($order_info[$order_id]['status'] != ORDER_ACCEPTED && $order_info[$order_id]['status'] != ORDER_SUBMITTED){			
+				return $this->ej_json_failed(3001);
+			}
+			$edit_data = [ 'status' => ORDER_SHIPPED, 'invoice_no' => $invoice_no ];
+			$is_edit = true;
+			if ( empty( $order_info[$order_id]['invoice_no'] ) ) {
+				/* 不是修改发货单号 */
+				$edit_data['ship_time'] = gmtime();
+				$is_edit = false;
+			}
+			$model_order->edit(intval($order_id), $edit_data);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
 
-                    return;
-                }
-                $edit_data = [ 'status' => ORDER_SHIPPED, 'invoice_no' => $_POST['invoice_no'] ];
-                $is_edit = true;
-                if ( empty( $order_info['invoice_no'] ) ) {
-                    /* 不是修改发货单号 */
-                    $edit_data['ship_time'] = gmtime();
-                    $is_edit = false;
-                }
-                $model_order->edit(intval($order_id), $edit_data);
-                if ( $model_order->has_error() ) {
-                    $this->pop_warning($model_order->get_error());
-
-                    return;
-                }
-
-                #TODO 发邮件通知
-                /* 记录订单操作日志 */
-                $order_log =& m('orderlog');
-                $order_log->add([
-                    'order_id'       => $order_id,
-                    'operator'       => addslashes($this->visitor->get('user_name')),
-                    'order_status'   => order_status($order_info['status']),
-                    'changed_status' => order_status(ORDER_SHIPPED),
-                    'remark'         => $_POST['remark'],
-                    'log_time'       => gmtime(),
-                ]);
+			#TODO 发邮件通知
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info[$order_id]['status']),
+				'changed_status' => order_status(ORDER_SHIPPED),
+				'remark'         => $_REQUEST['remark'],
+				'log_time'       => gmtime(),
+			]);
 
 
-                /* 发送给买家订单已发货通知 */
-                $model_member =& m('member');
-                $buyer_info = $model_member->get($order_info['buyer_id']);
-                $order_info['invoice_no'] = $edit_data['invoice_no'];
-                $mail = get_mail('tobuyer_shipped_notify', [ 'order' => $order_info ]);
-                $this->_mailto($buyer_info['email'], addslashes($mail['subject']), addslashes($mail['message']));
-
-                $new_data = [
-                    'status'  => Lang::get('order_shipped'),
-                    'actions' => [
-                        'cancel',
-                        'edit_invoice_no'
-                    ], //可以取消可以发货
-                ];
-                if ( $order_info['payment_code'] == 'cod' ) {
-                    $new_data['actions'][] = 'finish';
-                }
-
-                $this->pop_warning('ok');
-            }
+			/* TODO 微信通知发送给买家订单已发货通知 */
+			return $this->ej_json_success();
         }
 
         /**
@@ -629,18 +580,9 @@
         function _get_orders() {
             $page = $this->_get_page();
             $model_order =& m('order');
-
             !$_GET['type'] && $_GET['type'] = 'all_orders';
-
             $conditions = '';
-
-            // 团购订单
-            if ( !empty( $_GET['group_id'] ) && intval($_GET['group_id']) > 0 ) {
-                $groupbuy_mod = &m('groupbuy');
-                $order_ids = $groupbuy_mod->get_order_ids(intval($_GET['group_id']));
-                $order_ids && $conditions .= ' AND order_alias.order_id' . db_create_in($order_ids);
-            }
-
+            // 团购订单  暂时去掉团购部分代码为满足v1.0  
             $conditions .= $this->_get_query_conditions([
                 [      //按订单状态搜索
                     'field'   => 'status',
@@ -679,24 +621,36 @@
                     'has_ordergoods',       //取出商品
                 ],
             ]);
-            foreach ( $orders as $key1 => $order ) {
-                foreach ( $order['order_goods'] as $key2 => $goods ) {
-                    empty( $goods['goods_image'] ) && $orders[ $key1 ]['order_goods'][ $key2 ]['goods_image'] = Conf::get('default_goods_image');
-                }
-            }
-
+			$result = array();
+			if($orders){
+				foreach ( $orders as $value ) {
+					$temp['order_id'] = $value['order_id'];
+					$temp['order_sn'] = $value['order_sn'];
+					$temp['seller_id'] = $value['seller_id'];
+					$temp['seller_name'] = $value['seller_name'];
+					$temp['status'] = $this->ejstatus[$value['status']];
+					$temp['order_amount'] = $value['order_amount'];
+					$tmparr = array();
+					foreach ( $value['order_goods'] as $v ) {
+						$tmp['rec_id'] = $v['rec_id'];
+						$tmp['order_id'] = $v['order_id'];
+						$tmp['goods_id'] = $v['goods_id'];
+						$tmp['goods_name'] = $v['goods_name'];
+						$tmp['goods_image'] = $v['goods_image'];
+						$tmp['price'] = $v['price'];
+						$tmp['quantity'] = $v['quantity'];
+						$tmp['is_reply'] = $v['is_reply'];
+						$tmp['reply'] = $v['reply'];
+						array_push($tmparr,$tmp);
+					}
+					$temp['order_goods'] = $tmparr;
+					array_push($result,$temp);
+				}
+			}
             $page['item_count'] = $model_order->getCount();
-            $this->_format_page($page);
-            $this->assign('types', [ 'all'       => Lang::get('all_orders'),
-                                     'pending'   => Lang::get('pending_orders'),
-                                     'submitted' => Lang::get('submitted_orders'),
-                                     'accepted'  => Lang::get('accepted_orders'),
-                                     'shipped'   => Lang::get('shipped_orders'),
-                                     'finished'  => Lang::get('finished_orders'),
-                                     'canceled'  => Lang::get('canceled_orders') ]);
-            $this->assign('type', $_GET['type']);
-            $this->assign('orders', $orders);
-            $this->assign('page_info', $page);
+			$res['orderlist'] = $result;
+			$res['page'] = $page;
+			return $res;
         }
 
         /*三级菜单*/

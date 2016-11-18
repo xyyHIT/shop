@@ -465,28 +465,30 @@
                 ],
             ]);
 			$result = array();
-            foreach ( $orders as $key1 => $order ) {
-				$temp['order_id'] = $order['order_id'];
-				$temp['seller_id'] = $order['seller_id'];
-				$temp['seller_name'] = $order['seller_name'];
-				$temp['buyer_id'] = $order['buyer_id'];
-				$temp['status'] = $order['status'];
-				$temp['statusname'] = $this->ejstatus[$order['status']];
-				$temp['order_amount'] = $order['order_amount'];
-				$tmpgoods = array();
-				foreach($order['order_goods'] as $v){
-					$tmp['rec_id'] = $v['rec_id'];
-					$tmp['order_id'] = $v['order_id'];
-					$tmp['goods_id'] = $v['goods_id'];
-					$tmp['goods_name'] = $v['goods_name'];
-					$tmp['quantity'] = $v['quantity'];
-					$tmp['price'] = $v['price'];
-					$tmp['goods_image'] = $v['goods_image'];
-					array_push($tmpgoods,$tmp);
+			if($orders){
+				foreach ( $orders as $key1 => $order ) {
+					$temp['order_id'] = $order['order_id'];
+					$temp['seller_id'] = $order['seller_id'];
+					$temp['seller_name'] = $order['seller_name'];
+					$temp['buyer_id'] = $order['buyer_id'];
+					$temp['status'] = $order['status'];
+					$temp['statusname'] = $this->ejstatus[$order['status']];
+					$temp['order_amount'] = $order['order_amount'];
+					$tmpgoods = array();
+					foreach($order['order_goods'] as $v){
+						$tmp['rec_id'] = $v['rec_id'];
+						$tmp['order_id'] = $v['order_id'];
+						$tmp['goods_id'] = $v['goods_id'];
+						$tmp['goods_name'] = $v['goods_name'];
+						$tmp['quantity'] = $v['quantity'];
+						$tmp['price'] = $v['price'];
+						$tmp['goods_image'] = $v['goods_image'];
+						array_push($tmpgoods,$tmp);
+					}
+					$temp['order_goods'] = $tmpgoods;
+					array_push($result,$temp);
 				}
-				$temp['order_goods'] = $tmpgoods;
-				array_push($result,$temp);
-            }
+			}
             $page['item_count'] = $model_order->getCount();
 			$res['orderlist'] = $result;
 			$res['page'] = $page;
