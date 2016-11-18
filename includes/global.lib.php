@@ -676,4 +676,22 @@ function short_msg_filter($string)
     return $ms->pm->msg_filter($string);
 }
 
+function ejlefttime($enddate,$startdate){
+	$timediff = $enddate-$startdate;
+	if($timediff<0){
+		return '';
+	}
+	//计算天数
+	$days = intval($timediff/86400);
+	//计算小时数
+	$remain = $timediff%86400;
+	$hours = intval($remain/3600);
+	//计算分钟数
+	$remain = $remain%3600;
+	$mins = intval($remain/60);
+	//计算秒数
+	$secs = $remain%60;
+	return $days."天".$hours."小时".$mins."分".$secs."秒";
+}
+
 ?>

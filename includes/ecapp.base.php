@@ -71,6 +71,7 @@
     /* 通知类型 */
     define('NOTICE_MAIL', 1); // 邮件通知
     define('NOTICE_MSG', 2); // 站内短消息
+    define('EJADD_SHIP', 7); // 延长收货日期  默认7天
 
     /**
      *    ECBaseApp

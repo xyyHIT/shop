@@ -24,7 +24,8 @@ if (!defined('IN_ECM'))
  */
 function gmtime()
 {
-    return (time() - date('Z'));
+	return time();
+    //return (time() - date('Z'));
 }
 
 /**

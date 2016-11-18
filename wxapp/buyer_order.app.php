@@ -119,48 +119,93 @@
         function view() {
             $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
             $model_order =& m('order');
-            //$order_info  = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
             $order_info = $model_order->get([
                 'fields'     => "*, order.add_time as order_add_time",
                 'conditions' => "order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'),
                 'join'       => 'belongs_to_store',
             ]);
             if ( !$order_info ) {
-                $this->show_warning('no_such_order');
-
-                return;
+				return $this->ej_json_failed(2001);
             }
 
-            /* 团购信息 */
-            if ( $order_info['extension'] == 'groupbuy' ) {
-                $groupbuy_mod = &m('groupbuy');
-                $group = $groupbuy_mod->get([
-                    'join'       => 'be_join',
-                    'conditions' => 'order_id=' . $order_id,
-                    'fields'     => 'gb.group_id',
-                ]);
-                $this->assign('group_id', $group['group_id']);
-            }
-
-            /* 当前位置 */
-            $this->_curlocal(LANG::get('member_center'), 'index.php?app=member',
-                LANG::get('my_order'), 'index.php?app=buyer_order',
-                LANG::get('view_order'));
-
-            /* 当前用户中心菜单 */
-            $this->_curitem('my_order');
-
-            $this->_config_seo('title', Lang::get('member_center') . ' - ' . Lang::get('order_detail'));
-
+            /* 团购信息 去掉团购信息 详情见app目录下的相同处理*/
             /* 调用相应的订单类型，获取整个订单详情数据 */
             $order_type =& ot($order_info['extension']);
             $order_detail = $order_type->get_order_detail($order_id, $order_info);
             foreach ( $order_detail['data']['goods_list'] as $key => $goods ) {
                 empty( $goods['goods_image'] ) && $order_detail['data']['goods_list'][ $key ]['goods_image'] = Conf::get('default_goods_image');
             }
-            $this->assign('order', $order_info);
-            $this->assign($order_detail['data']);
-            $this->display('buyer_order.view.html');
+			$result['order_id'] = $order_info['order_id'];
+			$result['order_sn'] = $order_info['order_sn'];
+			$result['seller_id'] = $order_info['seller_id'];
+			$result['seller_name'] = $order_info['seller_name'];
+			$result['buyer_id'] = $order_info['buyer_id'];
+			$result['buyer_name'] = $order_info['buyer_name'];
+			$result['status'] = $order_info['status'];
+			$result['order_add_time'] = empty($order_info['order_add_time'])?'':date('Y-m-d H:i:s',$order_info['order_add_time']);
+			$result['finished_time'] = empty($order_info['finished_time'])?'':date('Y-m-d H:i:s',$order_info['finished_time']);
+			//'0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成'
+			$times = gmtime();
+			switch ($order_info['status'])
+			{
+				case 0://已取消
+				  $result['statusname'] = $this->ejstatus[$order_info['status']];
+				  $result['lefttime'] = '';//剩余时间
+				  break;
+				case 11://代付款
+				  //48小时内未支付系统自动交易关闭  考虑到服务性能  故没有采用crontab方式来实现
+				  $overtime = $times-$order_info['order_add_time'];
+				  if($overtime >=172800){
+						$this->cancel_order($order_info['order_id'],'48小时内未支付系统自动交易关闭');
+						$result['statusname'] = $this->ejstatus[ORDER_CANCELED];
+						$result['status'] = '0';
+						$result['lefttime'] = '';//剩余时间
+						/* Todo 发送给卖家订单取消通知 微信通知 */
+				  }else{
+						$result['statusname'] = $this->ejstatus['11'];
+						$paramtime = $order_info['order_add_time']+172800;
+						$result['lefttime'] = ejlefttime($paramtime,$times);//剩余时间
+				  }
+				  break;
+				case 20://代发货
+						$result['statusname'] = $this->ejstatus['20'];
+						$result['lefttime'] = '';//剩余时间
+				break;
+				case 30://代收货
+						$result['statusname'] = $this->ejstatus['20'];
+						if($order_info['add_shiptime'] == 1){//判断用户是否延长收货  默认延长收货为7天
+							$overtime = $times - ($order_info['ship_time']+EJADD_SHIP*86400);
+							$sumshiptime = $order_info['ship_time']+EJADD_SHIP*86400+7*86400;
+						}else{
+							$overtime = $times - $order_info['ship_time'];
+							$sumshiptime = $order_info['ship_time']+7*86400;
+						}
+						//判断用户是否在七天之内确认收货
+						if($overtime >= (7*86400)){
+							//超过七天，系统自动默认确认收货
+							$this->confirm_order($order_info['order_id']);
+							$result['statusname'] = $this->ejstatus['20'];
+							$result['lefttime'] = '';//剩余时间
+							$result['finished_time'] = date('Y-m-d H:i:s',$times);
+							$result['status'] = ORDER_FINISHED;
+						}else{
+							$result['statusname'] = $this->ejstatus['30'];
+							$result['lefttime'] = ejlefttime($sumshiptime,$times);//剩余时间
+						}
+				break;
+				case 40://待评价
+						$result['statusname'] = $this->ejstatus['40'];
+						$result['lefttime'] = '';//剩余时间
+				break;
+				default:
+					$result['statusname'] = '交易取消';
+					$result['lefttime'] = '';//剩余时间
+			}
+			$result['pay_time'] = empty($order_info['pay_time'])?'':date('Y-m-d H:i:s',$order_info['pay_time']);//付款时间
+			$result['order_amount'] = $order_info['order_amount'];
+			$result['consignee'] = $order_detail['data']['order_extm'];
+			$result['goods_list'] = $order_detail['data']['goods_list'];
+			return $this->ej_json_success($result);
         }
 
         /**
@@ -169,129 +214,78 @@
          * @author    Garbin
          * @return    void
          */
-        function cancel_order() {
-            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+        function cancel_order($orderid = 0,$remark='') {
+            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : $orderid;
             if ( !$order_id ) {
-                echo Lang::get('no_such_order');
-
-                return;
+				return $this->ej_json_failed(2001);
             }
             $model_order =& m('order');
             /* 只有待付款的订单可以取消 */
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status " . db_create_in([ ORDER_PENDING, ORDER_SUBMITTED ]));
             if ( empty( $order_info ) ) {
-                echo Lang::get('no_such_order');
-
-                return;
+				return $this->ej_json_failed(3001);
             }
-            if ( !IS_POST ) {
-                header('Content-Type:text/html;charset=' . CHARSET);
-                $this->assign('order', $order_info);
-                $this->display('buyer_order.cancel.html');
-            } else {
-                $model_order->edit($order_id, [ 'status' => ORDER_CANCELED ]);
-                if ( $model_order->has_error() ) {
-                    $this->pop_warning($model_order->get_error());
-
-                    return;
-                }
-
-                /* 加回商品库存 */
-                $model_order->change_stock('+', $order_id);
-                $cancel_reason = ( !empty( $_POST['remark'] ) ) ? $_POST['remark'] : $_POST['cancel_reason'];
-                /* 记录订单操作日志 */
-                $order_log =& m('orderlog');
-                $order_log->add([
-                    'order_id'       => $order_id,
-                    'operator'       => addslashes($this->visitor->get('user_name')),
-                    'order_status'   => order_status($order_info['status']),
-                    'changed_status' => order_status(ORDER_CANCELED),
-                    'remark'         => $cancel_reason,
-                    'log_time'       => gmtime(),
-                ]);
-
-                /* 发送给卖家订单取消通知 */
-                $model_member =& m('member');
-                $seller_info = $model_member->get($order_info['seller_id']);
-                $mail = get_mail('toseller_cancel_order_notify', [ 'order' => $order_info, 'reason' => $_POST['remark'] ]);
-                $this->_mailto($seller_info['email'], addslashes($mail['subject']), addslashes($mail['message']));
-
-                $new_data = [
-                    'status'  => Lang::get('order_canceled'),
-                    'actions' => [], //取消订单后就不能做任何操作了
-                ];
-
-                $this->pop_warning('ok');
-            }
-
+			$model_order->edit($order_id, [ 'status' => ORDER_CANCELED ]);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
+			/* 加回商品库存 */
+			$model_order->change_stock('+', $order_id);
+			$cancel_reason = $remark;
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info['status']),
+				'changed_status' => order_status(ORDER_CANCELED),
+				'remark'         => $cancel_reason,
+				'log_time'       => gmtime(),
+			]);
+			/* 发送给卖家订单取消通知 */
+			return $this->ej_json_success();
         }
 
         /**
          *    确认订单
          *
-         * @author    Garbin
+         * @author    newrain
          * @return    void
          */
-        function confirm_order() {
-            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+        function confirm_order($orderid = 0) {
+            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : $orderid;
             if ( !$order_id ) {
-                echo Lang::get('no_such_order');
-
-                return;
+				return $this->ej_json_failed(2001);
             }
             $model_order =& m('order');
             /* 只有已发货的订单可以确认 */
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status=" . ORDER_SHIPPED);
             if ( empty( $order_info ) ) {
-                echo Lang::get('no_such_order');
-
-                return;
+				return $this->ej_json_failed(3001);
             }
-            if ( !IS_POST ) {
-                header('Content-Type:text/html;charset=' . CHARSET);
-                $this->assign('order', $order_info);
-                $this->display('buyer_order.confirm.html');
-            } else {
-                $model_order->edit($order_id, [ 'status' => ORDER_FINISHED, 'finished_time' => gmtime() ]);
-                if ( $model_order->has_error() ) {
-                    $this->pop_warning($model_order->get_error());
-
-                    return;
-                }
-
-                /* 记录订单操作日志 */
-                $order_log =& m('orderlog');
-                $order_log->add([
-                    'order_id'       => $order_id,
-                    'operator'       => addslashes($this->visitor->get('user_name')),
-                    'order_status'   => order_status($order_info['status']),
-                    'changed_status' => order_status(ORDER_FINISHED),
-                    'remark'         => Lang::get('buyer_confirm'),
-                    'log_time'       => gmtime(),
-                ]);
-
-                /* 发送给卖家买家确认收货邮件，交易完成 */
-                $model_member =& m('member');
-                $seller_info = $model_member->get($order_info['seller_id']);
-                $mail = get_mail('toseller_finish_notify', [ 'order' => $order_info ]);
-                $this->_mailto($seller_info['email'], addslashes($mail['subject']), addslashes($mail['message']));
-
-                $new_data = [
-                    'status'  => Lang::get('order_finished'),
-                    'actions' => [ 'evaluate' ],
-                ];
-
-                /* 更新累计销售件数 */
-                $model_goodsstatistics =& m('goodsstatistics');
-                $model_ordergoods =& m('ordergoods');
-                $order_goods = $model_ordergoods->find("order_id={$order_id}");
-                foreach ( $order_goods as $goods ) {
-                    $model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
-                }
-
-                $this->pop_warning('ok', '', 'index.php?app=buyer_order&act=evaluate&order_id=' . $order_id);;
-            }
-
+			$model_order->edit($order_id, [ 'status' => ORDER_FINISHED, 'finished_time' => gmtime() ]);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info['status']),
+				'changed_status' => order_status(ORDER_FINISHED),
+				'remark'         => Lang::get('buyer_confirm'),
+				'log_time'       => gmtime(),
+			]);
+			/*TODO 发送给卖家买家微信推送，交易完成 */
+			/* 更新累计销售件数 */
+			$model_goodsstatistics =& m('goodsstatistics');
+			$model_ordergoods =& m('ordergoods');
+			$order_goods = $model_ordergoods->find("order_id={$order_id}");
+			foreach ( $order_goods as $goods ) {
+				$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
+			}
+			return $this->ej_json_success();
         }
 
         /**
@@ -509,7 +503,80 @@
 
             return $menus;
         }
-
+		
+	   /**
+		 *    响应支付
+		 *
+		 *    @author    Garbin
+		 *    @param     int    $order_id
+		 *    @param     array  $notify_result
+		 *    @return    bool
+		 */
+		function respond_notify($order_id, $notify_result)
+		{
+			$model_order =& m('order');
+			$where = "order_id = {$order_id}";
+			$data = array('status' => $notify_result['target']);
+			switch ($notify_result['target'])
+			{
+				case ORDER_ACCEPTED:
+					$where .= ' AND status=' . ORDER_PENDING;   //只有待付款的订单才会被修改为已付款
+					$data['pay_time']   =   gmtime();
+				break;
+				case ORDER_SHIPPED:
+					$where .= ' AND status=' . ORDER_ACCEPTED;  //只有等待发货的订单才会被修改为已发货
+					$data['ship_time']  =   gmtime();
+				break;
+				case ORDER_FINISHED:
+					$where .= ' AND status=' . ORDER_SHIPPED;   //只有已发货的订单才会被自动修改为交易完成
+					$data['finished_time'] = gmtime();
+				break;
+				case ORDER_CANCLED:                             //任何情况下都可以关闭
+					/* 加回商品库存 */
+					$model_order->change_stock('+', $order_id);
+				break;
+			}
+			return $model_order->edit($where, $data);
+		}
+		
+		/**
+         *    延长订单收货接口
+         *
+         * @author    newrain
+         * @return    void
+         */
+        function delayship() {
+            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
+            }
+			$delayval = 1;
+            $model_order =& m('order');
+            /* 只有已发货的订单可以确认 */
+            $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status=" . ORDER_SHIPPED);
+            if ( empty( $order_info ) ) {
+				return $this->ej_json_failed(3001);
+            }else{
+				//当用户已经点击过延长，再次点击为取消延长收货
+				if($order_info['add_shiptime']){
+					$delayval = 0;
+				}
+			}
+			$model_order->edit($order_id, [ 'add_shiptime' => $delayval ]);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info['status']),
+				'changed_status' => order_status($order_info['status']),
+				'remark'         => '延长收货',
+				'log_time'       => gmtime(),
+			]);
+			/*TODO 发送给卖家买家微信推送，交易完成 */
+			return $this->ej_json_success();
+        }
     }
-
-?>
