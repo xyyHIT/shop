@@ -38,8 +38,8 @@ SESSION_MEMCACHED : 存储session数据的memcached服务器(服务器地址1:�
 */
 
 return array (
-  'SITE_URL' => 'http://127.0.0.1:8006',
-//  'SITE_URL' => 'http://192.168.1.23',
+//  'SITE_URL' => 'http://127.0.0.1:8006',
+  'SITE_URL' => 'http://192.168.1.23',
   'DB_CONFIG' => 'mysql://root:abc@192.168.1.23:3306/ejmall',
   'DB_PREFIX' => 'ecm_',
   'LANG' => 'sc-utf-8',
