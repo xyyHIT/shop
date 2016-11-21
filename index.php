@@ -4,7 +4,7 @@ define('ROOT_PATH', dirname(__FILE__));
 include(ROOT_PATH . '/eccore/ecmall.php');
 
 // composer 自动加载
-//include ROOT_PATH.'/vendor/autoload.php';
+include ROOT_PATH.'/vendor/autoload.php';
 
 /* 定义配置信息 */
 ecm_define(ROOT_PATH . '/data/config.inc.php');
@@ -28,7 +28,8 @@ $ECMall->startup(array(
         ROOT_PATH . '/includes/plugin.base.php',
         ROOT_PATH . '/wxapp/frontend.base.php',
         ROOT_PATH . '/includes/subdomain.inc.php',
-        ROOT_PATH . '/includes/wx.base.php'
+        ROOT_PATH . '/includes/wx.base.php', // 微信类库
+        ROOT_PATH . '/includes/Cache.php', // 缓存库
     ),
 ));
 ?>
