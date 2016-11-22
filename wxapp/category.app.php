@@ -3,8 +3,33 @@
 /*分类控制器*/
 class CategoryApp extends MallbaseApp
 {
+	function index()
+    {
+        /* 取得导航 */
+        $this->assign('navs', $this->_get_navs());
+
+        /* 取得商品分类 */
+        $gcategorys = $this->_list_gcategory();
+
+        /* 当前位置 */
+        $_curlocal=array(
+            array(
+                'text'  => Lang::get('index'),
+                'url'   => 'index.php',
+            ),
+            array(
+                'text'  => Lang::get('gcategory'),
+                'url'   => '',
+            ),
+        );
+        $this->assign('_curlocal',$_curlocal);
+        $this->assign('gcategorys', $gcategorys);
+
+        $this->_config_seo('title', Lang::get('goods_category') . ' - '. Conf::get('site_title'));
+        $this->display('category.goods.html');
+    }
     /* 商品分类 */
-    function index()
+    function ejindex()
     {
         /* 取得商品分类 */
         $gcategorys = $this->_list_gcategory();

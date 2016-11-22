@@ -184,7 +184,7 @@
 						if($overtime >= (7*86400)){
 							//超过七天，系统自动默认确认收货
 							$this->confirm_order($order_info['order_id']);
-							$result['statusname'] = $this->ejstatus['20'];
+							$result['statusname'] = $this->ejstatus['40'];
 							$result['lefttime'] = '';//剩余时间
 							$result['finished_time'] = date('Y-m-d H:i:s',$times);
 							$result['status'] = ORDER_FINISHED;
@@ -581,4 +581,9 @@
 			/*TODO 发送给卖家买家微信推送，交易完成 */
 			return $this->ej_json_success();
         }
+		
+		//48小时内未支付系统自动交易关闭 7天内未确认系统自动完成确认
+		function _ej_system_update($orderid,$status){
+			
+		}
     }
