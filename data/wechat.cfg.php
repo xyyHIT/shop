@@ -5,7 +5,7 @@
  * Date: 2016/11/17
  * Time: 11:43
  */
-
+// http://devtst.yijiapai.com/yjpai/server/wx/check
 return [
     /**
      * Debug 模式，bool 值：true/false
@@ -16,10 +16,19 @@ return [
     /**
      * 账号基本信息，请从微信公众平台/开放平台获取
      */
-    'app_id'  => 'wxf3dab84806d08208',         // AppID
-    'secret'  => '53ed6d3b2c08dc0eacf97ab1b6310ad8',     // AppSecret
-    'token'   => 'wx_token',          // Token
-    'aes_key' => 'YOgcuOltH3z7rJqhsPDivKsnsTEFQRDJvGZEdu9QlLO',                    // EncodingAESKey，安全模式下请一定要填写！！！
+
+    // 艺美易拍
+//    'app_id'  => 'wxf3dab84806d08208', // AppID
+//    'secret'  => '53ed6d3b2c08dc0eacf97ab1b6310ad8', // AppSecret
+//    'token'   => 'wx_token',  // Token
+//    'aes_key' => 'YOgcuOltH3z7rJqhsPDivKsnsTEFQRDJvGZEdu9QlLO', // EncodingAESKey，安全模式下请一定要填写！！！
+
+    // 公众号沙盒帐号测试
+    'app_id'  => 'wx49616c3197a5e9de',
+    'secret'  => 'dc43865a83f0a3036d0f6a6a31606201',
+    'token'   => 'wx_token',
+    'aes_key' => '',
+
     /**
      * 日志配置
      *
@@ -39,7 +48,7 @@ return [
      */
     'oauth'   => [
         'scopes'   => [ 'snsapi_userinfo' ],
-        'callback' => '/examples/oauth_callback.php',
+        'callback' => '/gavin/?app=test&act=oauthCallback',
     ],
     /**
      * 微信支付
