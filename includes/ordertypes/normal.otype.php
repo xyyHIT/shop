@@ -215,13 +215,26 @@ class NormalOrder extends BaseOrder
 				$consignee_info['shipping_fee'][$value['seller_id']]."')";
 				//获取storeid  匹配orderid方便订单商品操作
 				$goodorder[$value['seller_id']] = $value['order_id'];
+				//获取订单id与订单号匹配  为后续统计总订单提供支持
+				$sumorderarr[$value['order_id']] = $value['order_sn'];
 			if($endarr != $value){
 				$inconsignee .= ',';
 			}
 		}
 		$sqlfields = 'order_extm(order_id,consignee,region_id,region_name,address,phone_mob,shipping_fee)';
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inconsignee);
-        /* 插入商品信息 */
+		/*插入总订单表*/
+		if(!$sumorderarr){
+			return 0;
+		}
+		$sumorderjson = json_encode($sumorderarr);
+		$sqlfields = 'sumorder(orderid,addtime,userid,ordersn)';
+		/* 买家信息 */
+		$visitor =& env('visitor');
+		$user_id =  $visitor->get('user_id');
+		$sumordersn = $this->_gen_order_sn();
+		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields." VALUES('".$sumorderjson."','".time()."','".$user_id."','".$sumordersn."')");
+	   /* 插入商品信息 */
 		if(empty($goodslist)){
 			return 0;
 		}
@@ -237,7 +250,11 @@ class NormalOrder extends BaseOrder
         }
 		$sqlfields = 'order_goods(order_id,goods_id,goods_name,spec_id,specification,price,quantity,goods_image)';
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inordergoods);
-        return $orderidarr;
+		//返回订单结果集合
+		$actorderes['orderidarr'] =  $orderidarr;
+		$actorderes['sumorderarr'] =  $sumorderarr;
+		$actorderes['newordersn'] =  $sumordersn;
+        return $actorderes;
     }
 }
 
