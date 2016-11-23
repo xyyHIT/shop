@@ -38,7 +38,7 @@ return [
      */
     'log'     => [
         'level' => 'debug',
-        'file'  => ROOT_PATH . '/tmp/wechat.log',
+        'file'  => ROOT_PATH . '/temp/wechat.log',
     ],
     /**
      * OAuth 配置
