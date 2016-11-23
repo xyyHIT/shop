@@ -12,22 +12,22 @@ return [
      *
      * 当值为 false 时，所有的日志都不会记录
      */
-    'debug'   => true,
+    'debug'   => false,
     /**
      * 账号基本信息，请从微信公众平台/开放平台获取
      */
 
     // 艺美易拍
-//    'app_id'  => 'wxf3dab84806d08208', // AppID
-//    'secret'  => '53ed6d3b2c08dc0eacf97ab1b6310ad8', // AppSecret
-//    'token'   => 'wx_token',  // Token
-//    'aes_key' => 'YOgcuOltH3z7rJqhsPDivKsnsTEFQRDJvGZEdu9QlLO', // EncodingAESKey，安全模式下请一定要填写！！！
+    'app_id'  => 'wxf3dab84806d08208', // AppID
+    'secret'  => '53ed6d3b2c08dc0eacf97ab1b6310ad8', // AppSecret
+    'token'   => 'wx_token',  // Token
+    'aes_key' => 'YOgcuOltH3z7rJqhsPDivKsnsTEFQRDJvGZEdu9QlLO', // EncodingAESKey，安全模式下请一定要填写！！！
 
     // 公众号沙盒帐号测试
-    'app_id'  => 'wx49616c3197a5e9de',
-    'secret'  => 'dc43865a83f0a3036d0f6a6a31606201',
-    'token'   => 'wx_token',
-    'aes_key' => '',
+//    'app_id'  => 'wx49616c3197a5e9de',
+//    'secret'  => 'dc43865a83f0a3036d0f6a6a31606201',
+//    'token'   => 'wx_token',
+//    'aes_key' => '',
 
     /**
      * 日志配置
@@ -38,7 +38,7 @@ return [
      */
     'log'     => [
         'level' => 'debug',
-        'file'  => ROOT_PATH . '/temp/wechat.log',
+        'file'  => ROOT_PATH . '/tmp/wechat.log',
     ],
     /**
      * OAuth 配置
@@ -47,8 +47,10 @@ return [
      * callback：OAuth授权完成后的回调页地址
      */
     'oauth'   => [
-        'scopes'   => [ 'snsapi_userinfo' ],
-        'callback' => '/gavin/?app=test&act=oauthCallback',
+//        'scopes'   => [ 'snsapi_userinfo' ], // 有弹框确认,用户信息都可取到
+        'scopes'   => [ 'snsapi_base' ], // 没有弹框,只能拿到openid
+//        'callback' => '/gavin/?app=test&act=oauthCallback', // 沙盒帐号测试没问题
+        'callback' => '/?app=wechat&act=oauthCallback',
     ],
     /**
      * 微信支付

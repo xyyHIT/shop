@@ -73,6 +73,11 @@
     define('NOTICE_MSG', 2); // 站内短消息
     define('EJADD_SHIP', 7); // 延长收货日期  默认7天
 
+
+    // 万象优图空间名称
+    define('CLOUD_IMAGE_BUCKET','shoptest'); // 测试环境
+//    define('CLOUD_IMAGE_BUCKET','shoppe'); // 正式环境
+
     /**
      *    ECBaseApp
      *

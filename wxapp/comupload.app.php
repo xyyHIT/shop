@@ -1,4 +1,5 @@
 <?php
+use Tencentyun\ImageV2;
 
 define('THUMB_WIDTH', 300);
 define('THUMB_HEIGHT', 300);
@@ -27,6 +28,209 @@ class ComuploadApp extends StoreadminbaseApp {
             $this->instance = $_REQUEST['instance'];
         }
         $this->store_id = $this->visitor->get('manage_store');
+
+    }
+
+    /**
+     * 艺加上传文件 用于微信
+     *
+     * by Gavin 20161122
+     */
+    public function ejUploadFile4Wechat() {
+        // 文件上传模型
+        $upload_mod =& m('uploadedfile');
+
+        /* 取得剩余空间（单位：字节），false表示不限制 */
+        $store_mod =& m('store');
+        $settings = $store_mod->get_settings($this->store_id);
+        // 还可上传大小 单位 B(字节)
+        $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
+
+        $mediaID = $_REQUEST['mediaID'];
+        if ( $mediaID ) {
+            $temporaryHandler = Wechat::handler()->material_temporary;
+            $fileDir = '/tmp/wechat/';
+
+            if( !is_dir($fileDir) && !mkdir($fileDir,0700,true)){
+                return $this->ej_json_failed(-1, '目录创建失败');
+            }
+
+            // 从微信下载文件 放到临时目录
+            $fileName = $temporaryHandler->download($mediaID, $fileDir);
+            $fileUrl = $fileDir . $fileName;
+
+            // 必须是图片
+            $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+            if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                return $this->ej_json_failed(-1, '图片类型不正确');
+            }
+
+            // 正常文件 && 用户可用空间足够
+            if ( is_file($fileUrl) && $remain !== false && $remain < filesize($fileUrl) ) {
+                return $this->ej_json_failed(-1, Lang::get('space_limit_arrived'));
+            }
+
+            // 从临时目录拿到文件 上传到万象优图
+            $cloudRetArr = ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+            if ( $cloudRetArr['httpcode'] != 200 ) {
+                return $this->ej_json_failed(-1, Lang::get('sys_error'));
+            }
+
+            /* 数据库保存 */
+            $data = [
+                'store_id'  => $this->store_id,
+                'file_type' => $mimeType,
+                'file_size' => filesize($fileUrl),
+                'file_name' => $cloudRetArr['data']['fileid'],
+                'file_path' => $cloudRetArr['data']['downloadUrl'],
+                'belong'    => $this->belong,
+                'item_id'   => $this->id,
+                'add_time'  => gmtime(),
+            ];
+            $file_id = $upload_mod->add($data);
+            if ( !$file_id ) {
+                return $this->ej_json_failed(-1);
+            }
+
+            // 如果是上传商品相册图片
+            if ( $this->instance == 'goods_image' ) {
+                /* 生成缩略图 */
+
+                /* 更新商品相册 */
+                $mod_goods_image = &m('goodsimage');
+                $goods_image = [
+                    'goods_id'   => $this->id,
+                    'image_url'  => $cloudRetArr['data']['downloadUrl'],
+                    'thumbnail'  => $cloudRetArr['data']['downloadUrl'],
+                    'sort_order' => 255,
+                    'file_id'    => $file_id,
+                ];
+                if ( !$mod_goods_image->add($goods_image) ) {
+                    return $this->ej_json_failed(-1);
+                }
+            }
+
+            $data['instance'] = $this->instance;
+            $data['file_id'] = $file_id;
+
+            return $this->ej_json_success($data);
+        } else {
+            return $this->ej_json_failed(2001);
+        }
+
+    }
+
+    /**
+     * 艺加 - 上传图片
+     *
+     * @return bool
+     */
+    function ejUploadedFile() {
+        import('image.func');
+        import('uploader.lib');
+        $uploader = new Uploader();
+        $uploader->allowed_type(IMAGE_FILE_TYPE);
+        $uploader->allowed_size(SIZE_GOODS_IMAGE); // 2M
+        $upload_mod =& m('uploadedfile');
+        /* 取得剩余空间（单位：字节），false表示不限制 */
+        $store_mod =& m('store');
+        $settings = $store_mod->get_settings($this->store_id);
+
+        $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
+
+        $files = $_FILES['file'];
+        if ( $files['error'] === UPLOAD_ERR_OK ) {
+            /* 处理文件上传 */
+            $file = [
+                'name'     => $files['name'],
+                'type'     => $files['type'],
+                'tmp_name' => $files['tmp_name'],
+                'size'     => $files['size'],
+                'error'    => $files['error']
+            ];
+            $uploader->addFile($file);
+            if ( !$uploader->file_info() ) {
+                $data = current($uploader->get_error());
+                $res = Lang::get($data['msg']);
+
+                return $this->ej_json_failed(-1, $res);
+            }
+            /* 判断能否上传 */
+            if ( $remain !== false ) {
+                if ( $remain < $file['size'] ) {
+                    $res = Lang::get('space_limit_arrived');
+
+                    return $this->ej_json_failed(-1, $res);
+                }
+            }
+
+            $uploader->root_dir(ROOT_PATH);
+            $dirname = '';
+            if ( $this->belong == BELONG_GOODS ) {
+                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/goods_' . ( time() % 200 );
+            } elseif ( $this->belong == BELONG_STORE ) {
+                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/other';
+            } elseif ( $this->belong == BELONG_ARTICLE ) {
+                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/article';
+            }
+
+            $filename = $uploader->random_filename();
+            $file_path = $uploader->save($dirname, $filename);
+            /* 处理文件入库 */
+            $data = [
+                'store_id'  => $this->store_id,
+                'file_type' => $file['type'],
+                'file_size' => $file['size'],
+                'file_name' => $file['name'],
+                'file_path' => $file_path,
+                'belong'    => $this->belong,
+                'item_id'   => $this->id,
+                'add_time'  => gmtime(),
+            ];
+            $file_id = $upload_mod->add($data);
+            if ( !$file_id ) {
+                $this->_error($uf_mod->get_error());
+
+                return $this->ej_json_failed(-1);
+            }
+
+            if ( $this->instance == 'goods_image' ) // 如果是上传商品相册图片
+            {
+                /* 生成缩略图 */
+                $thumbnail = dirname($file_path) . '/small_' . basename($file_path);
+                make_thumb(ROOT_PATH . '/' . $file_path, ROOT_PATH . '/' . $thumbnail, THUMB_WIDTH, THUMB_HEIGHT, THUMB_QUALITY);
+
+                /* 更新商品相册 */
+                $mod_goods_image = &m('goodsimage');
+                $goods_image = [
+                    'goods_id'   => $this->id,
+                    'image_url'  => $file_path,
+                    'thumbnail'  => $thumbnail,
+                    'sort_order' => 255,
+                    'file_id'    => $file_id,
+                ];
+                if ( !$mod_goods_image->add($goods_image) ) {
+                    $this->_error($this->mod_goods_imaged->get_error());
+
+                    return $this->ej_json_failed(-1, $res);
+                }
+
+                $data['thumbnail'] = $thumbnail;
+            }
+
+            $data['instance'] = $this->instance;
+            $data['file_id'] = $file_id;
+
+            return $this->ej_json_success($data);
+        } elseif ( $files['error'] == UPLOAD_ERR_NO_FILE ) {
+            $res = Lang::get('file_empty');
+
+            return $this->ej_json_failed(-1, $res);
+        } else {
+            $res = Lang::get('sys_error');
+
+            return $this->ej_json_failed(-1, $res);
+        }
 
     }
 
@@ -157,114 +361,6 @@ class ComuploadApp extends StoreadminbaseApp {
             echo "<script type='text/javascript'>alert('{$res}');</script>";
 
             return false;
-        }
-
-    }
-
-    /**
-     * 上传图片
-     *
-     * @return bool
-     */
-    function ejUploadedFile() {
-        import('image.func');
-        import('uploader.lib');
-        $uploader = new Uploader();
-        $uploader->allowed_type(IMAGE_FILE_TYPE);
-        $uploader->allowed_size(SIZE_GOODS_IMAGE); // 2M
-        $upload_mod =& m('uploadedfile');
-        /* 取得剩余空间（单位：字节），false表示不限制 */
-        $store_mod =& m('store');
-        $settings = $store_mod->get_settings($this->store_id);
-
-        $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
-
-        $files = $_FILES['file'];
-        if ( $files['error'] === UPLOAD_ERR_OK ) {
-            /* 处理文件上传 */
-            $file = [
-                'name'     => $files['name'],
-                'type'     => $files['type'],
-                'tmp_name' => $files['tmp_name'],
-                'size'     => $files['size'],
-                'error'    => $files['error']
-            ];
-            $uploader->addFile($file);
-            if ( !$uploader->file_info() ) {
-                $data = current($uploader->get_error());
-                $res = Lang::get($data['msg']);
-                return $this->ej_json_failed(-1,$res);
-            }
-            /* 判断能否上传 */
-            if ( $remain !== false ) {
-                if ( $remain < $file['size'] ) {
-                    $res = Lang::get('space_limit_arrived');
-                    return $this->ej_json_failed(-1,$res);
-                }
-            }
-
-            $uploader->root_dir(ROOT_PATH);
-            $dirname = '';
-            if ( $this->belong == BELONG_GOODS ) {
-                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/goods_' . ( time() % 200 );
-            } elseif ( $this->belong == BELONG_STORE ) {
-                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/other';
-            } elseif ( $this->belong == BELONG_ARTICLE ) {
-                $dirname = 'data/files/store_' . $this->visitor->get('manage_store') . '/article';
-            }
-
-            $filename = $uploader->random_filename();
-            $file_path = $uploader->save($dirname, $filename);
-            /* 处理文件入库 */
-            $data = [
-                'store_id'  => $this->store_id,
-                'file_type' => $file['type'],
-                'file_size' => $file['size'],
-                'file_name' => $file['name'],
-                'file_path' => $file_path,
-                'belong'    => $this->belong,
-                'item_id'   => $this->id,
-                'add_time'  => gmtime(),
-            ];
-            $file_id = $upload_mod->add($data);
-            if ( !$file_id ) {
-                $this->_error($uf_mod->get_error());
-                return $this->ej_json_failed(-1);
-            }
-
-            if ( $this->instance == 'goods_image' ) // 如果是上传商品相册图片
-            {
-                /* 生成缩略图 */
-                $thumbnail = dirname($file_path) . '/small_' . basename($file_path);
-                make_thumb(ROOT_PATH . '/' . $file_path, ROOT_PATH . '/' . $thumbnail, THUMB_WIDTH, THUMB_HEIGHT, THUMB_QUALITY);
-
-                /* 更新商品相册 */
-                $mod_goods_image = &m('goodsimage');
-                $goods_image = [
-                    'goods_id'   => $this->id,
-                    'image_url'  => $file_path,
-                    'thumbnail'  => $thumbnail,
-                    'sort_order' => 255,
-                    'file_id'    => $file_id,
-                ];
-                if ( !$mod_goods_image->add($goods_image) ) {
-                    $this->_error($this->mod_goods_imaged->get_error());
-                    return $this->ej_json_failed(-1,$res);
-                }
-
-                $data['thumbnail'] = $thumbnail;
-            }
-
-            $data['instance'] = $this->instance;
-            $data['file_id'] = $file_id;
-
-            return $this->ej_json_success($data);
-        } elseif ( $files['error'] == UPLOAD_ERR_NO_FILE ) {
-            $res = Lang::get('file_empty');
-            return $this->ej_json_failed(-1,$res);
-        } else {
-            $res = Lang::get('sys_error');
-            return $this->ej_json_failed(-1,$res);
         }
 
     }

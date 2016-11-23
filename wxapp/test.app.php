@@ -1,18 +1,56 @@
 <?php
 
 use \dubbo\dubboClient;
+use Tencentyun\ImageV2;
 
 class TestApp extends MallbaseApp {
+
+    const BUCKET = 'shoptest'; // 测试
+//    const BUCKET = 'shoppe'; // 正式
+
+
+    /**
+     * 万象优图上传文件
+     */
+    public function cloudImageUpload(){
+        $uploadRet = ImageV2::upload('/Users/Gavin/Downloads/s7e.jpg',self::BUCKET);
+        var_dump($uploadRet);
+    }
+
+
+    /**
+     * 微信上传多媒体文件
+     */
+    public function temporaryUpload(){
+        $temporary = Wechat::handler()->material_temporary;
+        $result = $temporary->uploadImage('/Users/Gavin/Downloads/s7e.jpg');
+
+        var_dump($result);
+    }
+
+    /**
+     * 微信下载多媒体文件
+     */
+    public function temporaryDownload(){
+        $mediaID = 'qJlaSal7-c0BC4weBaZ5JIdQJ2D7-80WvFynrZI-UqJNMkJNDpEsF2YO6KUtzF_K';
+        $temporary = Wechat::handler()->material_temporary;
+        $result = $temporary->download($mediaID,'/tmp/');
+
+        var_dump($result);
+    }
+
+
 
     public function test() {
         echo '这是个测试方法.';
     }
 
+    /**
+     * dubbo测试
+     */
     function dubboCli() {
         $options= ["registry_address" => "192.168.1.239:25112"];
         $dubboCli = new dubboClient($options);
-
-        echo '1111';exit;
 
         $HelloService = $dubboCli->getService("com.yijiawang.web.platform.messageCenter.service.NewsService","1.0.0",null);
         $ret = $HelloService->getNewsPage();

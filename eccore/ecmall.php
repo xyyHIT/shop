@@ -99,7 +99,7 @@ class ECMall {
         // 未登录
 //        if(empty( $_SESSION['wechat_user'] )){
 //            // 排除掉验证action
-//            if(strtolower(APP) === 'test' && strtolower(ACT) === 'oauthcallback'){
+//            if(strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback'){
 //
 //            }else{
 //                $oauth = Wechat::handler()->oauth;
