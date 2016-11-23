@@ -29,6 +29,7 @@ class OrderApp extends ShoppingbaseApp
 				array_push($goodslist,$v);
 			}
 			$value['amount'] =  $value['amount'] + $payshiprice;//运费和商品价格总和
+			$value['shiprice'] =  $payshiprice;
 			array_push($resultarr,$value);
 			//获取总金额
 			$totalamount = $totalamount + $value['amount'];
