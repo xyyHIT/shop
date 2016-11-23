@@ -258,6 +258,9 @@
             $result['goods']['goods_id'] = $data['goods']['goods_id'];
             $result['goods']['store_id'] = $data['goods']['store_id'];
             $result['goods']['cate_id'] = $data['goods']['cate_id'];
+            $result['goods']['goods_name'] = $data['goods']['goods_name'];
+            $result['goods']['collects'] = $data['goods']['collects'];
+            $result['goods']['views'] = $data['goods']['views'];
             $result['goods']['default_image'] = $data['goods']['default_image'];//商品图片地址
             $result['goods']['price'] = $data['goods']['price'];
             $result['goods']['sales'] = $data['goods']['sales'];//商品被售出的数目
