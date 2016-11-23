@@ -273,4 +273,35 @@ class CatinfoApp extends MallbaseApp
 		}
 		return $result;
 	}
+		/**
+         * 取得查询条件语句
+         *
+         * @param   array $param 查询参数（参加函数_get_query_param的返回值说明）
+         *
+         * @return  string  where语句
+         */
+        function _get_goods_conditions( $param ) {
+            /* 组成查询条件 */
+            $conditions = " g.if_show = 1 AND g.closed = 0 AND s.state = 1"; // 上架且没有被禁售，店铺是开启状态,
+            if ( isset( $param['keyword'] ) ) {
+                $conditions .= $this->_get_conditions_by_keyword($param['keyword'], ENABLE_SEARCH_CACHE);
+            }
+            if ( isset( $param['cate_id'] ) ) {
+                $conditions .= " AND g.cate_id_{$param['layer']} = '" . $param['cate_id'] . "'";
+            }
+            if ( isset( $param['brand'] ) ) {
+                $conditions .= " AND g.brand = '" . $param['brand'] . "'";
+            }
+            if ( isset( $param['region_id'] ) ) {
+                $conditions .= " AND s.region_id = '" . $param['region_id'] . "'";
+            }
+            if ( isset( $param['price'] ) ) {
+                $min = $param['price']['min'];
+                $max = $param['price']['max'];
+                $min > 0 && $conditions .= " AND g.price >= '$min'";
+                $max > 0 && $conditions .= " AND g.price <= '$max'";
+            }
+
+            return $conditions;
+        }
 }
