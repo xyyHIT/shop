@@ -1,10 +1,11 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);//满足版本升级 by xxy  20161026
+ header("Access-Control-Allow-Origin: *");
 define('ROOT_PATH', dirname(__FILE__));
 include(ROOT_PATH . '/eccore/ecmall.php');
 
 // composer 自动加载
-include ROOT_PATH.'/vendor/autoload.php';
+//include ROOT_PATH.'/vendor/autoload.php';
 
 /* 定义配置信息 */
 ecm_define(ROOT_PATH . '/data/config.inc.php');
