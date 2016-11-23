@@ -182,7 +182,8 @@ class BaseOrder extends Object
         $timestamp = gmtime();
         $y = date('y', $timestamp);
         $z = date('z', $timestamp);
-        $order_sn = $y . str_pad($z, 3, '0', STR_PAD_LEFT) . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+		//添加10表示商城订单
+        $order_sn = '10'.$y . str_pad($z, 3, '0', STR_PAD_LEFT) . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
 
         $model_order =& m('order');
         $orders = $model_order->find('order_sn=' . $order_sn);

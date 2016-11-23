@@ -114,7 +114,7 @@ class OrderApp extends ShoppingbaseApp
 		/* 发送邮件 */
 		$model_order =& m('order');
 		/* 减去商品库存 */
-		$model_order->ejchange_stock('-', $orderidarr);
+		$model_order->ejchange_stock('-', $orderidarr['orderidarr']);
 		/* 获取订单信息 */
 		//$order_info = $model_order->get($order_id);
 		/* 发送事件 详情查看action为index中操作 目前使用微信推送方式*/
@@ -128,7 +128,10 @@ class OrderApp extends ShoppingbaseApp
 		}
 		$model_goodsstatistics->edit($goods_ids, 'orders=orders+1');
 		/* 到收银台付款 */
-		return $this->ej_json_success();
+		$data['ordersn'] = $orderidarr['sumorderarr'];
+		$data['pordersn'] = $orderidarr['newordersn'];
+		$data['totalamount'] = $totalamount;
+		return $this->ej_json_success($data);
 	}
     function _check_beyond_stock($goods_items)
     {
@@ -212,7 +215,8 @@ class OrderApp extends ShoppingbaseApp
 			$where_cart_goods = '';
 		}
 		/* 订单下完后清空指定购物车 */
-		$where_user_id = $this->visitor->get('user_id') ? " user_id=" . $this->visitor->get('user_id') : '';
+		//$where_user_id = $this->visitor->get('user_id') ? " user_id=" . $this->visitor->get('user_id') : '';
+		$where_user_id =  "user_id=".OPENID;
 		$model_cart =& m('cart');
 		//$model_cart->drop("store_id = {$store_id} AND session_id='" . SESS_ID . "'");
 		$model_cart->drop($where_user_id.$where_cart_goods);

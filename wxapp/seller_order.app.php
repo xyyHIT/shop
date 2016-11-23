@@ -628,7 +628,21 @@
 					$temp['order_sn'] = $value['order_sn'];
 					$temp['seller_id'] = $value['seller_id'];
 					$temp['seller_name'] = $value['seller_name'];
-					$temp['status'] = $this->ejstatus[$value['status']];
+					$temp['status'] = $value['status'];
+					$temp['statusname'] = $this->ejstatus[$value['status']];
+					switch ($value['status']) {
+						case 20:
+							$temp['button'] = "<div class='dOperate'><a class='qufahuo'>去发货</a></div>";
+							break;
+						case 30:
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							break;
+						case 40:
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							break;
+						default:
+							$temp['button'] = '';
+					}
 					$temp['order_amount'] = $value['order_amount'];
 					$tmparr = array();
 					foreach ( $value['order_goods'] as $v ) {

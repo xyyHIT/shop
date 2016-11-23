@@ -464,6 +464,7 @@
 					'has_ordergoods',       //取出商品
                 ],
             ]);
+			//'0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成'
 			$result = array();
 			if($orders){
 				foreach ( $orders as $key1 => $order ) {
@@ -473,6 +474,22 @@
 					$temp['buyer_id'] = $order['buyer_id'];
 					$temp['status'] = $order['status'];
 					$temp['statusname'] = $this->ejstatus[$order['status']];
+					switch ($order['status']) {
+						case 11:
+							$temp['button'] = "<div class='dOperate'><a class='quxiaodingdan'>取消订单</a><a class='qufukuan'>去付款</a></div>";
+							break;
+						case 20:
+							$temp['button'] = "<div class='dOperate'><a class='tixingfahuo'>提醒发货</a></div>";
+							break;
+						case 30:
+							$temp['button'] = "<div class='dOperate'><a class='yanchangshouhuo'>延长收货</a><a class='chakanwuliu'>查看物流</a><a class='querenshouhuo'>确认收货</a></div>";
+							break;
+						case 40:
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							break;
+						default:
+							$temp['button'] = '';
+					}
 					$temp['order_amount'] = $order['order_amount'];
 					$tmpgoods = array();
 					foreach($order['order_goods'] as $v){
