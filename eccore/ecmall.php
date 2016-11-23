@@ -96,18 +96,17 @@ class ECMall {
          * 如果没有获取到微信用户信息就跳转到微信验证获取
          */
 
-        // 未登录
-//        if(empty( $_SESSION['wechat_user'] )){
-//            // 排除掉验证action
-//            if(strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback'){
-//
-//            }else{
-//                $oauth = Wechat::handler()->oauth;
-//                $redirectUrl = '/gavin/' . '?' . $_SERVER['QUERY_STRING'];
-//                $_SESSION['wechat_target_url'] = $redirectUrl;
-//                $oauth->redirect()->send();
-//            }
-//        }
+        // 是否登录 判断登录的标准,是否获取openid
+        if(IS_WECHAT && empty( $_SESSION['mall_openid'] )){
+            // 排除掉验证action
+            if(strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback'){
+
+            }else{
+                $redirectUrl = '/?' . $_SERVER['QUERY_STRING'];
+                $_SESSION['mall_target_url'] = $redirectUrl;
+                Wechat::handler()->oauth->redirect()->send();
+            }
+        }
 
         $app->do_action($act);        //转发至对应的Action
         $app->destruct();

@@ -5,6 +5,31 @@ use Tencentyun\ImageV2;
 
 class WechatApp extends MallbaseApp {
 
+    public function test() {
+
+    }
+
+    /**
+     * 微信回调,获取用户openid
+     */
+    public function oauthCallback() {
+        // 获取 OAuth 授权结果用户信息
+        $openid = Wechat::handler()->oauth->user()->toArray()['id'];
+        $_SESSION['mall_openid'] = $openid;
+
+        $targetUrl = empty( $_SESSION['mall_target_url'] ) ? '/' : $_SESSION['mall_target_url'];
+
+        // 跳转
+        header('location:' . $targetUrl);
+    }
+
+    /**
+     * 微信公众号开启服务
+     */
+    public function serve() {
+        Wechat::handler()->server->serve()->send();
+    }
+
     /**
      * 万象优图上传文件
      */
@@ -40,32 +65,6 @@ class WechatApp extends MallbaseApp {
         print_r($result);
     }
 
-
-
-    public function test() {
-        echo '这是个测试方法.';
-    }
-
-    /**
-     * dubbo测试
-     */
-    function dubboCli() {
-        $options= ["registry_address" => "192.168.1.239:25112"];
-        $dubboCli = new dubboClient($options);
-
-        $HelloService = $dubboCli->getService("com.yijiawang.web.platform.messageCenter.service.NewsService","1.0.0",null);
-        $ret = $HelloService->getNewsPage();
-
-        echo $ret;
-    }
-
-
-    /**
-     * 微信公众号开启服务
-     */
-    public function serve() {
-        Wechat::handler()->server->serve()->send();
-    }
 
     /**
      * 更新公众帐号菜单
@@ -117,25 +116,10 @@ class WechatApp extends MallbaseApp {
         echo json_encode($arr);
     }
 
-    public function oauthCallback() {
-        $oauth = Wechat::handler()->oauth;
-
-        // 获取 OAuth 授权结果用户信息
-        $user = $oauth->user();
-        $userArr = $user->toArray();
-        $_SESSION['wechat_user'] = $userArr;
-
-        $targetUrl = empty( $_SESSION['wechat_target_url'] ) ? '/' : $_SESSION['wechat_target_url'];
-
-        // 跳转
-        header('location:' . $targetUrl);
-    }
-
-    public function book(){
-//echo json_encode($_SESSION['wechat_user']).'<br>';
-//        echo '这里是图书专栏';
-
-        //
+    /**
+     * 模板消息
+     */
+    public function notice(){
         $notice = Wechat::handler()->notice;
 
         // $noticeArr = $notice->getPrivateTemplates();

@@ -91,7 +91,76 @@ class My_goodsApp extends StoreadminbaseApp {
                 ]);
             }
 
-            return $this->ej_json_success();
+            $retArr = [
+                'goods_id'=>$this->_last_update_id
+            ];
+            return $this->ej_json_success($retArr);
+        } else {
+            return $this->ej_json_failed(2003);
+        }
+
+    }
+
+    /**
+     * 艺加 - 商品保存为草稿
+     *
+     * by Gavin
+     */
+    public function ejStoreDraft() {
+        /* 检测支付方式、配送方式、商品数量等 */
+        if ( !$this->_ej_addible() ) {
+            return $this->ej_json_failed(-1);
+        }
+
+        /**
+         * 改为传json字符串, 所以这里需要decode
+         */
+        if ( isset( $_POST['sgcate_id'] ) ) {
+            $_POST['sgcate_id'] = json_decode(stripslashes($_POST['sgcate_id']), 1);
+        } else {
+            // 如果没有初始化本店铺分类
+            $_POST['sgcate_id'] = [ 0 ];
+        }
+        if ( isset( $_POST['goods_file_id'] ) ) {
+            $_POST['goods_file_id'] = explode(',', $_POST['goods_file_id']);
+        }
+        if ( isset( $_POST['desc_file_id'] ) ) {
+            $_POST['desc_file_id'] = explode(',', $_POST['desc_file_id']);
+        }
+
+        // 必须post请求
+        if ( IS_POST ) {
+            /* 取得数据 */
+            $data = $this->_get_post_data(0);
+            /* 检查数据 */
+            if ( !$this->_check_post_data($data, 0) ) {
+                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
+            }
+            /* 保存数据 */
+            if ( !$this->_save_post_data($data, 0) ) {
+                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
+            }
+            $goods_info = $this->_get_goods_info($this->_last_update_id);
+            if ( $goods_info['if_show'] ) {
+                $goods_url = SITE_URL . '/' . url('app=goods&id=' . $goods_info['goods_id']);
+                $feed_images = [];
+                $feed_images[] = [
+                    'url'  => SITE_URL . '/' . $goods_info['default_image'],
+                    'link' => $goods_url,
+                ];
+                $this->send_feed('goods_created', [
+                    'user_id'    => $this->visitor->get('user_id'),
+                    'user_name'  => $this->visitor->get('user_name'),
+                    'goods_url'  => $goods_url,
+                    'goods_name' => $goods_info['goods_name'],
+                    'images'     => $feed_images
+                ]);
+            }
+
+            $retArr = [
+                'goods_id'=>$this->_last_update_id
+            ];
+            return $this->ej_json_success($retArr);
         } else {
             return $this->ej_json_failed(2003);
         }

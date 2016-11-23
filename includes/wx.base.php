@@ -1,7 +1,12 @@
 <?php
 use EasyWeChat\Foundation\Application;
 
-
+/**
+ *
+ * Class Wechat
+ *
+ * by Gavin 20161123
+ */
 class Wechat{
 
     /**
@@ -17,11 +22,6 @@ class Wechat{
      * @var array
      */
     private static $options;
-
-    private $notice = [
-
-    ];
-//    const
 
     /**
      * 初始化
@@ -76,16 +76,29 @@ class Wechat{
         return $response;
     }
 
+    /**
+     * 获取用户信息
+     * 如果获取不到,需要用户去关注
+     *
+     * @param $openid
+     *
+     * @return mixed
+     */
+    public static function getUserInfo($openid){
+        $userModel =& m('member');
+
+        $userArr = current($userModel->find([
+            'conditions' => 'openid=\''.$openid.'\'',
+        ]));
+
+        if($userArr !== false){
+            // 如果数据库已存在就拿出
+            return $userArr;
+        }else{
+            // 不存在就调用接口获取数据
+
+        }
+
+    }
+
 }
-
-
-
-/*接入微信端*/
-//获取openid
-//从拍卖user中查询，统一用户
-//用户常登录操作
-define('OPENID', '3'); //定义商城openid  与微信openid不同   满足用户常登录
-//$user_mod = m('member');
-//$info = $user_mod->get_info(OPENID);
-//print_r($info);
-

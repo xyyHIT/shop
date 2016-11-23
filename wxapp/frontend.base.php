@@ -11,8 +11,8 @@ class FrontendApp extends ECBaseApp {
         $this->FrontendApp();
         //用户保持常登录状态
         if ( !$this->visitor->has_login ) {
-            if ( OPENID ) {
-                $this->_do_login(OPENID);
+            if ( !IS_WECHAT && USER_ID ) {
+                $this->_do_login(USER_ID);
             }
         }
     }
