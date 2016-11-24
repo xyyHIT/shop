@@ -117,7 +117,7 @@
          * @return    void
          */
         function view() {
-            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            $order_id = isset( $_REQUEST['order_id'] ) ? intval($_REQUEST['order_id']) : 0;
             $type = isset( $_REQUEST['type'] ) ? intval($_REQUEST['type']) : 0;
             $model_order =& m('order');
 			if($type == 0){
