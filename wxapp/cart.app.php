@@ -449,8 +449,8 @@
             $cart_model =& m('cart');
             $cart_items = $cart_model->find([
                 'conditions' => 'session_id = \'' . SESS_ID . "'" . $where_store_id . $where_user_id,
-                'fields'     => 'this.*,store.store_name',
-                'join'       => 'belongs_to_store',
+                'fields'     => 'this.*,store.store_name,goodsspec.stock',
+                'join'       => 'belongs_to_store,belongs_to_goodsspec',
             ]);
             if ( empty( $cart_items ) ) {
                 return $carts;
