@@ -64,98 +64,48 @@ class My_goodsApp extends StoreadminbaseApp {
 
         // 必须post请求
         if ( IS_POST ) {
+            // 是否保存为草稿
+            $isDraftBool = boolval($_REQUEST['is_draft']);
+
             /* 取得数据 */
             $data = $this->_get_post_data(0);
+
             /* 检查数据 */
-            if ( !$this->_check_post_data($data, 0) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
+            // 如果是保存为草稿,验证不严苛
+            if($isDraftBool){
+                $data['goods']['if_show'] = 2;
+                if(!$this->_check_post_data_draft($data, 0)){
+                    return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
+                }
+            }else{
+                $data['goods']['is_show'] = 1;
+                // 如果直接发布,验证严苛
+                if(!$this->_check_post_data($data, 0)){
+                    return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
+                }
             }
+
             /* 保存数据 */
             if ( !$this->_save_post_data($data, 0) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
-            }
-            $goods_info = $this->_get_goods_info($this->_last_update_id);
-            if ( $goods_info['if_show'] ) {
-                $goods_url = SITE_URL . '/' . url('app=goods&id=' . $goods_info['goods_id']);
-                $feed_images = [];
-                $feed_images[] = [
-                    'url'  => SITE_URL . '/' . $goods_info['default_image'],
-                    'link' => $goods_url,
-                ];
-                $this->send_feed('goods_created', [
-                    'user_id'    => $this->visitor->get('user_id'),
-                    'user_name'  => $this->visitor->get('user_name'),
-                    'goods_url'  => $goods_url,
-                    'goods_name' => $goods_info['goods_name'],
-                    'images'     => $feed_images
-                ]);
+                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
             }
 
-            $retArr = [
-                'goods_id'=>$this->_last_update_id
-            ];
-            return $this->ej_json_success($retArr);
-        } else {
-            return $this->ej_json_failed(2003);
-        }
-
-    }
-
-    /**
-     * 艺加 - 商品保存为草稿
-     *
-     * by Gavin
-     */
-    public function ejStoreDraft() {
-        /* 检测支付方式、配送方式、商品数量等 */
-        if ( !$this->_ej_addible() ) {
-            return $this->ej_json_failed(-1);
-        }
-
-        /**
-         * 改为传json字符串, 所以这里需要decode
-         */
-        if ( isset( $_POST['sgcate_id'] ) ) {
-            $_POST['sgcate_id'] = json_decode(stripslashes($_POST['sgcate_id']), 1);
-        } else {
-            // 如果没有初始化本店铺分类
-            $_POST['sgcate_id'] = [ 0 ];
-        }
-        if ( isset( $_POST['goods_file_id'] ) ) {
-            $_POST['goods_file_id'] = explode(',', $_POST['goods_file_id']);
-        }
-        if ( isset( $_POST['desc_file_id'] ) ) {
-            $_POST['desc_file_id'] = explode(',', $_POST['desc_file_id']);
-        }
-
-        // 必须post请求
-        if ( IS_POST ) {
-            /* 取得数据 */
-            $data = $this->_get_post_data(0);
-            /* 检查数据 */
-            if ( !$this->_check_post_data($data, 0) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
-            }
-            /* 保存数据 */
-            if ( !$this->_save_post_data($data, 0) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
-            }
-            $goods_info = $this->_get_goods_info($this->_last_update_id);
-            if ( $goods_info['if_show'] ) {
-                $goods_url = SITE_URL . '/' . url('app=goods&id=' . $goods_info['goods_id']);
-                $feed_images = [];
-                $feed_images[] = [
-                    'url'  => SITE_URL . '/' . $goods_info['default_image'],
-                    'link' => $goods_url,
-                ];
-                $this->send_feed('goods_created', [
-                    'user_id'    => $this->visitor->get('user_id'),
-                    'user_name'  => $this->visitor->get('user_name'),
-                    'goods_url'  => $goods_url,
-                    'goods_name' => $goods_info['goods_name'],
-                    'images'     => $feed_images
-                ]);
-            }
+//            $goods_info = $this->_get_goods_info($this->_last_update_id);
+//            if ( $goods_info['if_show'] ) {
+//                $goods_url = SITE_URL . '/' . url('app=goods&id=' . $goods_info['goods_id']);
+//                $feed_images = [];
+//                $feed_images[] = [
+//                    'url'  => SITE_URL . '/' . $goods_info['default_image'],
+//                    'link' => $goods_url,
+//                ];
+//                $this->send_feed('goods_created', [
+//                    'user_id'    => $this->visitor->get('user_id'),
+//                    'user_name'  => $this->visitor->get('user_name'),
+//                    'goods_url'  => $goods_url,
+//                    'goods_name' => $goods_info['goods_name'],
+//                    'images'     => $feed_images
+//                ]);
+//            }
 
             $retArr = [
                 'goods_id'=>$this->_last_update_id
@@ -186,16 +136,30 @@ class My_goodsApp extends StoreadminbaseApp {
         }
 
         if ( IS_POST ) {
+            // 是否保存为草稿
+            $isDraftBool = boolval($_REQUEST['is_draft']);
+
             /* 取得数据 */
             $data = $this->_get_post_data($id);
 
             /* 检查数据 */
-            if ( !$this->_check_post_data($data, $id) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
+            // 如果是保存为草稿,验证不严苛
+            if($isDraftBool){
+                $data['goods']['if_show'] = 2;
+                if(!$this->_check_post_data_draft($data, $id)){
+                    return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
+                }
+            }else{
+                $data['goods']['if_show'] = 1;
+                // 如果直接发布,验证严苛
+                if(!$this->_check_post_data($data, $id)){
+                    return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
+                }
             }
+
             /* 保存商品 */
             if ( !$this->_save_post_data($data, $id) ) {
-                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())));
+                return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
             }
 
             return $this->ej_json_success();
@@ -220,7 +184,7 @@ class My_goodsApp extends StoreadminbaseApp {
         $this->_goods_mod->drop_data($ids);
         $rows = $this->_goods_mod->drop($ids);
         if ( $this->_goods_mod->has_error() ) {
-            return $this->ej_json_failed(-1, current($this->_goods_mod->get_error()));
+            return $this->ej_json_failed(-1, Lang::get(current($this->_goods_mod->get_error())['msg']));
         }
 
         return $this->ej_json_success();
@@ -2061,6 +2025,33 @@ class My_goodsApp extends StoreadminbaseApp {
         }
         if ( empty( $data['specs'] ) ) {
             $this->_error('fill_spec');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查提交数据 保存为草稿
+     *
+     * @param     $data
+     * @param int $id
+     *
+     * @return bool|void
+     */
+    function _check_post_data_draft($data, $id = 0){
+
+        // 商品名不能空
+        if( strlen(trim($data['goods']['goods_name'])) == 0 ){
+            $this->_error('goods_name_empty');
+
+            return false;
+        }
+
+        // 商品重名
+        if ( !$this->_goods_mod->unique(trim($data['goods']['goods_name']), $id) ) {
+            $this->_error('name_exist');
 
             return false;
         }

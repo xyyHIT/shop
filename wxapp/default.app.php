@@ -1,6 +1,32 @@
 <?php
 
 class DefaultApp extends MallbaseApp {
+
+    /**
+     * 获取首页信息
+     *
+     * by Gavin 20161124
+     */
+    function ejIndex() {
+        // 取得分类
+        $categoryArr = $this->_CategoryList(true);
+
+        // 获取轮播图
+        $cycleImageArr = $this->_GetCycleImages();
+
+        // 获取推荐信息
+        $recom_mod =& m('recommend');
+        $recommendArr = $recom_mod->get_recommended_goods_all(6, true);
+
+        $allArr = [
+            'categories'   => $categoryArr,
+            'cycleImages' => $cycleImageArr,
+            'recommend'   => $recommendArr,
+        ];
+
+        return $this->ej_json_success($allArr);
+    }
+
     function index() {
         $arr = [ 'a' => '1', 'b' => '2' ];
         $this->assign('index', 1); // 标识当前页面是首页，用于设置导航状态
@@ -21,29 +47,6 @@ class DefaultApp extends MallbaseApp {
         $keywords = explode(',', conf::get('hot_search'));
 
         return $keywords;
-    }
-
-    /**
-     * 获取首页信息
-     */
-    function ejIndex() {
-        // 取得分类
-        $categoryArr = $this->_CategoryList(true);
-
-        // 获取轮播图
-        $cycleImageArr = $this->_GetCycleImages();
-
-        // 获取推荐信息
-        $recom_mod =& m('recommend');
-        $recommendArr = $recom_mod->get_recommended_goods_all(6, true);
-
-        $allArr = [
-            'categories'   => $categoryArr,
-            'cycleImages' => $cycleImageArr,
-            'recommend'   => $recommendArr,
-        ];
-
-        return $this->ej_json_success($allArr);
     }
 
     /**

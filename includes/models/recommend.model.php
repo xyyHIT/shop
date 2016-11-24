@@ -85,9 +85,7 @@ class RecommendModel extends BaseModel {
      * @return array
      */
     public function get_recommended_goods_all( $num, $default_image = true ) {
-
         $recommends = $this->getRecommends();
-
         $conditions = "g.if_show = 1 AND g.closed = 0 AND s.state = 1 ";
 
         /* 推荐商品 */
@@ -102,6 +100,8 @@ class RecommendModel extends BaseModel {
             "LIMIT {$num}";
 
         $res = $this->db->query($sql);
+
+
         while ( $row = $this->db->fetchRow($res) ) {
             $default_image && empty( $row['default_image'] ) && $row['default_image'] = Conf::get('default_goods_image');
 
