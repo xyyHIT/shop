@@ -215,8 +215,7 @@ class OrderApp extends ShoppingbaseApp
 			$where_cart_goods = '';
 		}
 		/* 订单下完后清空指定购物车 */
-		//$where_user_id = $this->visitor->get('user_id') ? " user_id=" . $this->visitor->get('user_id') : '';
-		$where_user_id =  "user_id=".OPENID;
+		$where_user_id = $this->visitor->get('user_id') ? " user_id=" . $this->visitor->get('user_id') : '';
 		$model_cart =& m('cart');
 		//$model_cart->drop("store_id = {$store_id} AND session_id='" . SESS_ID . "'");
 		$model_cart->drop($where_user_id.$where_cart_goods);
