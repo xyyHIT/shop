@@ -5,8 +5,26 @@ use Tencentyun\ImageV2;
 
 class WechatApp extends MallbaseApp {
 
-    public function test() {
+    public function json(){
+        $r = [
+            'a' => 'abc',
+            'b' => 'abc',
+            'c' => 'abc',
+        ];
 
+        echo json_encode($r);
+    }
+
+    public function test() {
+        require ROOT_PATH . '/includes/Http.php';
+
+        $http = new Http();
+        $jsonArr = $http->parseJSON($http->get('http://127.0.0.1:8006',[
+            'app'=>'wechat',
+            'act'=>'json'
+        ]));
+
+        print_r($jsonArr);
     }
 
     /**
