@@ -201,6 +201,7 @@
 					$result['statusname'] = '交易取消';
 					$result['lefttime'] = '';//剩余时间
 			}
+			//添加订单详情页面按钮
 			$result['pay_time'] = empty($order_info['pay_time'])?'':date('Y-m-d H:i:s',$order_info['pay_time']);//付款时间
 			$result['order_amount'] = $order_info['order_amount'];
 			$result['consignee'] = $order_detail['data']['order_extm'];
@@ -215,7 +216,7 @@
          * @return    void
          */
         function cancel_order($orderid = 0,$remark='') {
-            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : $orderid;
+            $order_id = isset( $_REQUEST['order_id'] ) ? intval($_REQUEST['order_id']) : $orderid;
             if ( !$order_id ) {
 				return $this->ej_json_failed(2001);
             }
