@@ -65,9 +65,7 @@ class My_favoriteApp extends MemberbaseApp
         $item_id = empty($_GET['item_id'])  ? 0 : trim($_GET['item_id']);
         if (!$item_id)
         {
-            $this->show_warning('no_such_collect_item');
-
-            return;
+			return $this->ej_json_failed(-1);
         }
         if ($type == 'goods')
         {
@@ -77,6 +75,7 @@ class My_favoriteApp extends MemberbaseApp
         {
             $this->_drop_collect_store($item_id);
         }
+		return $this->ej_json_success();
     }
 
     /**
