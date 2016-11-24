@@ -230,7 +230,8 @@ class NormalOrder extends BaseOrder
 		$sumorderjson = json_encode($sumorderarr);
 		$sqlfields = 'sumorder(orderid,addtime,userid,ordersn)';
 		/* 买家信息 */
-		$user_id =  OPENID;
+		$visitor     =& env('visitor');
+        $user_id     =  $visitor->get('user_id');
 		$sumordersn = $this->_gen_order_sn();
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields." VALUES('".$sumorderjson."','".time()."','".$user_id."','".$sumordersn."')");
 	   /* 插入商品信息 */
