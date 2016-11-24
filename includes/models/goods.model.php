@@ -162,7 +162,9 @@ class GoodsModel extends BaseModel {
         $this->temp = $tables . $conditions;
         $sql = "SELECT {$fields} FROM {$tables}{$conditions}{$order}{$limit}";
 
-        $goods_list = $index_key ? $this->db->getAllWithIndex($sql, $index_key) : $this->db->getAll($sql);
+        // 以索引形式排序(不要这样做)
+//        $goods_list = $index_key ? $this->db->getAllWithIndex($sql, $index_key) : $this->db->getAll($sql);
+        $goods_list = $this->db->getAll($sql);
 
         // 用no_picture替换商品图片
         if ( $no_picture ) {

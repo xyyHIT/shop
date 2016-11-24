@@ -39,9 +39,10 @@
             $goods_mod =& m('goods');
             $goods_list = $goods_mod->get_list([
                 'conditions' => $conditions,
-                'order'      => isset( $_GET['order'] ) && isset( $orders[ $_GET['order'] ] ) ? $_GET['order'] : '',
+                'order'      => isset( $_REQUEST['order'] ) && isset( $orders[ $_REQUEST['order'] ] ) ? $_REQUEST['order'] : '',
                 'limit'      => $page['limit'],
             ]);
+
             foreach ( $goods_list as $key => $goods ) {
                 empty( $goods['default_image'] ) && $goods_list[ $key ]['default_image'] = Conf::get('default_goods_image');
             }
@@ -55,7 +56,7 @@
         }
 
         /**
-         * 易加 - 搜索店铺
+         * 艺加 - 搜索店铺
          */
         function ejStore() {
             /* 取得该分类及子分类cate_id */
@@ -133,15 +134,6 @@
             return $this->ej_json_success($all);
         }
 
-
-        /**
-         * 易加 - 获取首页历史记录 (前端来做)
-         */
-        function history(){
-//            Cache::set('abc','1111',10);
-
-        }
-
         /* 搜索商品 */
         function index() {
             // 查询参数
@@ -152,7 +144,6 @@
             }
             if ( isset( $param['cate_id'] ) && $param['layer'] === false ) {
                 $this->show_warning('no_such_category');
-
                 return;
             }
 
