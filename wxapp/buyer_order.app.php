@@ -118,12 +118,22 @@
          */
         function view() {
             $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            $type = isset( $_REQUEST['type'] ) ? intval($_REQUEST['type']) : 0;
             $model_order =& m('order');
-            $order_info = $model_order->get([
-                'fields'     => "*, order.add_time as order_add_time",
-                'conditions' => "order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'),
-                'join'       => 'belongs_to_store',
-            ]);
+			if($type == 0){
+				$order_info = $model_order->get([
+					'fields'     => "*, order.add_time as order_add_time",
+					'conditions' => "order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'),
+					'join'       => 'belongs_to_store',
+				]);
+			}else{
+				$order_info = $model_order->get([
+					'fields'     => "*, order.add_time as order_add_time",
+					'conditions' => "order_id={$order_id} AND seller_id=" . $this->visitor->get('user_id'),
+					'join'       => 'belongs_to_store',
+				]);
+			}
+
             if ( !$order_info ) {
 				return $this->ej_json_failed(2001);
             }
@@ -202,6 +212,39 @@
 					$result['lefttime'] = '';//剩余时间
 			}
 			//添加订单详情页面按钮
+			if($type ==  1){
+				switch ($result['status'])
+				{
+					case 20://代发货
+							$result['button'] = "<div class='dfixed'><a class='qufahuo'>去发货</a></div>";
+					break;
+					case 30://代收货
+							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
+					break;
+					case 40://待评价
+							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
+					break;
+					default:
+							$result['button'] = '';
+				}
+			}else{
+				switch ($result['status'])
+				{
+					case 11://代付款
+							$result['button'] = "<div class='dfixed dfixed2'><a class='quxiaodingdan'>取消订单</a><a class='qufukuan'>去付款</a></div>";
+					case 20://代发货
+							$result['button'] = "<div class='dfixed'><a class='tixingfahuo'>提醒发货</a></div>";
+							break;
+					case 30://代收货
+							$result['button'] = "<div class='dfixed dfixed3'><a class='yanchangshouhuo'>延长收货</a><a class='chakanwuliu'>查看物流</a><a class='querenshouhuo'>确认收货</a></div>";
+							break;
+					case 40://待评价
+							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
+							break;
+					default:
+							$result['button'] = '';
+				}
+			}
 			$result['pay_time'] = empty($order_info['pay_time'])?'':date('Y-m-d H:i:s',$order_info['pay_time']);//付款时间
 			$result['order_amount'] = $order_info['order_amount'];
 			$result['consignee'] = $order_detail['data']['order_extm'];
