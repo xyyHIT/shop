@@ -288,6 +288,110 @@ class CashierApp extends ShoppingbaseApp
     {
         header('Location:index.php?app=cashier&order_id=' . $order_id);
     }
+	
+	/**
+     *    确认支付
+     *
+     *    @author    newrain
+     *    @return    void
+     */
+    function ejgoto_pay()
+    {
+        $order_id = isset($_REQUEST['order_id']) ? intval($_REQUEST['order_id']) : 0;
+        $type = isset($_REQUEST['type']) ? intval($_REQUEST['type']) : 0;//判断是总单还是分单 0分单  1总单
+        $payment_id = isset($_REQUEST['payment_id']) ? intval($_REQUEST['payment_id']) : '';//目前只支持微信支付
+        if (!$order_id || !$payment_id)
+        {
+            return $this->ej_json_failed(2001);
+        }
+        //确定订单类型值
+		if($type !=0 && $type != 1){
+			return $this->ej_json_failed(2001);
+		}
+		$order_model =& m('order');
+		if($type == 0){
+			//单个订单支付详情
+			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
+		}else{
+			//合并订单详情
+			$order_info =  $order_model->db->getRow("select id,orderid,ordersn from ".DB_PREFIX."sumcollect where id=".intval($order_id)." and userid=".$this->visitor->get('user_id'));
+		}
+        //判断用户是否下过订单
+        if (empty($order_info))
+        {
+			return $this->ej_json_failed(3001);
+        }
+		
+        /* 验证艺加支付方式 查看是否开启此支付*/
+		$payment_info = $order_model->db->getRow("select payment_id,payment_code,payment_name from ".DB_PREFIX."ejpayment where payment_id=".intval($payment_id));
+        if (!$payment_info)
+        {
+            return $this->ej_json_failed(3001);
+        }
+
+        /* 保存支付方式 */
+		$edit_data = array(
+			'payment_id'    =>  $payment_info['payment_id'],
+			'payment_code'  =>  $payment_info['payment_code'],
+			'payment_name'  =>  $payment_info['payment_name'],
+		);
+		if($type==0){
+			//单个订单支付
+			$order_model->edit($order_id, $edit_data);
+		}else{
+			//合单支付
+			$this->_ej_editPayment($order_id,$edit_data);
+		}
+        /* 开始支付  判断用户是否存在openid*/
+		if(!$_SESSION['openid']){
+			return $this->ej_json_failed(3001);
+		}
+		//选择用户支付方式
+		switch ($payment_info['payment_code'])
+		{
+			case 'wx':
+				$this->_ej_wxpay($order_info);
+				break;
+			default:
+				return $this->ej_json_failed(3001);
+		}
+    }
+	
+	//合单支付  保存订单支付方式
+	function _ej_editPayment($order_id,$edit_data){
+		$orderarr = json_decode($json,true);
+ 		foreach($orderarr as $k=>$v){
+			$sqlpid .= " WHEN $k THEN ".$edit_data['payment_id'];
+			$sqlpname .= " WHEN  $k THEN '".$edit_data['payment_name']."'";
+			$sqlpcode .= " WHEN $k THEN '".$edit_data['payment_code']."'";
+		}
+		//获取key值字符串
+		$orderstr = implode(',', array_keys($orderarr));
+		$sql = "UPDATE ".DB_PREFIX."order SET payment_id = CASE order_id ".$sqlpid." END ".
+				",payment_name = CASE order_id ".$sqlpname." END ".
+				",payment_code = CASE order_id ".$sqlpcode." END ";
+		$sql .= "  WHERE order_id IN (".$orderstr.")";
+		$order_model =& m('order');
+		$order_model->db->query($sql);
+	}
+	//艺加微信支付
+	function _ej_wxpay($order_info){
+		$attributes = [
+			'trade_type'       => 'JSAPI', // JSAPI，NATIVE，APP...
+			'body'             => 'iPad mini 16G 白色',
+			'detail'           => 'iPad mini 16G 白色',
+			'out_trade_no'     => '1217752501201407033233368018',
+			'total_fee'        => 5388,
+			'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+			'openid'           => $_SESSION['openid'], // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
+		];
+		//调取微信支付底层代码
+		$prepayarr = Wechat::pay($attributes);
+		if($prepayarr){
+			return $this->ej_json_success($prepayarr);
+		}
+		return $this->ej_json_failed(3001);
+	}
 }
 
 ?>
