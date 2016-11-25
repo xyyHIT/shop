@@ -3,9 +3,11 @@
 use \dubbo\dubboClient;
 use Tencentyun\ImageV2;
 
-class WechatApp extends MallbaseApp {
+class WechatApp extends MallbaseApp
+{
 
-    public function json(){
+    public function json()
+    {
         $r = [
             'a' => 'abc',
             'b' => 'abc',
@@ -15,13 +17,14 @@ class WechatApp extends MallbaseApp {
         echo json_encode($r);
     }
 
-    public function test() {
+    public function test()
+    {
         require ROOT_PATH . '/includes/Http.php';
 
         $http = new Http();
-        $jsonArr = $http->parseJSON($http->get('http://127.0.0.1:8006',[
-            'app'=>'wechat',
-            'act'=>'json'
+        $jsonArr = $http->parseJSON($http->get('http://127.0.0.1:8006', [
+            'app' => 'wechat',
+            'act' => 'json'
         ]));
 
         print_r($jsonArr);
@@ -30,7 +33,8 @@ class WechatApp extends MallbaseApp {
     /**
      * 微信回调,获取用户openid
      */
-    public function oauthCallback() {
+    public function oauthCallback()
+    {
         // 获取 OAuth 授权结果用户信息
         $openid = Wechat::handler()->oauth->user()->toArray()['id'];
         $_SESSION['mall_openid'] = $openid;
@@ -44,15 +48,17 @@ class WechatApp extends MallbaseApp {
     /**
      * 微信公众号开启服务
      */
-    public function serve() {
+    public function serve()
+    {
         Wechat::handler()->server->serve()->send();
     }
 
     /**
      * 万象优图上传文件
      */
-    public function cloudImageUpload(){
-        $uploadRet = ImageV2::upload($_FILES['file']['tmp_name'],CLOUD_IMAGE_BUCKET);
+    public function cloudImageUpload()
+    {
+        $uploadRet = ImageV2::upload($_FILES['file']['tmp_name'], CLOUD_IMAGE_BUCKET);
 
         echo json_encode($uploadRet);
     }
@@ -61,7 +67,8 @@ class WechatApp extends MallbaseApp {
     /**
      * 微信上传文件
      */
-    public function temporaryUpload(){
+    public function temporaryUpload()
+    {
         $temporary = Wechat::handler()->material_temporary;
         $result = $temporary->uploadImage('/Users/Gavin/Downloads/s7e.jpg');
 //        $result = $temporary->uploadImage($_FILES['file']['tmp_name']);
@@ -72,11 +79,12 @@ class WechatApp extends MallbaseApp {
     /**
      * 微信下载多媒体文件
      */
-    public function temporaryDownload(){
+    public function temporaryDownload()
+    {
 //        $mediaID = '3-PEDAxzGvui2HplCiQK5Cnd41UO48tCBaK_S9OqjK9qpduTAgJH6mmKCIwMcSnZ';
         $mediaID = 'qJlaSal7-c0BC4weBaZ5JIdQJ2D7-80WvFynrZI-UqJNMkJNDpEsF2YO6KUtzF_K';
         $temporary = Wechat::handler()->material_temporary;
-        $result = $temporary->download($mediaID,'/tmp/');
+        $result = $temporary->download($mediaID, '/tmp/');
 
 //        var_dump();
 
@@ -87,7 +95,8 @@ class WechatApp extends MallbaseApp {
     /**
      * 更新公众帐号菜单
      */
-    public function updateMenu() {
+    public function updateMenu()
+    {
 //        $buttons = [
 //            [
 //                "type" => "view",
@@ -116,7 +125,8 @@ class WechatApp extends MallbaseApp {
     /**
      * 获取公众帐号菜单
      */
-    public function getMenu(){
+    public function getMenu()
+    {
         $menu = Wechat::handler()->menu;
         $arr = $menu->all();
 
@@ -137,17 +147,18 @@ class WechatApp extends MallbaseApp {
     /**
      * 模板消息
      */
-    public function notice(){
+    public function notice()
+    {
         $notice = Wechat::handler()->notice;
 
         // $noticeArr = $notice->getPrivateTemplates();
 
         $tID = $notice->send([
-            'touser' => $_SESSION['wechat_user']['id'],
+            'touser'      => $_SESSION['wechat_user']['id'],
             'template_id' => 'rQcUAmp7X4MM2n7dzTwjIw1HjT0IRdfSnzlfvd6tbKQ',
-            'url' => '',
-            'topcolor' => '#f7f7f7',
-            'data' => [
+            'url'         => '',
+            'topcolor'    => '#f7f7f7',
+            'data'        => [
                 "first"  => "恭喜你购买成功！",
                 "name"   => "巧克力",
                 "price"  => "39.8元",
