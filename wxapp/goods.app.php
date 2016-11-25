@@ -276,9 +276,9 @@
             $result['store']['goods_count'] = $data['store_data']['goods_count'];
             $result['store']['collect_count'] = $this->_ejget_collect_num('store', $data['goods']['store_id']);
             $result['store']['tel'] = $data['store_data']['tel'];//店铺联系电话（和卖家的区分）
-			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type=store and item_id=".$data['goods']['store_id']." and user_id=".$_SESSION['user_info']['user_id']);
+			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
 			$result['store']['collectsign'] = empty($colstore)?'0':'1';
-			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type=goods and item_id=".$data['goods']['goods_id']." and user_id=".$_SESSION['user_info']['user_id']);
+			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
 			$result['goods']['collectsign'] = empty($colsgoods)?'0':'1'; 			
 			return $result;
         }
