@@ -30,6 +30,20 @@ class WechatApp extends MallbaseApp
         print_r($jsonArr);
     }
 
+
+    /**
+     * 获取用户信息,跳转
+     */
+    public function redirectRealPage(){
+        $userInfo = $_POST['user_info'];
+
+        $userInfo = json_encode($userInfo,1);
+
+        $redirectUrl = $_POST['redirect_url'];
+
+        header("Location: $redirectUrl");
+    }
+
     /**
      * 微信回调,获取用户openid
      */
