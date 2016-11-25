@@ -51,7 +51,10 @@
 
             /* 更新浏览次数 */
             $this->_update_views($id);
-
+			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
+			$res['store']['collectsign'] = empty($colstore)?'0':'1';
+			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
+			$res['goods']['collectsign'] = empty($colsgoods)?'0':'1'; 
             return $this->ej_json_success($res);
         }
 
@@ -236,10 +239,6 @@
             if ( $cached ) {
                 $this->set_store($data['goods']['store_id']);
             }
-			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
-			$data['store']['collectsign'] = empty($colstore)?'0':'1';
-			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
-			$data['goods']['collectsign'] = empty($colsgoods)?'0':'1'; 
             return $data;
         }
 
