@@ -78,7 +78,7 @@ class My_goodsApp extends StoreadminbaseApp {
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
                 }
             }else{
-                $data['goods']['is_show'] = 1;
+                $data['goods']['if_show'] = 1;
                 // 如果直接发布,验证严苛
                 if(!$this->_check_post_data($data, 0)){
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
