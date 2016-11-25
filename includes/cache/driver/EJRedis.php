@@ -144,6 +144,37 @@
         }
 
         /**
+         * 存入set值
+         *
+         * @param $name
+         * @param array|string $value
+         *
+         * @return bool|int
+         */
+        public function sAdd($name,$value){
+            $key = $this->getCacheKey($name);
+
+            if(is_array($value)){
+                return $this->handler->sAddArray($key,$value);
+            }else{
+                return $this->handler->sAdd($name,$value);
+            }
+        }
+
+        /**
+         * 获取set数量
+         *
+         * @param $name
+         *
+         * @return int
+         */
+        public function sCard($name){
+            $key = $this->getCacheKey($name);
+
+            return $this->handler->sCard($key);
+        }
+
+        /**
          * 删除缓存
          *
          * @access public

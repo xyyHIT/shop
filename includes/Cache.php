@@ -18,7 +18,7 @@ class Cache {
     /**
      * 操作句柄
      *
-     * @var object
+     * @var EJRedis
      * @access protected
      */
     protected static $handler;
@@ -31,7 +31,7 @@ class Cache {
      * @param array       $options 配置数组
      * @param bool|string $name    缓存连接标识 true 强制重新连接
      *
-     * @return Driver
+     * @return EJRedis
      */
     public static function connect( array $options = [], $name = false ) {
         $type = !empty( $options['type'] ) ? $options['type'] : 'File';
@@ -72,7 +72,6 @@ class Cache {
             } else {
                 // 导入缓存设置文件
                 self::$options = include_once ROOT_PATH . '/data/cache.cfg.php';
-//                    print_r(self::$options);
                 self::connect(self::$options);
             }
         }
@@ -210,6 +209,15 @@ class Cache {
         self::$writeTimes++;
 
         return self::$handler->clear($tag);
+    }
+
+    /**
+     * @return EJRedis
+     */
+    public static function handler(){
+        self::init();
+
+        return self::$handler;
     }
 
     /**
