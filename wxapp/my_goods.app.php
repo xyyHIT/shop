@@ -1727,13 +1727,13 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      */
     function _ej_addible() {
-        $payment_mod =& m('payment');
-        $payments = $payment_mod->get_enabled($this->_store_id);
-        if ( empty( $payments ) ) {
-            $res = Lang::get('please_install_payment');
-            $this->ej_json_failed(-1, $res);
-            exit ( 0 );
-        }
+//        $payment_mod =& m('payment');
+//        $payments = $payment_mod->get_enabled($this->_store_id);
+//        if ( empty( $payments ) ) {
+//            $res = Lang::get('please_install_payment');
+//            $this->ej_json_failed(-1, $res);
+//            exit ( 0 );
+//        }
 
         $shipping_mod =& m('shipping');
         $shippings = $shipping_mod->find("store_id = '{$this->_store_id}' AND enabled = 1");
