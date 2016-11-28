@@ -448,7 +448,8 @@
             $where_user_id = $this->visitor->get('user_id') ? " AND cart.user_id=" . $this->visitor->get('user_id') : '';
             $cart_model =& m('cart');
             $cart_items = $cart_model->find([
-                'conditions' => 'session_id = \'' . SESS_ID . "'" . $where_store_id . $where_user_id,
+              //  'conditions' => 'session_id = \'' . SESS_ID . "'" . $where_store_id . $where_user_id,
+                'conditions' => " 1=1 " . $where_store_id . $where_user_id,
                 'fields'     => 'this.*,store.store_name,goodsspec.stock',
                 'join'       => 'belongs_to_store,belongs_to_goodsspec',
             ]);
