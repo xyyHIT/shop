@@ -34,10 +34,11 @@ class WechatApp extends MallbaseApp
     /**
      * 获取用户信息,跳转
      */
-    public function redirectRealPage(){
+    public function redirectRealPage()
+    {
         $userInfo = $_POST['user_info'];
 
-        $userInfo = json_encode($userInfo,1);
+        $userInfo = json_encode($userInfo, 1);
 
         $redirectUrl = $_POST['redirect_url'];
 
@@ -51,7 +52,7 @@ class WechatApp extends MallbaseApp
     {
         // 获取 OAuth 授权结果用户信息
         $openid = Wechat::handler()->oauth->user()->toArray()['id'];
-        $_SESSION['mall_openid'] = $openid;
+        $_SESSION['openid'] = $openid;
 
         $targetUrl = empty( $_SESSION['mall_target_url'] ) ? '/' : $_SESSION['mall_target_url'];
 

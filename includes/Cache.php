@@ -9,7 +9,8 @@
 /**
  * Class Cache
  */
-class Cache {
+class Cache
+{
     protected static $instance = [];
     public static $readTimes = 0;
     public static $writeTimes = 0;
@@ -33,7 +34,8 @@ class Cache {
      *
      * @return EJRedis
      */
-    public static function connect( array $options = [], $name = false ) {
+    public static function connect( array $options = [], $name = false )
+    {
         $type = !empty( $options['type'] ) ? $options['type'] : 'File';
         if ( false === $name ) {
             $name = md5(serialize($options));
@@ -63,7 +65,8 @@ class Cache {
      *
      * @return void
      */
-    public static function init( array $options = [] ) {
+    public static function init( array $options = [] )
+    {
         if ( is_null(self::$handler) ) {
             // 自动初始化缓存
             if ( !empty( $options ) ) {
@@ -72,7 +75,11 @@ class Cache {
             } else {
                 // 导入缓存设置文件
                 self::$options = include_once ROOT_PATH . '/data/cache.cfg.php';
-                self::connect(self::$options);
+                if ( 'complex' == self::$options['type'] ) {
+                    self::connect(self::$options['default']);
+                } else {
+                    self::connect(self::$options);
+                }
             }
         }
     }
@@ -86,7 +93,8 @@ class Cache {
      *
      * @return Driver
      */
-    public static function store( $name ) {
+    public static function store( $name )
+    {
         if ( 'complex' == self::$options['type'] ) {
             self::connect(self::$options[ $name ], strtolower($name));
         }
@@ -103,7 +111,8 @@ class Cache {
      *
      * @return bool
      */
-    public static function has( $name ) {
+    public static function has( $name )
+    {
         self::init();
         self::$readTimes++;
 
@@ -120,7 +129,8 @@ class Cache {
      *
      * @return mixed
      */
-    public static function get( $name, $default = false ) {
+    public static function get( $name, $default = false )
+    {
         self::init();
         self::$readTimes++;
 
@@ -138,7 +148,8 @@ class Cache {
      *
      * @return boolean
      */
-    public static function set( $name, $value, $expire = null ) {
+    public static function set( $name, $value, $expire = null )
+    {
         self::init();
         self::$writeTimes++;
 
@@ -155,7 +166,8 @@ class Cache {
      *
      * @return false|int
      */
-    public static function inc( $name, $step = 1 ) {
+    public static function inc( $name, $step = 1 )
+    {
         self::init();
         self::$writeTimes++;
 
@@ -172,7 +184,8 @@ class Cache {
      *
      * @return false|int
      */
-    public static function dec( $name, $step = 1 ) {
+    public static function dec( $name, $step = 1 )
+    {
         self::init();
         self::$writeTimes++;
 
@@ -188,7 +201,8 @@ class Cache {
      *
      * @return boolean
      */
-    public static function rm( $name ) {
+    public static function rm( $name )
+    {
         self::init();
         self::$writeTimes++;
 
@@ -204,7 +218,8 @@ class Cache {
      *
      * @return boolean
      */
-    public static function clear( $tag = null ) {
+    public static function clear( $tag = null )
+    {
         self::init();
         self::$writeTimes++;
 
@@ -214,7 +229,8 @@ class Cache {
     /**
      * @return EJRedis
      */
-    public static function handler(){
+    public static function handler()
+    {
         self::init();
 
         return self::$handler;
@@ -231,7 +247,8 @@ class Cache {
      *
      * @return Driver
      */
-    public static function tag( $name, $keys = null, $overlay = false ) {
+    public static function tag( $name, $keys = null, $overlay = false )
+    {
         self::init();
 
         return self::$handler->tag($name, $keys, $overlay);

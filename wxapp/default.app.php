@@ -1,13 +1,15 @@
 <?php
 
-class DefaultApp extends MallbaseApp {
+class DefaultApp extends MallbaseApp
+{
 
     /**
      * 获取首页信息
      *
      * by Gavin 20161124
      */
-    function ejIndex() {
+    function ejIndex()
+    {
         // 取得分类
         $categoryArr = $this->_CategoryList(true);
 
@@ -19,7 +21,7 @@ class DefaultApp extends MallbaseApp {
         $recommendArr = $recom_mod->get_recommended_goods_all(6, true);
 
         $allArr = [
-            'categories'   => $categoryArr,
+            'categories'  => $categoryArr,
             'cycleImages' => $cycleImageArr,
             'recommend'   => $recommendArr,
         ];
@@ -27,12 +29,14 @@ class DefaultApp extends MallbaseApp {
         return $this->ej_json_success($allArr);
     }
 
-    function index2(){
+    function index2()
+    {
 //        echo json_encode($_SERVER);
         echo 'hello world';
     }
 
-    function index() {
+    function index()
+    {
 //        require ROOT_PATH . '/includes/Http.php';
 //        $http = new Http();
 //        $response = $http->get('http://devtst.yijiapai.com/yjpai/platform/user/getWxUser',[]);
@@ -46,10 +50,12 @@ class DefaultApp extends MallbaseApp {
 
 //        http://devtst.yijiapai.com?app=wechat&act=redirectRealPage&user_info=xxx&redirect_url=xxx
 
+echo json_encode($_SESSION);
+exit();
+
 //        $redirect_url = 'http://devtst.yijiapai.com?app=default&act=index2';
 //        $condition = "redirect_url=".urlencode($redirect_url);
 //        header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?'.$condition);
-
 
 
         $arr = [ 'a' => '1', 'b' => '2' ];
@@ -67,7 +73,8 @@ class DefaultApp extends MallbaseApp {
         $this->display('index.html');
     }
 
-    function _get_hot_keywords() {
+    function _get_hot_keywords()
+    {
         $keywords = explode(',', conf::get('hot_search'));
 
         return $keywords;
@@ -78,16 +85,17 @@ class DefaultApp extends MallbaseApp {
      *
      * @return array
      */
-    public function _GetCycleImages(){
+    public function _GetCycleImages()
+    {
         $imagesArr = [];
 
         include_once( ROOT_PATH . '/includes/widget.base.php' );
 
-        $widgets =  get_widget_config('default', 'index');
+        $widgets = get_widget_config('default', 'index');
 
         $widgetsID = $widgets['config']['cycle_image'][0];
-        if(isset($widgetsID)){
-            $imagesArr = $widgets['widgets'][$widgetsID]['options'];
+        if ( isset( $widgetsID ) ) {
+            $imagesArr = $widgets['widgets'][ $widgetsID ]['options'];
         }
 
         return $imagesArr;
@@ -100,7 +108,8 @@ class DefaultApp extends MallbaseApp {
      *
      * @return array
      */
-    function _CategoryList($maxLevel = false) {
+    function _CategoryList( $maxLevel = false )
+    {
         $cache_server =& cache_server();
         $key = 'page_goods_category';
         $data = $cache_server->get($key);
@@ -115,12 +124,12 @@ class DefaultApp extends MallbaseApp {
             $cache_server->set($key, $data, 3600);
         }
 
-        if($maxLevel){
-            foreach ($data as &$v){
+        if ( $maxLevel ) {
+            foreach ( $data as &$v ) {
                 $v = [
-                    'id'=>$v['id'],
-                    'cateName'=>$v['value'],
-                    'imageURL'=>$v['imageurl'],
+                    'id'       => $v['id'],
+                    'cateName' => $v['value'],
+                    'imageURL' => $v['imageurl'],
                 ];
             }
         }

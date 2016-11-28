@@ -37,9 +37,11 @@ if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
 
 /*---------------------以下是系统底层基础类及工具-----------------------*/
 
-class ECMall {
+class ECMall
+{
     /* 启动 */
-    static function startup( $config = [] ) {
+    static function startup( $config = [] )
+    {
         /* 加载初始化文件 */
         require( ROOT_PATH . '/eccore/controller/app.base.php' );     //基础控制器类
         require( ROOT_PATH . '/eccore/model/model.base.php' );   //模型基础类
@@ -97,11 +99,11 @@ class ECMall {
          */
 
         // 是否登录 判断登录的标准,是否获取openid
-        if(IS_WECHAT && empty( $_SESSION['mall_openid'] )){
+        if ( IS_WECHAT && empty( $_SESSION['openid'] ) ) {
             // 排除掉验证action
-            if(strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback'){
+            if ( strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback' ) {
 
-            }else{
+            } else {
                 $redirectUrl = '/?' . $_SERVER['QUERY_STRING'];
                 $_SESSION['mall_target_url'] = $redirectUrl;
                 Wechat::handler()->oauth->redirect()->send();
@@ -119,15 +121,18 @@ class ECMall {
  * @author    Garbin
  * @usage     none
  */
-class Object {
+class Object
+{
     var $_errors = [];
     var $_errnum = 0;
 
-    function __construct() {
+    function __construct()
+    {
         $this->Object();
     }
 
-    function Object() {
+    function Object()
+    {
         #TODO
     }
 
@@ -140,7 +145,8 @@ class Object {
      *
      * @return    void
      */
-    function _error( $msg, $obj = '' ) {
+    function _error( $msg, $obj = '' )
+    {
         if ( is_array($msg) ) {
             $this->_errors = array_merge($this->_errors, $msg);
             $this->_errnum += count($msg);
@@ -156,7 +162,8 @@ class Object {
      * @author    Garbin
      * @return    int
      */
-    function has_error() {
+    function has_error()
+    {
         return $this->_errnum;
     }
 
@@ -166,7 +173,8 @@ class Object {
      * @author    Garbin
      * @return    array
      */
-    function get_error() {
+    function get_error()
+    {
         return $this->_errors;
     }
 }
@@ -180,7 +188,8 @@ class Object {
  *
  * @return    void
  */
-class Lang {
+class Lang
+{
     /**
      *    获取指定键的语言项
      *
@@ -190,7 +199,8 @@ class Lang {
      *
      * @return    mixed
      */
-    static function &get( $key = '' ) {
+    static function &get( $key = '' )
+    {
         if ( Lang::_valid_key($key) == false ) {
             return $key;
         }
@@ -209,7 +219,8 @@ class Lang {
      *
      * @return bool
      */
-    static function _valid_key( $key ) {
+    static function _valid_key( $key )
+    {
         if ( strpos($key, ' ') !== false ) {
             return false;
         }
@@ -228,7 +239,8 @@ class Lang {
      *
      * @return    void
      */
-    static function load( $lang_file ) {
+    static function load( $lang_file )
+    {
         static $loaded = [];
         $old_lang = $new_lang = [];
         $file_md5 = md5($lang_file);
@@ -255,12 +267,14 @@ class Lang {
      *
      * @return    array
      */
-    static function fetch( $lang_file ) {
+    static function fetch( $lang_file )
+    {
         return is_file($lang_file) ? include( $lang_file ) : [];
     }
 }
 
-function lang_file( $file ) {
+function lang_file( $file )
+{
     return ROOT_PATH . '/languages/' . LANG . '/' . $file . '.lang.php';
 }
 
@@ -270,7 +284,8 @@ function lang_file( $file ) {
  * @author    Garbin
  * @usage     none
  */
-class Conf {
+class Conf
+{
     /**
      *    加载配置项
      *
@@ -280,7 +295,8 @@ class Conf {
      *
      * @return    bool
      */
-    static function load( $conf ) {
+    static function load( $conf )
+    {
         $old_conf = isset( $GLOBALS['ECMALL_CONFIG'] ) ? $GLOBALS['ECMALL_CONFIG'] : [];
         if ( is_string($conf) ) {
             $conf = include_once( $conf );
@@ -301,7 +317,8 @@ class Conf {
      *
      * @return    mixed
      */
-    static function get( $key = '' ) {
+    static function get( $key = '' )
+    {
         $vkey = $key ? strtokey("{$key}", '$GLOBALS[\'ECMALL_CONFIG\']') : '$GLOBALS[\'ECMALL_CONFIG\']';
 
         return eval( 'if(isset(' . $vkey . '))return ' . $vkey . ';else{ return null; }' );
@@ -317,7 +334,8 @@ class Conf {
  *
  * @return    object
  */
-function &v( $is_new = false, $engine = 'default' ) {
+function &v( $is_new = false, $engine = 'default' )
+{
     include_once( ROOT_PATH . '/eccore/view/template.php' );
     if ( $is_new ) {
         return new ecsTemplate();
@@ -346,7 +364,8 @@ function &v( $is_new = false, $engine = 'default' ) {
  *
  * @return object
  */
-function &m( $model_name, $params = [], $is_new = false ) {
+function &m( $model_name, $params = [], $is_new = false )
+{
     static $models = [];
     $model_hash = md5($model_name . var_export($params, true));
     if ( $is_new || !isset( $models[ $model_hash ] ) ) {
@@ -375,7 +394,8 @@ function &m( $model_name, $params = [], $is_new = false ) {
  *
  * @return object
  */
-function &bm( $model_name, $params = [], $is_new = false ) {
+function &bm( $model_name, $params = [], $is_new = false )
+{
     static $models = [];
     $model_hash = md5($model_name . var_export($params, true));
     if ( $is_new || !isset( $models[ $model_hash ] ) ) {
@@ -401,7 +421,8 @@ function &bm( $model_name, $params = [], $is_new = false ) {
  * @author    Garbin
  * @return    void
  */
-function c( &$app ) {
+function c( &$app )
+{
     $GLOBALS['ECMALL_APP'] =& $app;
 }
 
@@ -411,7 +432,8 @@ function c( &$app ) {
  * @author    Garbin
  * @return    Object
  */
-function &cc() {
+function &cc()
+{
     return $GLOBALS['ECMALL_APP'];
 }
 
@@ -421,7 +443,8 @@ function &cc() {
  * @author    Garbin
  * @return    void
  */
-function import() {
+function import()
+{
     $c = func_get_args();
     if ( empty( $c ) ) {
         return;
@@ -438,7 +461,8 @@ function import() {
  *
  * @return    string
  */
-function strtokey( $str, $owner = '' ) {
+function strtokey( $str, $owner = '' )
+{
     if ( !$str ) {
         return '';
     }
@@ -462,7 +486,8 @@ function strtokey( $str, $owner = '' ) {
  *
  * @return    void
  */
-function trace( $var ) {
+function trace( $var )
+{
     static $i = 0;
     echo $i, '.', var_dump($var), '<br />';
     $i++;
@@ -477,7 +502,8 @@ function trace( $var ) {
  *
  * @return void
  */
-function dump( $arr ) {
+function dump( $arr )
+{
     $args = func_get_args();
     call_user_func_array('rdump', $args);
 }
@@ -491,7 +517,8 @@ function dump( $arr ) {
  *
  * @return void
  */
-function rdump( $arr ) {
+function rdump( $arr )
+{
     echo '<pre>';
     $fun = func_get_args();
     array_walk($fun, create_function('&$item, $key', 'print_r($item);'));
@@ -508,7 +535,8 @@ function rdump( $arr ) {
  *
  * @return void
  */
-function vdump( $arr ) {
+function vdump( $arr )
+{
     echo '<pre>';
     array_walk(func_get_args(), create_function('&$item, $key', 'var_dump($item);'));
     echo '</pre>';
@@ -521,7 +549,8 @@ function vdump( $arr ) {
  * @author  wj
  * @return  object
  */
-function &db() {
+function &db()
+{
     include_once( ROOT_PATH . '/eccore/model/mysql.php' );
     static $db = null;
     if ( $db === null ) {
@@ -559,7 +588,8 @@ function &db() {
  *
  * @return  string
  */
-function get_domain() {
+function get_domain()
+{
     /* 协议 */
     $protocol = ( isset( $_SERVER['HTTPS'] ) && ( strtolower($_SERVER['HTTPS']) != 'off' ) ) ? 'https://' : 'http://';
 
@@ -595,7 +625,8 @@ function get_domain() {
  *
  * @return  string
  */
-function site_url() {
+function site_url()
+{
     return get_domain() . substr(PHP_SELF, 0, strrpos(PHP_SELF, '/'));
 }
 
@@ -609,7 +640,8 @@ function site_url() {
  *
  * @return  string
  */
-function sub_str( $string, $length = 0, $append = true ) {
+function sub_str( $string, $length = 0, $append = true )
+{
 
     if ( strlen($string) <= $length ) {
         return $string;
@@ -684,7 +716,8 @@ function sub_str( $string, $length = 0, $append = true ) {
  *
  * @return  string
  */
-function real_ip() {
+function real_ip()
+{
     static $realip = null;
 
     if ( $realip !== null ) {
@@ -737,7 +770,8 @@ function real_ip() {
  *
  * @return bool
  */
-function is_email( $user_email ) {
+function is_email( $user_email )
+{
     $chars = "/^([a-z0-9+_]|\\-|\\.)+@(([a-z0-9_]|\\-)+\\.)+[a-z]{2,5}\$/i";
     if ( strpos($user_email, '@') !== false && strpos($user_email, '.') !== false ) {
         if ( preg_match($chars, $user_email) ) {
@@ -757,7 +791,8 @@ function is_email( $user_email ) {
  *
  * @return  void
  */
-function is_time( $time ) {
+function is_time( $time )
+{
     $pattern = '/[\d]{4}-[\d]{1,2}-[\d]{1,2}\s[\d]{1,2}:[\d]{1,2}:[\d]{1,2}/';
 
     return preg_match($pattern, $time);
@@ -768,7 +803,8 @@ function is_time( $time ) {
  *
  * @return      int         可能的值为0，1，2
  */
-function gd_version() {
+function gd_version()
+{
     import('image.lib');
 
     return imageProcessor::gd_version();
@@ -783,7 +819,8 @@ function gd_version() {
  *
  * @return  mix
  */
-function addslashes_deep( $value ) {
+function addslashes_deep( $value )
+{
     if ( empty( $value ) ) {
         return $value;
     } else {
@@ -802,7 +839,8 @@ function addslashes_deep( $value ) {
  *
  * @return   mix                  对象或者数组
  */
-function addslashes_deep_obj( $obj ) {
+function addslashes_deep_obj( $obj )
+{
     if ( is_object($obj) == true ) {
         foreach ( $obj AS $key => $val ) {
             if ( ( $val ) == true ) {
@@ -827,7 +865,8 @@ function addslashes_deep_obj( $obj ) {
  *
  * @return  mix
  */
-function stripslashes_deep( $value ) {
+function stripslashes_deep( $value )
+{
     if ( empty( $value ) ) {
         return $value;
     } else {
@@ -844,7 +883,8 @@ function stripslashes_deep( $value ) {
  *
  * @return  string       $str         处理后字串
  */
-function make_semiangle( $str ) {
+function make_semiangle( $str )
+{
     $arr = [ '０' => '0', '１' => '1', '２' => '2', '３' => '3', '４' => '4',
              '５' => '5', '６' => '6', '７' => '7', '８' => '8', '９' => '9',
              'Ａ' => 'A', 'Ｂ' => 'B', 'Ｃ' => 'C', 'Ｄ' => 'D', 'Ｅ' => 'E',
@@ -876,7 +916,8 @@ function make_semiangle( $str ) {
  *
  * @param   string $fee 输入的费用
  */
-function format_fee( $fee ) {
+function format_fee( $fee )
+{
     $fee = make_semiangle($fee);
     if ( strpos($fee, '%') === false ) {
         return floatval($fee);
@@ -894,7 +935,8 @@ function format_fee( $fee ) {
  *
  * @return     float    费用
  */
-function compute_fee( $amount, $rate, $type ) {
+function compute_fee( $amount, $rate, $type )
+{
     $amount = floatval($amount);
     if ( strpos($rate, '%') === false ) {
         return round(floatval($rate), 2);
@@ -917,7 +959,8 @@ function compute_fee( $amount, $rate, $type ) {
  *
  * @return string
  **/
-function real_server_ip() {
+function real_server_ip()
+{
     static $serverip = null;
 
     if ( $serverip !== null ) {
@@ -943,7 +986,8 @@ function real_server_ip() {
  * @access  public
  * @return  string
  */
-function get_crlf() {
+function get_crlf()
+{
     /* LF (Line Feed, 0x0A, \N) 和 CR(Carriage Return, 0x0D, \R) */
     if ( stristr($_SERVER['HTTP_USER_AGENT'], 'Win') ) {
         $the_crlf = "\r\n";
@@ -967,7 +1011,8 @@ function get_crlf() {
  *
  * @return string
  */
-function ecm_iconv( $source_lang, $target_lang, $source_string = '' ) {
+function ecm_iconv( $source_lang, $target_lang, $source_string = '' )
+{
     static $chs = null;
 
     /* 如果字符串为空或者字符串不需要转换，直接返回 */
@@ -983,7 +1028,8 @@ function ecm_iconv( $source_lang, $target_lang, $source_string = '' ) {
     return strtolower($target_lang) == 'utf-8' ? addslashes(stripslashes($chs->Convert($source_lang, $target_lang, $source_string))) : $chs->Convert($source_lang, $target_lang, $source_string);
 }
 
-function ecm_geoip( $ip ) {
+function ecm_geoip( $ip )
+{
     static $fp = null, $offset = [], $index = null;
 
     $ip = gethostbyname($ip);
@@ -1027,7 +1073,8 @@ function ecm_geoip( $ip ) {
     return $area;
 }
 
-function ecm_json_encode( $value ) {
+function ecm_json_encode( $value )
+{
     if ( CHARSET == 'utf-8' && function_exists('json_encode') ) {
         return json_encode($value);
     }
@@ -1083,7 +1130,8 @@ function ecm_json_encode( $value ) {
     }
 }
 
-function ecm_json_decode( $value, $type = 0 ) {
+function ecm_json_decode( $value, $type = 0 )
+{
     if ( CHARSET == 'utf-8' && function_exists('json_decode') ) {
         return empty( $type ) ? json_decode($value) : get_object_vars_deep(json_decode($value));
     }
@@ -1105,7 +1153,8 @@ function ecm_json_decode( $value, $type = 0 ) {
  *
  * @return   array
  */
-function get_object_vars_deep( $obj ) {
+function get_object_vars_deep( $obj )
+{
     if ( is_object($obj) ) {
         $obj = get_object_vars($obj);
     }
@@ -1118,7 +1167,8 @@ function get_object_vars_deep( $obj ) {
     return $obj;
 }
 
-function file_ext( $filename ) {
+function file_ext( $filename )
+{
     return trim(substr(strrchr($filename, '.'), 1, 10));
 }
 
@@ -1134,7 +1184,8 @@ function file_ext( $filename ) {
  *
  * @return   void
  */
-function db_create_in( $item_list, $field_name = '' ) {
+function db_create_in( $item_list, $field_name = '' )
+{
     if ( empty( $item_list ) ) {
         return $field_name . " IN ('') ";
     } else {
@@ -1170,7 +1221,8 @@ function db_create_in( $item_list, $field_name = '' ) {
  *
  * @return  bool
  */
-function ecm_mkdir( $absolute_path, $mode = 0777 ) {
+function ecm_mkdir( $absolute_path, $mode = 0777 )
+{
     if ( is_dir($absolute_path) ) {
         return true;
     }
@@ -1202,7 +1254,8 @@ function ecm_mkdir( $absolute_path, $mode = 0777 ) {
  *
  * @return boolen
  */
-function ecm_rmdir( $dir ) {
+function ecm_rmdir( $dir )
+{
     $dir = str_replace([ '..', "\n", "\r" ], [ '', '', '' ], $dir);
     $ret_val = false;
     if ( is_dir($dir) ) {
@@ -1228,7 +1281,8 @@ function ecm_rmdir( $dir ) {
     return $ret_val;
 }
 
-function price_format( $price, $price_format = null ) {
+function price_format( $price, $price_format = null )
+{
     if ( empty( $price ) ) $price = '0.00';
     $price = number_format($price, 2);
 
@@ -1250,7 +1304,8 @@ function price_format( $price, $price_format = null ) {
  *
  * @return void
  */
-function ecm_setcookie( $key, $value, $expire = 0, $cookie_path = COOKIE_PATH, $cookie_domain = COOKIE_DOMAIN ) {
+function ecm_setcookie( $key, $value, $expire = 0, $cookie_path = COOKIE_PATH, $cookie_domain = COOKIE_DOMAIN )
+{
     setcookie($key, $value, $expire, $cookie_path, $cookie_domain);
 }
 
@@ -1263,7 +1318,8 @@ function ecm_setcookie( $key, $value, $expire = 0, $cookie_path = COOKIE_PATH, $
  *
  * @return mixed
  */
-function ecm_getcookie( $key = '' ) {
+function ecm_getcookie( $key = '' )
+{
     return isset( $_COOKIE[ $key ] ) ? $_COOKIE[ $key ] : 0;
 }
 
@@ -1276,7 +1332,8 @@ function ecm_getcookie( $key = '' ) {
  *
  * @return  mixed
  */
-function ecm_iconv_deep( $source_lang, $target_lang, $value ) {
+function ecm_iconv_deep( $source_lang, $target_lang, $value )
+{
     if ( empty( $value ) ) {
         return $value;
     } else {
@@ -1310,7 +1367,8 @@ function ecm_iconv_deep( $source_lang, $target_lang, $value ) {
  *
  * @return responseText
  */
-function ecm_fopen( $url, $limit = 500000, $post = '', $cookie = '', $bysocket = false, $ip = '', $timeout = 15, $block = true ) {
+function ecm_fopen( $url, $limit = 500000, $post = '', $cookie = '', $bysocket = false, $ip = '', $timeout = 15, $block = true )
+{
     $return = '';
     $matches = parse_url($url);
     $host = $matches['host'];
@@ -1378,7 +1436,8 @@ function ecm_fopen( $url, $limit = 500000, $post = '', $cookie = '', $bysocket =
  *
  * @return  string
  */
-function html_filter( $html ) {
+function html_filter( $html )
+{
     $filter = [
         "/\s/",
         "/<(\/?)(script|i?frame|style|html|body|title|link|\?|\%)([^>]*?)>/isU",//object|meta|
@@ -1405,7 +1464,8 @@ function html_filter( $html ) {
  *
  * @return  void
  */
-function clean_cache() {
+function clean_cache()
+{
     /*清理缓存*/
     $cache_dirs = [
         ROOT_PATH . '/temp/caches',
@@ -1494,7 +1554,8 @@ if ( !function_exists('file_put_contents') ) {
         define('LOCK_EX', 'LOCK_EX');
     }
 
-    function file_put_contents( $file, $data, $flags = '' ) {
+    function file_put_contents( $file, $data, $flags = '' )
+    {
         $contents = ( is_array($data) ) ? implode('', $data) : $data;
 
         $mode = ( $flags == 'FILE_APPEND' ) ? 'ab+' : 'wb';
@@ -1520,7 +1581,8 @@ if ( !function_exists('file_put_contents') ) {
  *
  * @return  string
  */
-function trim_right( $str ) {
+function trim_right( $str )
+{
     $len = strlen($str);
     /* 为空或单个字符直接返回 */
     if ( $len == 0 || ord($str{$len - 1}) < 127 ) {
@@ -1553,7 +1615,8 @@ function trim_right( $str ) {
  *
  * @return  mix         函数执行结果
  */
-function _at( $fun ) {
+function _at( $fun )
+{
     $arg = func_get_args();
     unset( $arg[0] );
     $ret_val = @call_user_func_array($fun, $arg);
@@ -1571,7 +1634,8 @@ function _at( $fun ) {
  *
  * @return  mixed
  */
-function outer_call( $func, $params = null ) {
+function outer_call( $func, $params = null )
+{
     restore_error_handler();
 
     $res = call_user_func_array($func, $params);
@@ -1581,7 +1645,8 @@ function outer_call( $func, $params = null ) {
     return $res;
 }
 
-function reset_error_handler() {
+function reset_error_handler()
+{
     set_error_handler('exception_handler');
 }
 
@@ -1594,7 +1659,8 @@ function reset_error_handler() {
  *
  * @return boolen
  */
-function is_from_browser() {
+function is_from_browser()
+{
     static $ret_val = null;
     if ( $ret_val === null ) {
         $ret_val = false;
@@ -1620,7 +1686,8 @@ function is_from_browser() {
  *
  * @return    void
  */
-function ecm_define( $source ) {
+function ecm_define( $source )
+{
     if ( is_string($source) ) {
         /* 导入数组 */
         $source = include( $source );
@@ -1643,7 +1710,8 @@ function ecm_define( $source ) {
  * @author    Garbin
  * @return    float
  */
-function ecm_microtime() {
+function ecm_microtime()
+{
     if ( PHP_VERSION >= 5.0 ) {
         return microtime(true);
     } else {
@@ -1653,7 +1721,8 @@ function ecm_microtime() {
     }
 }
 
-function html_script( $text ) {
+function html_script( $text )
+{
     $str = "'<script[^>]*?>.*?</script\s*>'si";
     $text = preg_replace('/onerror/', '', $text);
     $text = preg_replace($str, '', $text);
