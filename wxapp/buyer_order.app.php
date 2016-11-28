@@ -257,6 +257,7 @@
 				{
 					case 11://代付款
 							$result['button'] = "<div class='dfixed dfixed2'><a class='quxiaodingdan'>取消订单</a><a class='qufukuan'>去付款</a></div>";
+							break;
 					case 20://代发货
 							$result['button'] = "<div class='dfixed'><a class='tixingfahuo'>提醒发货</a></div>";
 							break;
@@ -668,8 +669,4 @@
 			return $this->ej_json_success();
         }
 		
-		//48小时内未支付系统自动交易关闭 7天内未确认系统自动完成确认
-		function _ej_system_update($orderid,$status){
-			
-		}
     }

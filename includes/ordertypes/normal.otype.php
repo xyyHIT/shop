@@ -232,7 +232,7 @@ class NormalOrder extends BaseOrder
 		/* 买家信息 */
 		$visitor     =& env('visitor');
         $user_id     =  $visitor->get('user_id');
-		$sumordersn = $this->_gen_order_sn();
+		$sumordersn = '1'.$this->_gen_order_sn();//合单前三位为110
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields." VALUES('".$sumorderjson."','".time()."','".$user_id."','".$sumordersn."')");
 	   /* 插入商品信息 */
 		if(empty($goodslist)){

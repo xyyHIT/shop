@@ -51,6 +51,9 @@
 
             /* 更新浏览次数 */
             $this->_update_views($id);
+			//由于有些无法缓存进而将其提取出来 by newrain
+			$res['goods']['good_comment'] = $this->_goods_ejComments($id);//好评量，目前先放假数据，待评价完成  继续编写
+			$res['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'], 6);//店铺精品推荐   默认显示六个
 			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
 			$res['store']['collectsign'] = empty($colstore)?'0':'1';
 			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
@@ -256,7 +259,6 @@
         function _assign_common_info( $data ) {
             /* 商品信息 */
             $goods = $data['goods'];
-            //print_r($goods);
             $result['goods']['goods_id'] = $data['goods']['goods_id'];
             $result['goods']['store_id'] = $data['goods']['store_id'];
             $result['goods']['cate_id'] = $data['goods']['cate_id'];
@@ -266,12 +268,10 @@
             $result['goods']['default_image'] = $data['goods']['default_image'];//商品图片地址
             $result['goods']['price'] = $data['goods']['price'];
             $result['goods']['sales'] = $data['goods']['sales'];//商品被售出的数目
-            $result['goods']['good_comment'] = '90%';//好评量，目前先放假数据，待评价完成  继续编写
-            $result['goods']['ship_price'] = '10.00';//单件商品的运费，为满足平台需求，后续用真实数据替换假数据
-            $result['goods']['vediourl'] = 'http://www.baidu.com';//视频地址
-            $result['goods']['detail_image'] = 'http://www.baidu.com';//详情图片地址   用假数据，后续用真实替换
+            $result['goods']['ship_price'] = $data['_specs']['shiprice'];//单件商品的运费，为满足平台需求，后续用真实数据替换假数据
+            $result['goods']['vediourl'] = '';//视频地址
+            $result['goods']['detail_image'] = '';//详情图片地址   用假数据，后续用真实替换
             $result['goods']['detail_desc'] = $data['goods']['description'];//详情文字描述
-            $result['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'], 6);//店铺精品推荐   默认显示六个
             $result['store']['logo'] = $data['store_data']['store_logo'];
             $result['store']['sgrade'] = $data['store_data']['sgrade'];//店铺等级
             $result['store']['name'] = $data['store_data']['store_name'];
@@ -508,11 +508,10 @@
         /* 取得推荐商品 by newrain*/
         function _get_ejrecommended_goods( $id, $num = 6 ) {
             $goods_mod =& bm('goods', [ '_store_id' => $id ]);
-            $goods_list = $goods_mod->find([
-                'conditions' => "closed = 0 AND if_show = 1 AND recommended = 1",
-                'fields'     => 'goods_name, default_image, price',
-                'limit'      => $num,
-            ]);
+			$ejgoodslist = "SELECT g.goods_name,g.default_image ,g.price ,g.goods_id,gs.sales FROM ".DB_PREFIX."goods  g ".
+							" LEFT JOIN ".DB_PREFIX."goods_statistics gs ON g.goods_id = gs.goods_id ".
+							" WHERE g.closed =0 AND g.if_show =1 AND g.recommended = 1 LIMIT 6";
+			$goods_list = $goods_mod->db->getAll($ejgoodslist);
             foreach ( $goods_list as $key => $goods ) {
                 empty( $goods['default_image'] ) && $goods_list[ $key ]['default_image'] = Conf::get('default_goods_image');
             }
@@ -527,6 +526,17 @@
 
             return empty( $collect_store ) ? 0 : intval($collect_store);
         }
+		
+		/*添加商品好评率 by newrain*/
+		function _goods_ejComments($id){
+			$bestcomment = $this->_ej_get_goods_comment($id,1,3);
+			$allcomment = $this->_ej_get_goods_comment($id,1,0);
+			if(empty($allcomment['item_count'])){
+				return 0;
+			}
+			$rate = $bestcomment['item_count']/$allcomment['item_count'];
+			return ceil($rate);
+		}
     }
 
 ?>
