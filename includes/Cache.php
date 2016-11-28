@@ -95,6 +95,7 @@ class Cache
      */
     public static function store( $name )
     {
+        self::init();
         if ( 'complex' == self::$options['type'] ) {
             self::connect(self::$options[ $name ], strtolower($name));
         }

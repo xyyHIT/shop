@@ -50,6 +50,8 @@ class DefaultApp extends MallbaseApp
 
 //        http://devtst.yijiapai.com?app=wechat&act=redirectRealPage&user_info=xxx&redirect_url=xxx
 
+$s = Cache::store('redis-239')->get('jsapi_ticket');
+echo $s.'<br>';
 echo json_encode($_SESSION['openid']);
 exit();
 
