@@ -342,9 +342,9 @@ class CashierApp extends ShoppingbaseApp
 			$this->_ej_editPayment($order_id,$edit_data);
 		}
         /* 开始支付  判断用户是否存在openid*/
-		//if(!$_SESSION['openid']){
-			//return $this->ej_json_failed(3001);
-		//}
+		if(!$_SESSION['openid']){
+			return $this->ej_json_failed(3001);
+		}
 		//选择用户支付方式
 		switch ($payment_info['payment_code'])
 		{
