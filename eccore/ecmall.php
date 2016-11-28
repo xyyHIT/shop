@@ -99,14 +99,16 @@ class ECMall
          */
 
         // 是否登录 判断登录的标准,是否获取openid
-        if ( IS_WECHAT && empty( $_SESSION['openid'] ) ) {
+        if ( IS_WECHAT && empty( $_SESSION['wx_openid'] ) ) {
             // 排除掉验证action
             if ( strtolower(APP) === 'wechat' && strtolower(ACT) === 'oauthcallback' ) {
 
             } else {
                 $redirectUrl = '/?' . $_SERVER['QUERY_STRING'];
-                $_SESSION['mall_target_url'] = $redirectUrl;
+                $_SESSION['wx_target_url'] = $redirectUrl;
+
                 Wechat::handler()->oauth->redirect()->send();
+                return ;
             }
         }
 

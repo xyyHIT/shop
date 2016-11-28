@@ -29,36 +29,17 @@ class DefaultApp extends MallbaseApp
         return $this->ej_json_success($allArr);
     }
 
-    function index2()
-    {
-//        echo json_encode($_SERVER);
-        echo 'hello world';
-    }
-
     function index()
     {
-//        require ROOT_PATH . '/includes/Http.php';
-//        $http = new Http();
-//        $response = $http->get('http://devtst.yijiapai.com/yjpai/platform/user/getWxUser',[]);
-//        $jsonArr = $http->parseJSON($http->get('http://devtst.yijiapai.com/yjpai/platform/user/getWxUser', []));
-//        $response = $http->get('http://www.baidu.com',[]);
-//        $content = $response->getBody();
-//        echo $content;
-//        exit(0);
-//        echo 'hello,world !';
-//        header('Location: http://www.baidu.com');
-
-//        http://devtst.yijiapai.com?app=wechat&act=redirectRealPage&user_info=xxx&redirect_url=xxx
-
-$s = Cache::store('redis-239')->get('jsapi_ticket');
-echo $s.'<br>';
-echo json_encode($_SESSION['openid']);
-exit();
-
-//        $redirect_url = 'http://devtst.yijiapai.com?app=default&act=index2';
-//        $condition = "redirect_url=".urlencode($redirect_url);
-//        header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?'.$condition);
-
+        echo '进入index<br>';
+        self::checkWechatLogin();
+        if($this->has_error()){
+            echo '这里出错了<br>';
+            echo current($this->get_error())['msg'];
+        }
+        echo '没有错误,完成了<br>';
+        echo json_encode($this->visitor->info);
+        exit();
 
         $arr = [ 'a' => '1', 'b' => '2' ];
         $this->assign('index', 1); // 标识当前页面是首页，用于设置导航状态
