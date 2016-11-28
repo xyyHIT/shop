@@ -118,10 +118,10 @@ class Wechat{
 			 */
 			'debug'   => false,
 			// 艺闻美学
-			'app_id'  => 'wxf3dab84806d08208', // AppID
-			'secret'  => '53ed6d3b2c08dc0eacf97ab1b6310ad8', // AppSecret
+			'app_id'  => 'wx0e0bc55effb822b4', // AppID
+			'secret'  => '8a2bc1ce662728adf6b4b4c941174187 ', // AppSecret
 			'token'   => 'wx_token',  // Token
-			'aes_key' => 'YOgcuOltH3z7rJqhsPDivKsnsTEFQRDJvGZEdu9QlLO', // EncodingAESKey，安全模式下请一定要填写！！
+			'aes_key' => 'Mb3ddasQdg1hAGbrynWOFaiPBQ8XGPKQK4pEfr4bcmm', // EncodingAESKey，安全模式下请一定要填写！！
 
 			/**
 			 * 日志配置
@@ -150,8 +150,8 @@ class Wechat{
 			 * 微信支付
 			 */
 			'payment' => [
-				'merchant_id' => 'your-mch-id',
-				'key'         => 'key-for-signature',
+				'merchant_id' => '1343527201',
+				'key'         => 'H7zVQwLMe2JwqHs8U7zCmcmtbP24cNc4',
 				'cert_path'   => 'path/to/your/cert.pem', // XXX: 绝对路径！！！！
 				'key_path'    => 'path/to/your/key',      // XXX: 绝对路径！！！！
 			],
