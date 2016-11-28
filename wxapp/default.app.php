@@ -50,7 +50,7 @@ class DefaultApp extends MallbaseApp
 
 //        http://devtst.yijiapai.com?app=wechat&act=redirectRealPage&user_info=xxx&redirect_url=xxx
 
-echo json_encode($_SESSION);
+echo json_encode($_SESSION['openid']);
 exit();
 
 //        $redirect_url = 'http://devtst.yijiapai.com?app=default&act=index2';

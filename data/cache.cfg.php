@@ -10,16 +10,26 @@ return [
     'type'      => 'complex',
     // 默认使用的缓存
     'default'   => [
-        // 驱动方式
         'type' => 'redis',
-        // 服务器地址
-        'host' => '127.0.0.1',
+        'host'       => '127.0.0.1',
+        'port'       => 6379,
+        'password'   => '',
+        'select'     => 0,
+        'timeout'    => 0,
+        'expire'     => 0,
+        'persistent' => false,
+        'prefix'     => '',
     ],
     'redis-239' => [
-        // 驱动方式
         'type' => 'redis',
-        // 服务器地址
         'host' => '192.168.1.239',
+        'port'       => 6379,
+        'password'   => 'manager',
+        'select'     => 0,
+        'timeout'    => 0, // 3600
+        'expire'     => 0,
+        'persistent' => false,
+        'prefix'     => '',
     ],
     // 文件缓存
     'file'      => [
