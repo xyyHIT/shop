@@ -321,7 +321,6 @@ class CashierApp extends ShoppingbaseApp
         {
 			return $this->ej_json_failed(3001);
         }
-		
         /* 验证艺加支付方式 查看是否开启此支付*/
 		$payment_info = $order_model->db->getRow("select payment_id,payment_code,payment_name from ".DB_PREFIX."ejpayment where payment_id=".intval($payment_id));
         if (!$payment_info)
@@ -343,9 +342,9 @@ class CashierApp extends ShoppingbaseApp
 			$this->_ej_editPayment($order_id,$edit_data);
 		}
         /* 开始支付  判断用户是否存在openid*/
-		if(!$_SESSION['openid']){
-			return $this->ej_json_failed(3001);
-		}
+		//if(!$_SESSION['openid']){
+			//return $this->ej_json_failed(3001);
+		//}
 		//选择用户支付方式
 		switch ($payment_info['payment_code'])
 		{
@@ -380,11 +379,12 @@ class CashierApp extends ShoppingbaseApp
 			'trade_type'       => 'JSAPI', // JSAPI，NATIVE，APP...
 			'body'             => 'iPad mini 16G 白色',
 			'detail'           => 'iPad mini 16G 白色',
-			'out_trade_no'     => '1217752501201407033233368018',
-			'total_fee'        => 5388,
+			'out_trade_no'     => '110000000000000001',
+			'total_fee'        => 0.01,
 			'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
-			'openid'           => $_SESSION['openid'], // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
+			'openid'           => 'o027xw47-OMSuA934zdxGc3I6WEk', // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
 		];
+		//print_r($attributes);exit;
 		//调取微信支付底层代码
 		$prepayarr = Wechat::pay($attributes);
 		if($prepayarr){
