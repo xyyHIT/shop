@@ -10,7 +10,8 @@ define('BRAND_REFUSE', 0);
 
 /* 商品管理控制器 */
 
-class My_goodsApp extends StoreadminbaseApp {
+class My_goodsApp extends StoreadminbaseApp
+{
     var $_goods_mod;
     var $_spec_mod;
     var $_image_mod;
@@ -20,11 +21,13 @@ class My_goodsApp extends StoreadminbaseApp {
     var $_last_update_id;
 
     /* 构造函数 */
-    function __construct() {
+    function __construct()
+    {
         $this->My_goodsApp();
     }
 
-    function My_goodsApp() {
+    function My_goodsApp()
+    {
         parent::__construct();
 
         $this->_store_id = intval($this->visitor->get('manage_store'));
@@ -38,7 +41,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 获取当前商户商品
      */
-    function ejIndex() {
+    function ejIndex()
+    {
         $conditions = $this->_get_conditions();
         $page = $this->_get_page();
         $goods_list = $this->_get_goods($conditions, $page);
@@ -51,7 +55,7 @@ class My_goodsApp extends StoreadminbaseApp {
 
         $retArr = [
             'goods' => $goods_list,
-            'page' => $page
+            'page'  => $page
         ];
 
         $this->ej_json_success($retArr);
@@ -62,7 +66,8 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      * by Gavin
      */
-    public function ejStore() {
+    public function ejStore()
+    {
         /* 检测支付方式、配送方式、商品数量等 */
         if ( !$this->_ej_addible() ) {
             return $this->ej_json_failed(-1);
@@ -94,15 +99,15 @@ class My_goodsApp extends StoreadminbaseApp {
 
             /* 检查数据 */
             // 如果是保存为草稿,验证不严苛
-            if($isDraftBool){
+            if ( $isDraftBool ) {
                 $data['goods']['if_show'] = 2;
-                if(!$this->_check_post_data_draft($data, 0)){
+                if ( !$this->_check_post_data_draft($data, 0) ) {
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
                 }
-            }else{
+            } else {
                 $data['goods']['if_show'] = 1;
                 // 如果直接发布,验证严苛
-                if(!$this->_check_post_data($data, 0)){
+                if ( !$this->_check_post_data($data, 0) ) {
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
                 }
             }
@@ -130,8 +135,9 @@ class My_goodsApp extends StoreadminbaseApp {
 //            }
 
             $retArr = [
-                'goods_id'=>$this->_last_update_id
+                'goods_id' => $this->_last_update_id
             ];
+
             return $this->ej_json_success($retArr);
         } else {
             return $this->ej_json_failed(2003);
@@ -142,7 +148,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 艺加 - 编辑商品
      */
-    function ejEdit() {
+    function ejEdit()
+    {
         import('image.func');
         import('uploader.lib');
         $id = empty( $_REQUEST['id'] ) ? 0 : intval($_REQUEST['id']);
@@ -166,15 +173,15 @@ class My_goodsApp extends StoreadminbaseApp {
 
             /* 检查数据 */
             // 如果是保存为草稿,验证不严苛
-            if($isDraftBool){
+            if ( $isDraftBool ) {
                 $data['goods']['if_show'] = 2;
-                if(!$this->_check_post_data_draft($data, $id)){
+                if ( !$this->_check_post_data_draft($data, $id) ) {
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
                 }
-            }else{
+            } else {
                 $data['goods']['if_show'] = 1;
                 // 如果直接发布,验证严苛
-                if(!$this->_check_post_data($data, $id)){
+                if ( !$this->_check_post_data($data, $id) ) {
                     return $this->ej_json_failed(-1, Lang::get(current($this->get_error())['msg']));
                 }
             }
@@ -196,7 +203,8 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      * by Gavin 20161114
      */
-    function ejDrop() {
+    function ejDrop()
+    {
         $id = isset( $_REQUEST['id'] ) ? trim($_REQUEST['id']) : '';
         if ( !$id ) {
             return $this->ej_json_failed(-1, Lang::get('no_goods_to_drop'));
@@ -212,7 +220,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return $this->ej_json_success();
     }
 
-    function index() {
+    function index()
+    {
         /* 取得店铺商品分类 */
         $this->assign('sgcategories', $this->_get_sgcategory_options());
 
@@ -270,7 +279,8 @@ class My_goodsApp extends StoreadminbaseApp {
         $this->display('my_goods.index.html');
     }
 
-    function truncate() {
+    function truncate()
+    {
         $id = isset( $_POST['goods_ids'] ) ? trim($_POST['goods_ids']) : '';
         if ( !$id ) {
             $this->show_warning('no_goods_to_drop');
@@ -292,7 +302,8 @@ class My_goodsApp extends StoreadminbaseApp {
         );
     }
 
-    function _get_goods( $conditions, &$page ) {
+    function _get_goods( $conditions, &$page )
+    {
         if ( intval($_GET['sgcate_id']) > 0 ) {
             $cate_mod =& bm('gcategory', [ '_store_id' => $this->_store_id ]);
             $cate_ids = $cate_mod->get_descendant_ids(intval($_GET['sgcate_id']));
@@ -338,13 +349,29 @@ class My_goodsApp extends StoreadminbaseApp {
         return $goods_list;
     }
 
-    function _get_conditions() {
+    function _get_conditions()
+    {
         /* 搜索条件 */
         $conditions = "1 = 1";
-        if ( trim($_GET['keyword']) ) {
-            $str = "LIKE '%" . trim($_GET['keyword']) . "%'";
+        if ( trim($_REQUEST['keyword']) ) {
+            $str = "LIKE '%" . trim($_REQUEST['keyword']) . "%'";
             $conditions .= " AND (goods_name {$str} OR brand {$str} OR cate_name {$str})";
         }
+
+        if(isset($_REQUEST['if_show'])){
+            switch ( $_REQUEST['if_show'] ) {
+                case '0':
+                    $conditions .= " AND if_show = 0";
+                    break;
+                case '1':
+                    $conditions .= " AND if_show = 1";
+                    break;
+                case '2':
+                    $conditions .= " AND if_show = 2";
+                    break;
+            }
+        }
+
         if ( $_GET['character'] ) {
             switch ( $_GET['character'] ) {
                 case 'show':
@@ -365,7 +392,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return $conditions;
     }
 
-    function batch_edit() {
+    function batch_edit()
+    {
         if ( !IS_POST ) {
             /* 取得商品分类 */
             $this->assign('mgcategories', $this->_get_mgcategory_options(0)); // 商城分类第一级
@@ -494,13 +522,15 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 检查商品分类：添加、编辑商品表单验证时用到 */
-    function check_mgcate() {
+    function check_mgcate()
+    {
         $cate_id = isset( $_GET['cate_id'] ) ? intval($_GET['cate_id']) : 0;
 
         echo ecm_json_encode($this->_check_mgcate($cate_id));
     }
 
-    function export_ubbcode() {
+    function export_ubbcode()
+    {
         $code = '';
         $crlf = "\n";
         $goods_id = isset( $_GET['id'] ) ? intval($_GET['id']) : 0;
@@ -544,7 +574,8 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      * @return  bool
      */
-    function _check_mgcate( $cate_id ) {
+    function _check_mgcate( $cate_id )
+    {
         if ( $cate_id > 0 ) {
             $gcategory_mod =& bm('gcategory');
             $info = $gcategory_mod->get_info($cate_id);
@@ -556,7 +587,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return false;
     }
 
-    function add() {
+    function add()
+    {
         /* 检测支付方式、配送方式、商品数量等 */
         if ( !$this->_addible() ) {
             return;
@@ -697,7 +729,8 @@ class My_goodsApp extends StoreadminbaseApp {
         }
     }
 
-    function edit() {
+    function edit()
+    {
         import('image.func');
         import('uploader.lib');
         $id = empty( $_GET['id'] ) ? 0 : intval($_GET['id']);
@@ -836,7 +869,8 @@ class My_goodsApp extends StoreadminbaseApp {
         }
     }
 
-    function spec_edit() {
+    function spec_edit()
+    {
         $id = isset( $_GET['id'] ) ? intval($_GET['id']) : 0;
         if ( !IS_POST ) {
             $goods_spec = $this->_goods_mod->findAll([
@@ -865,7 +899,8 @@ class My_goodsApp extends StoreadminbaseApp {
         }
     }
 
-    function save_spec( $spec ) {
+    function save_spec( $spec )
+    {
         $data = [];
         if ( empty( $spec['price'] ) || empty( $spec['stock'] ) ) {
             return $data;
@@ -881,7 +916,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     //异步修改数据
-    function ajax_col() {
+    function ajax_col()
+    {
         $id = empty( $_REQUEST['id'] ) ? 0 : intval($_REQUEST['id']);
         $column = empty( $_REQUEST['column'] ) ? '' : trim($_REQUEST['column']);
         $value = isset( $_REQUEST['value'] ) ? trim($_REQUEST['value']) : '';
@@ -921,7 +957,8 @@ class My_goodsApp extends StoreadminbaseApp {
         }
     }
 
-    function drop() {
+    function drop()
+    {
         $id = isset( $_GET['id'] ) ? trim($_GET['id']) : '';
         if ( !$id ) {
             $this->show_warning('no_goods_to_drop');
@@ -941,7 +978,8 @@ class My_goodsApp extends StoreadminbaseApp {
         $this->show_message('drop_ok');
     }
 
-    function unicodeToUtf8( $str, $order = "little" ) {
+    function unicodeToUtf8( $str, $order = "little" )
+    {
         $utf8string = "";
         $n = strlen($str);
         for ( $i = 0; $i < $n; $i++ ) {
@@ -976,7 +1014,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 导入淘宝助理数据 */
-    function import_taobao() {
+    function import_taobao()
+    {
         $step = ( isset( $_GET['step'] ) && $_GET['step'] == 2 ) ? 2 : 1;
         /* 检测支付方式、配送方式、商品数量等 */
         if ( $step == 1 && !$this->_addible() ) {
@@ -1202,7 +1241,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 需要导入的字段在CSV中显示的名称 */
-    function _taobao_fields() {
+    function _taobao_fields()
+    {
         return [
             'goods_name'      => '宝贝名称',
             'cid'             => '宝贝类目',
@@ -1218,7 +1258,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 每个字段所在CSV中的列序号，从0开始算 */
-    function _taobao_fields_cols( $title_arr, $import_fields ) {
+    function _taobao_fields_cols( $title_arr, $import_fields )
+    {
         $fields_cols = [];
         foreach ( $import_fields as $k => $field ) {
             $pos = array_search($field, $title_arr);
@@ -1231,7 +1272,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 解析淘宝助理CSV数据 */
-    function _parse_taobao_csv( $csv_string ) {
+    function _parse_taobao_csv( $csv_string )
+    {
         /* 定义CSV文件中几个标识性的字符的ascii码值 */
         define('ORD_SPACE', 32); // 空格
         define('ORD_QUOTE', 34); // 双引号
@@ -1416,7 +1458,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 解析淘宝的销售属性 返回ECMall规格 */
-    function _parse_tabao_prop( $cid, $sale_attr, $sale_attr_alias, $goods_id ) {
+    function _parse_tabao_prop( $cid, $sale_attr, $sale_attr_alias, $goods_id )
+    {
         $i = 0; // 规格数量
         $spec_kind = 0; // 规格种类数
         $spec_price_stock = []; // 价格和库存
@@ -1503,7 +1546,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return addslashes_deep($spec); // 因经过转码，必须要重新转义
     }
 
-    function _parse_taobao_image( $col ) {
+    function _parse_taobao_image( $col )
+    {
         /* 初始化返回值返回值 */
         $data = ''; // 以分号分隔的图片数据
         $count = 0; // 图片张数
@@ -1532,7 +1576,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return [ 'count' => $count, 'data' => $data ];
     }
 
-    function drop_image() {
+    function drop_image()
+    {
         $id = empty( $_GET['id'] ) ? 0 : intval($_GET['id']);
         $uploadedfile = $this->_uploadedfile_mod->get([
             'conditions' => "f.file_id = '$id' AND f.store_id = '{$this->_store_id}'",
@@ -1561,7 +1606,8 @@ class My_goodsApp extends StoreadminbaseApp {
         $this->json_error(Lang::get('no_image_droped'));
     }
 
-    function _get_member_submenu() {
+    function _get_member_submenu()
+    {
         if ( ACT == 'index' ) {
             $menus = [
                 [
@@ -1620,7 +1666,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 构造并返回树 */
-    function &_tree( $gcategories ) {
+    function &_tree( $gcategories )
+    {
         import('tree.lib');
         $tree = new Tree();
         $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name');
@@ -1629,7 +1676,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 取得本店所有商品分类 */
-    function _get_sgcategory_options() {
+    function _get_sgcategory_options()
+    {
         $mod =& bm('gcategory', [ '_store_id' => $this->_store_id ]);
         $gcategories = $mod->get_list();
         import('tree.lib');
@@ -1640,7 +1688,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 取得商城商品分类，指定parent_id */
-    function _get_mgcategory_options( $parent_id = 0 ) {
+    function _get_mgcategory_options( $parent_id = 0 )
+    {
         $res = [];
         $mod =& bm('gcategory', [ '_store_id' => 0 ]);
         $gcategories = $mod->get_list($parent_id, true);
@@ -1658,7 +1707,8 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      * @return bool
      */
-    function _upload_image( $goods_id ) {
+    function _upload_image( $goods_id )
+    {
         import('image.func');
         import('uploader.lib');
         $uploader = new Uploader();
@@ -1747,7 +1797,8 @@ class My_goodsApp extends StoreadminbaseApp {
      * 检测店铺是否能添加商品
      *
      */
-    function _ej_addible() {
+    function _ej_addible()
+    {
 //        $payment_mod =& m('payment');
 //        $payments = $payment_mod->get_enabled($this->_store_id);
 //        if ( empty( $payments ) ) {
@@ -1783,7 +1834,8 @@ class My_goodsApp extends StoreadminbaseApp {
      * 检测店铺是否能添加商品
      *
      */
-    function _addible() {
+    function _addible()
+    {
         $payment_mod =& m('payment');
         $payments = $payment_mod->get_enabled($this->_store_id);
         if ( empty( $payments ) ) {
@@ -1818,7 +1870,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 保存远程图片
      */
-    function _add_remote_image( $goods_id ) {
+    function _add_remote_image( $goods_id )
+    {
         foreach ( $_POST['new_url'] as $image_url ) {
             if ( $image_url && $image_url != 'http://' ) {
                 $data = [
@@ -1842,7 +1895,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 编辑图片
      */
-    function _edit_image( $goods_id ) {
+    function _edit_image( $goods_id )
+    {
         if ( isset( $_POST['old_order'] ) ) {
             foreach ( $_POST['old_order'] as $image_id => $sort_order ) {
                 $data = [ 'sort_order' => $sort_order ];
@@ -1859,7 +1913,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 取得商品信息
      */
-    function _get_goods_info( $id = 0 ) {
+    function _get_goods_info( $id = 0 )
+    {
         $default_goods_image = Conf::get('default_goods_image'); // 商城默认商品图片
         if ( $id > 0 ) {
             $goods_info = $this->_goods_mod->get_info($id);
@@ -1896,7 +1951,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 提交的数据
      */
-    function _get_post_data( $id = 0 ) {
+    function _get_post_data( $id = 0 )
+    {
         $goods = [
             'goods_name'  => $_POST['goods_name'],
             'description' => html_script($_POST['description']),
@@ -1940,7 +1996,7 @@ class My_goodsApp extends StoreadminbaseApp {
                     'stock'    => intval($_POST['stock']),
                     'sku'      => trim($_POST['sku']),
                     'spec_id'  => trim($_POST['spec_id']),
-                    'shiprice' => $this->_filter_price($_POST['shiprice']?$_POST['shiprice']:0),
+                    'shiprice' => $this->_filter_price($_POST['shiprice'] ? $_POST['shiprice'] : 0),
                 ];
                 break;
             case 1: // 一个规格
@@ -2026,7 +2082,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 检查提交的数据
      */
-    function _check_post_data( $data, $id = 0 ) {
+    function _check_post_data( $data, $id = 0 )
+    {
         if ( !$this->_check_mgcate($data['goods']['cate_id']) ) {
             $this->_error('select_leaf_category');
 
@@ -2061,10 +2118,11 @@ class My_goodsApp extends StoreadminbaseApp {
      *
      * @return bool|void
      */
-    function _check_post_data_draft($data, $id = 0){
+    function _check_post_data_draft( $data, $id = 0 )
+    {
 
         // 商品名不能空
-        if( strlen(trim($data['goods']['goods_name'])) == 0 ){
+        if ( strlen(trim($data['goods']['goods_name'])) == 0 ) {
             $this->_error('goods_name_empty');
 
             return false;
@@ -2080,7 +2138,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return true;
     }
 
-    function _format_goods_tags( $tags ) {
+    function _format_goods_tags( $tags )
+    {
         if ( !$tags ) {
             return '';
         }
@@ -2098,7 +2157,8 @@ class My_goodsApp extends StoreadminbaseApp {
     /**
      * 保存数据
      */
-    function _save_post_data( $data, $id = 0 ) {
+    function _save_post_data( $data, $id = 0 )
+    {
         import('image.func');
         import('uploader.lib');
 
@@ -2195,7 +2255,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     //品牌申请列表
-    function brand_list() {
+    function brand_list()
+    {
         $_GET['store_id'] = $this->_store_id;
         $_GET['if_show'] = BRAND_PASSED;
         $con = [
@@ -2266,7 +2327,8 @@ class My_goodsApp extends StoreadminbaseApp {
 
     //品牌申请
 
-    function brand_apply() {
+    function brand_apply()
+    {
         if ( !IS_POST ) {
             header("Content-Type:text/html;charset=" . CHARSET);
             $this->display('brand_apply.html');
@@ -2299,7 +2361,8 @@ class My_goodsApp extends StoreadminbaseApp {
         }
     }
 
-    function brand_edit() {
+    function brand_edit()
+    {
         $id = intval($_GET['id']);
         $brand = $this->_brand_mod->find('store_id = ' . $this->_store_id . ' AND if_show = ' . BRAND_REFUSE . ' AND brand_id = ' . $id);
         $brand = current($brand);
@@ -2338,7 +2401,8 @@ class My_goodsApp extends StoreadminbaseApp {
 
     }
 
-    function brand_drop() {
+    function brand_drop()
+    {
         $id = intval($_GET['id']);
         if ( empty( $id ) ) {
             $this->show_warning('request_error');
@@ -2362,7 +2426,8 @@ class My_goodsApp extends StoreadminbaseApp {
 
     }
 
-    function check_brand() {
+    function check_brand()
+    {
         $brand_name = $_GET['brand_name'];
         if ( !$brand_name ) {
             echo ecm_json_encode(true);
@@ -2378,7 +2443,8 @@ class My_goodsApp extends StoreadminbaseApp {
         return;
     }
 
-    function _upload_logo( $brand_id ) {
+    function _upload_logo( $brand_id )
+    {
         $file = $_FILES['brand_logo'];
         if ( $file['error'] == UPLOAD_ERR_NO_FILE || !isset( $_FILES['brand_logo'] ) ) // 没有文件被上传
         {
@@ -2410,7 +2476,8 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /* 价格过滤，返回非负浮点数 */
-    function _filter_price( $price ) {
+    function _filter_price( $price )
+    {
         return abs(floatval($price));
     }
 }
