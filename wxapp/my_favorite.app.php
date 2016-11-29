@@ -142,11 +142,23 @@ class My_favoriteApp extends MemberbaseApp
         $this->_format_page($page);
         $step = intval(Conf::get('upgrade_required'));
         $step < 1 && $step = 5;
+		$ids = array();
         foreach ($collect_store as $key => $store)
         {
+			array_push($ids,$key);
             empty($store['store_logo']) && $collect_store[$key]['store_logo'] = Conf::get('default_store_logo');
             $collect_store[$key]['credit_image'] = $this->_view->res_base . '/images/' . $model_store->compute_credit($store['credit_value'], $step);
-        }
+			$collect_store[$key]['collectnum'] = '0';
+		}
+		//获取店铺关注数  后期优化存入冗余数据或者redis
+		$idstr = '('.implode(',',$ids).')';
+		$collectsql = "SELECT item_id,count(user_id) as total from ".DB_PREFIX."collect WHERE type='store' and item_id in $idstr GROUP BY item_id";
+		$collarr = $model_store->db->getAll($collectsql);
+		if($collarr){
+			foreach($collarr as $v){
+				$collect_store[$v['item_id']]['collectnum'] = $v['total'];
+			}
+		}
 		$data['store'] = $collect_store;
 		$data['page']['curr_page'] = $page['curr_page'];
 		$data['page']['pageper'] = $page['pageper'];
