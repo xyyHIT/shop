@@ -262,13 +262,15 @@
             $result['goods']['goods_id'] = $data['goods']['goods_id'];
             $result['goods']['store_id'] = $data['goods']['store_id'];
             $result['goods']['cate_id'] = $data['goods']['cate_id'];
+			//目前支持单一规格 后期添加供选择
+            $result['goods']['spec_id'] = $data['goods']['_specs']['0']['spec_id'];
             $result['goods']['goods_name'] = $data['goods']['goods_name'];
             $result['goods']['collects'] = $data['goods']['collects'];
             $result['goods']['views'] = $data['goods']['views'];
             $result['goods']['default_image'] = $data['goods']['default_image'];//商品图片地址
             $result['goods']['price'] = $data['goods']['price'];
             $result['goods']['sales'] = $data['goods']['sales'];//商品被售出的数目
-            $result['goods']['ship_price'] = $data['_specs']['shiprice'];//单件商品的运费，为满足平台需求，后续用真实数据替换假数据
+            $result['goods']['ship_price'] = $data['goods']['_specs']['0']['shiprice'];//单件商品的运费，为满足平台需求，后续用真实数据替换假数据
             $result['goods']['vediourl'] = '';//视频地址
             $result['goods']['detail_image'] = '';//详情图片地址   用假数据，后续用真实替换
             $result['goods']['detail_desc'] = $data['goods']['description'];//详情文字描述
