@@ -20,6 +20,27 @@ class MemberApp extends MemberbaseApp
         $this->_feed_enabled = $ms->feed->feed_enabled();
         $this->assign('feed_enabled', $this->_feed_enabled);
     }
+
+    /**
+     * 买家首页数据
+     */
+    function ejIndex(){
+        // 当前用户ID
+        $userID = intval($this->visitor->get('user_id'));
+        $userModel =& m('member');
+        $profileArr = $userModel->find([
+            'conditions' => "user_id='{$userID}'",
+            'fields' => 'user_name,portrait',
+        ]);
+
+        // 当前人的账户信息
+        $ret = current($profileArr);
+        // 关注数
+        $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'goods' and user_id=".$userID);
+
+        return $this->ej_json_success($ret);
+    }
+
     function index()
     {
         /* 清除新短消息缓存 */
