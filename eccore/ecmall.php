@@ -108,7 +108,7 @@ class ECMall
                 $_SESSION['wx_target_url'] = $redirectUrl;
 
                 Wechat::handler()->oauth->redirect()->send();
-                return ;
+                exit();// 不再执行以下代码
             }
         }
 

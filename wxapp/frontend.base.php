@@ -11,7 +11,7 @@ class FrontendApp extends ECBaseApp
     function __construct()
     {
         $this->FrontendApp();
-        //用户保持常登录状态
+        //用户保持常登录状态 调试时才会使用
         if ( !$this->visitor->has_login ) {
             if ( defined('IS_WECHAT') && defined('USER_ID') && !IS_WECHAT && USER_ID ) {
                 $this->_do_login(USER_ID);
@@ -415,58 +415,75 @@ class MallbaseApp extends FrontendApp
      */
     public function checkWechatLogin()
     {
-        // 如果已经登录,不需以下动作
-        if ( $this->visitor->has_login ) {
-            return;
-        }
-
+//$logger = new \Monolog\Logger('ej');
+//$logger->pushHandler(new \Monolog\Handler\StreamHandler(ROOT_PATH.'/temp/debug.log',\Monolog\Logger::WARNING));
+//$logger->warning('以下是checkWechatLogin');
         $openid = $_SESSION['wx_openid']; // 获取微信openid
-        $userArr = []; // 用户信息(数据库)
-        $userID = ''; // 用户ID
+        /** openid不能为空,只要为空就从微信获取 */
+        if($openid){
+//$logger->warning('获取到openid:'.$openid);
+            // 如果已经登录,不需以下动作
+            if ( $this->visitor->has_login ) {
+//$logger->warning('已经登录,不需以下操作');
+                return;
+            }
 
-        // 如果数据库有 拿出来准备登录
-        if(!$openid){
+            $userArr = []; // 用户信息(数据库)
+            $userID = ''; // 用户ID
+
+            // 如果数据库有 拿出来准备登录
             $memberModel =& m('member');
             $userArr = $memberModel->get([
                 'conditions' => "openid='$openid'",
                 'count'      => false
             ]);
-        }
 
-        // 如果没有用户信息
-        if ( $userArr === false || empty( $userArr ) ) {
-            // 查询239服务器的redis
-            $userInfo = Cache::store('redis239')->get($openid . '#SHOP');
-            if ( empty( $userInfo ) ) {
-                // 如果空 需要获取用户信息
-                $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
-                $condition = "redirect_url=" . urlencode($redirectUrl);
-                header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?' . $condition);
-                return;
+            // 如果没有用户信息
+            if ( $userArr === false || empty( $userArr ) ) {
+//$logger->warning('$userArr为空');
+
+                // 查询239服务器的redis
+                $userInfo = Cache::store('redis239')->get($openid . '#SHOP');
+                if ( empty( $userInfo ) ) {
+//$logger->warning('取redis为空,跳转');
+                    // 如果空 需要获取用户信息
+                    $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
+                    $condition = "redirect_url=" . urlencode($redirectUrl);
+                    header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?' . $condition);
+                    exit();// 不再执行以下代码
+                } else {
+//$logger->warning('插入新用户,openid:'.$userInfo['openId']);
+                    // 不为空 就插入数据库成为新的用户
+                    $memberModel =& m('member');
+                    $userID = $memberModel->add([
+                        'user_name' => $userInfo['nickname'],
+                        'password'  => md5($openid),
+                        'reg_time'  => gmtime(),
+                        'gender'    => $userInfo['sex'],
+                        'portrait'  => $userInfo['headimgurl'],
+                        'openid' => $userInfo['openId'],
+                    ]);
+
+                    if ( !$userID ) $this->_errors = $memberModel->get_error();
+                }
             } else {
-                // 不为空 就插入数据库成为新的用户
-                $memberModel =& m('member');
-                $userID = $memberModel->add([
-                    'user_name' => $userInfo['nickname'],
-                    'password'  => md5($openid),
-                    'reg_time'  => gmtime(),
-                    'gender'    => $userInfo['sex'],
-                    'portrait'  => $userInfo['headimgurl'],
-                    'openid' => $userInfo['openId'],
-                ]);
-
-                if ( !$userID ) $this->_errors = $memberModel->get_error();
+                $userID = $userArr['user_id'];
             }
-        } else {
-            $userID = $userArr['user_id'];
+
+            // 直接登录
+            if ( defined('IS_WECHAT') && IS_WECHAT && $userID) {
+//$logger->warning('登录了,userid:'.$userID);
+                $this->_do_login($userID);
+                $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
+                header("Location: $refreshUrl");
+                exit();// 不再执行以下代码
+            }else{
+                $this->_error('未知错误');
+            }
+        }else{
+            echo '这里openid为空了';
         }
 
-        // 直接登录
-        if ( defined('IS_WECHAT') && IS_WECHAT && $userID) {
-            $this->_do_login($userID);
-        }else{
-            $this->_error('未知错误');
-        }
 
         return;
     }

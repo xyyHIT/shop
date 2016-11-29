@@ -31,16 +31,6 @@ class DefaultApp extends MallbaseApp
 
     function index()
     {
-        echo '进入index<br>';
-        self::checkWechatLogin();
-        if($this->has_error()){
-            echo '这里出错了<br>';
-            echo current($this->get_error())['msg'];
-        }
-        echo '没有错误,完成了<br>';
-        echo json_encode($this->visitor->info);
-        exit();
-
         $arr = [ 'a' => '1', 'b' => '2' ];
         $this->assign('index', 1); // 标识当前页面是首页，用于设置导航状态
         $this->assign('icp_number', Conf::get('icp_number'));
