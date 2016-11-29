@@ -36,6 +36,28 @@ class My_goodsApp extends StoreadminbaseApp {
     }
 
     /**
+     * 获取当前商户商品
+     */
+    function ejIndex() {
+        $conditions = $this->_get_conditions();
+        $page = $this->_get_page();
+        $goods_list = $this->_get_goods($conditions, $page);
+
+        foreach ( $goods_list as $key => $goods ) {
+            $goods_list[ $key ]['cate_name'] = $this->_goods_mod->format_cate_name($goods['cate_name']);
+        }
+
+        $page['item_count'] = $this->_goods_mod->getCount();
+
+        $retArr = [
+            'goods' => $goods_list,
+            'page' => $page
+        ];
+
+        $this->ej_json_success($retArr);
+    }
+
+    /**
      * 艺加 - 发布商品
      *
      * by Gavin
@@ -189,7 +211,6 @@ class My_goodsApp extends StoreadminbaseApp {
 
         return $this->ej_json_success();
     }
-
 
     function index() {
         /* 取得店铺商品分类 */
