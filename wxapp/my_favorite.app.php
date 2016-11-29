@@ -94,8 +94,8 @@ class My_favoriteApp extends MemberbaseApp
         $model_goods =& m('goods');
         $page   =   $this->_get_page();    //获取分页信息
         $collect_goods = $model_goods->find(array(
-            'join'  => 'be_collect,belongs_to_store,has_default_spec',
-            'fields'=> 'this.*,store.store_name,store.store_id,collect.add_time,goodsspec.price,goodsspec.spec_id',
+            'join'  => 'be_collect,belongs_to_store,has_default_spec,has_goodsstatistics',
+            'fields'=> 'this.*,store.store_name,store.store_id,collect.add_time,goodsspec.price,goodsspec.spec_id,goodsstatistics.sales',
             'conditions' => 'collect.user_id = ' . $this->visitor->get('user_id') . $conditions,
             'count' => true,
             'order' => 'collect.add_time DESC',
