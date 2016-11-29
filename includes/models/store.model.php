@@ -439,6 +439,26 @@ class StoreModel extends BaseModel
         $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name');
         return $tree->getOptions();
     }
+
+    /**
+     * 获取店铺粉丝数量
+     *
+     * @param $storeID
+     *
+     * @return mixed
+     *
+     * by Gavin
+     */
+    public function followersCount($storeID){
+        # Todo 这里考虑缓存...
+
+        $sql = "select count(1) from ecm_collect where type='store' and item_id = $storeID";
+        $count = $this->db->getOne($sql);
+
+        return $count;
+    }
+
+
 }
 
 ?>
