@@ -94,8 +94,8 @@ class My_favoriteApp extends MemberbaseApp
         $model_goods =& m('goods');
         $page   =   $this->_get_page();    //获取分页信息
         $collect_goods = $model_goods->find(array(
-            'join'  => 'be_collect,belongs_to_store,has_default_spec',
-            'fields'=> 'this.*,store.store_name,store.store_id,collect.add_time,goodsspec.price,goodsspec.spec_id',
+            'join'  => 'be_collect,belongs_to_store,has_default_spec,has_goodsstatistics',
+            'fields'=> 'this.*,store.store_name,store.store_id,collect.add_time,goodsspec.price,goodsspec.spec_id,goodsstatistics.sales',
             'conditions' => 'collect.user_id = ' . $this->visitor->get('user_id') . $conditions,
             'count' => true,
             'order' => 'collect.add_time DESC',
@@ -107,42 +107,12 @@ class My_favoriteApp extends MemberbaseApp
         }
         $page['item_count'] = $model_goods->getCount();   //获取统计的数据
         $this->_format_page($page);
-        $this->assign('filtered', $conditions? 1 : 0); //是否有查询条件
-        $this->assign('collect_goods', $collect_goods);
-        /* 当前位置 */
-        $this->_curlocal(LANG::get('member_center'),    'index.php?app=member',
-                            LANG::get('my_favorite'), 'index.php?app=my_favorite',
-                            LANG::get('collect_goods'));
-
-        $this->import_resource(array(
-            'script' => array(
-                array(
-                    'path' => 'dialog/dialog.js',
-                    'attr' => 'id="dialog_js"',
-                ),
-                array(
-                    'path' => 'jquery.ui/jquery.ui.js',
-                    'attr' => '',
-                ),
-                array(
-                    'path' => 'jquery.ui/i18n/' . i18n_code() . '.js',
-                    'attr' => '',
-                ),
-                array(
-                    'path' => 'jquery.plugins/jquery.validate.js',
-                    'attr' => '',
-                ),
-            ),
-            'style' =>  'jquery.ui/themes/ui-lightness/jquery.ui.css',
-        ));
-
-        //当前用户中心菜单项
-        $this->_curitem('my_favorite');
-
-        $this->_curmenu('collect_goods');
-        $this->assign('page_info', $page);          //将分页信息传递给视图，用于形成分页条
-        $this->_config_seo('title', Lang::get('member_center') . ' - ' . Lang::get('collect_goods'));
-        $this->display('my_favorite.goods.index.html');
+		$data['goods'] = $collect_goods;
+		$data['page']['curr_page'] = $page['curr_page'];
+		$data['page']['pageper'] = $page['pageper'];
+		$data['page']['item_count'] = $page['item_count'];
+		$data['page']['page_count'] = $page['page_count'];
+       return $this->ej_json_success($data);
     }
 
     /**
@@ -177,42 +147,12 @@ class My_favoriteApp extends MemberbaseApp
             empty($store['store_logo']) && $collect_store[$key]['store_logo'] = Conf::get('default_store_logo');
             $collect_store[$key]['credit_image'] = $this->_view->res_base . '/images/' . $model_store->compute_credit($store['credit_value'], $step);
         }
-        $this->assign('collect_store', $collect_store);
-
-        /* 当前位置 */
-        $this->_curlocal(LANG::get('member_center'),    'index.php?app=member',
-                        LANG::get('my_favorite'), 'index.php?app=my_favorite',
-                        LANG::get('collect_store'));
-
-        $this->import_resource(array(
-            'script' => array(
-                array(
-                    'path' => 'dialog/dialog.js',
-                    'attr' => 'id="dialog_js"',
-                ),
-                array(
-                    'path' => 'jquery.ui/jquery.ui.js',
-                    'attr' => '',
-                ),
-                array(
-                    'path' => 'jquery.ui/i18n/' . i18n_code() . '.js',
-                    'attr' => '',
-                ),
-                array(
-                    'path' => 'jquery.plugins/jquery.validate.js',
-                    'attr' => '',
-                ),
-            ),
-            'style' =>  'jquery.ui/themes/ui-lightness/jquery.ui.css',
-        ));
-        //当前用户中心菜单项
-        $this->_curitem('my_favorite');
-
-        $this->_curmenu('collect_store');
-        $this->assign('page_info', $page);          //将分页信息传递给视图，用于形成分页条
-        $this->assign('filtered', $conditions? 1 : 0); //是否有查询条件
-        $this->_config_seo('title', Lang::get('member_center') . ' - ' . Lang::get('collect_store'));
-        $this->display('my_favorite.store.index.html');
+		$data['store'] = $collect_store;
+		$data['page']['curr_page'] = $page['curr_page'];
+		$data['page']['pageper'] = $page['pageper'];
+		$data['page']['item_count'] = $page['item_count'];
+		$data['page']['page_count'] = $page['page_count'];
+		return $this->ej_json_success($data);
     }
 
     /**
