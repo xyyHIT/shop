@@ -358,7 +358,7 @@ class My_goodsApp extends StoreadminbaseApp
             $conditions .= " AND (goods_name {$str} OR brand {$str} OR cate_name {$str})";
         }
 
-        if(isset($_REQUEST['if_show'])){
+        if ( isset( $_REQUEST['if_show'] ) ) {
             switch ( $_REQUEST['if_show'] ) {
                 case '0':
                     $conditions .= " AND if_show = 0";
