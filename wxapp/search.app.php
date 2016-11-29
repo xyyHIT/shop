@@ -109,13 +109,13 @@
                 'conditions' => 'state = ' . STORE_OPEN . $condition_id . $conditions,
                 'limit'      => $page['limit'],
                 'order'      => empty( $_GET['order'] ) || !in_array($_GET['order'], [ 'credit_value desc' ]) ? 'sort_order' : $_GET['order'],
-//                'join'       => 'belongs_to_user,has_scategory', // 店主信息,分类信息
                 'join'       => 'has_scategory',
-//                'fields' => 'this.*',
                 'count' => true   //允许统计
             ]);
 
             $model_goods = &m('goods');
+
+            $memberModel = &m('member');
 
             foreach ( $stores as $key => $store ) {
                 //店铺logo
@@ -123,6 +123,16 @@
 
                 //商品数量
                 $stores[ $key ]['goods_count'] = $model_goods->get_count_of_store($store['store_id']);
+
+                //粉丝数量
+                $stores[ $key ]['followers'] = $model_store->followersCount($store['store_id']);
+
+                //是否关注
+                if($this->visitor->has_login && $memberModel->isFollow($this->visitor->get('user_id'),$store['store_id'])){
+                    $stores[ $key ]['is_follow'] = 1;
+                }else{
+                    $stores[ $key ]['is_follow'] = 0;
+                }
             }
             $page['item_count'] = $model_store->getCount();   //获取统计数据
 
