@@ -52,9 +52,9 @@ class WechatApp extends MallbaseApp
     {
         // 获取 OAuth 授权结果用户信息
         $openid = Wechat::handler()->oauth->user()->toArray()['id'];
-        $_SESSION['openid'] = $openid;
+        $_SESSION['wx_openid'] = $openid;
 
-        $targetUrl = empty( $_SESSION['mall_target_url'] ) ? '/' : $_SESSION['mall_target_url'];
+        $targetUrl = empty( $_SESSION['wx_target_url'] ) ? '/' : $_SESSION['wx_target_url'];
 
         // 跳转
         header('location:' . $targetUrl);

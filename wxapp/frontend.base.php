@@ -6,18 +6,21 @@
  * @author    Garbin
  * @usage     none
  */
-class FrontendApp extends ECBaseApp {
-    function __construct() {
+class FrontendApp extends ECBaseApp
+{
+    function __construct()
+    {
         $this->FrontendApp();
         //用户保持常登录状态
         if ( !$this->visitor->has_login ) {
-            if ( !IS_WECHAT && USER_ID ) {
+            if ( defined('IS_WECHAT') && defined('USER_ID') && !IS_WECHAT && USER_ID ) {
                 $this->_do_login(USER_ID);
             }
         }
     }
 
-    function FrontendApp() {
+    function FrontendApp()
+    {
         Lang::load(lang_file('common'));
         Lang::load(lang_file(APP));
         parent::__construct();
@@ -30,7 +33,8 @@ class FrontendApp extends ECBaseApp {
         # 在运行action之前，无法访问到visitor对象
     }
 
-    function _config_view() {
+    function _config_view()
+    {
         parent::_config_view();
         $this->_view->template_dir = ROOT_PATH . '/themes';
         $this->_view->compile_dir = ROOT_PATH . '/temp/compiled/mall';
@@ -42,7 +46,8 @@ class FrontendApp extends ECBaseApp {
         ]);
     }
 
-    function display( $tpl ) {
+    function display( $tpl )
+    {
         $cart =& m('cart');
         $this->assign('cart_goods_kinds', $cart->get_kinds(SESS_ID, $this->visitor->get('user_id')));
         /* 新消息 */
@@ -58,7 +63,8 @@ class FrontendApp extends ECBaseApp {
         parent::display($tpl);
     }
 
-    function login() {
+    function login()
+    {
         if ( $this->visitor->has_login ) {
             $this->show_warning('has_login');
 
@@ -125,7 +131,8 @@ class FrontendApp extends ECBaseApp {
         }
     }
 
-    function pop_warning( $msg, $dialog_id = '', $url = '' ) {
+    function pop_warning( $msg, $dialog_id = '', $url = '' )
+    {
         if ( $msg == 'ok' ) {
             if ( empty( $dialog_id ) ) {
                 $dialog_id = APP . '_' . ACT;
@@ -147,7 +154,8 @@ class FrontendApp extends ECBaseApp {
         }
     }
 
-    function logout() {
+    function logout()
+    {
         $this->visitor->logout();
 
         /* 跳转到登录页，执行同步退出操作 */
@@ -157,7 +165,8 @@ class FrontendApp extends ECBaseApp {
     }
 
     /* 执行登录动作 */
-    function _do_login( $user_id ) {
+    function _do_login( $user_id )
+    {
         $mod_user =& m('member');
 
         $user_info = $mod_user->get([
@@ -200,7 +209,8 @@ class FrontendApp extends ECBaseApp {
     }
 
     /* 取得导航 */
-    function _get_navs() {
+    function _get_navs()
+    {
         $cache_server =& cache_server();
         $key = 'common.navigation';
         $data = $cache_server->get($key);
@@ -232,7 +242,8 @@ class FrontendApp extends ECBaseApp {
      *
      * @return    void
      */
-    function jslang( $lang = '' ) {
+    function jslang( $lang = '' )
+    {
         $lang = Lang::fetch(lang_file('jslang'));
         parent::jslang($lang);
     }
@@ -246,7 +257,8 @@ class FrontendApp extends ECBaseApp {
      *
      * @return    void
      */
-    function display_widgets( $options ) {
+    function display_widgets( $options )
+    {
         $area = isset( $options['area'] ) ? $options['area'] : '';
         $page = isset( $options['page'] ) ? $options['page'] : '';
         if ( !$area || !$page ) {
@@ -279,7 +291,8 @@ class FrontendApp extends ECBaseApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_template_name() {
+    function _get_template_name()
+    {
         return 'default';
     }
 
@@ -289,7 +302,8 @@ class FrontendApp extends ECBaseApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_style_name() {
+    function _get_style_name()
+    {
         return 'default';
     }
 
@@ -302,7 +316,8 @@ class FrontendApp extends ECBaseApp {
      *
      * @return    void
      */
-    function _curlocal( $arr ) {
+    function _curlocal( $arr )
+    {
         $curlocal = [ [
             'text' => Lang::get('index'),
             'url'  => SITE_URL . '/index.php',
@@ -325,7 +340,8 @@ class FrontendApp extends ECBaseApp {
         $this->assign('_curlocal', $curlocal);
     }
 
-    function _init_visitor() {
+    function _init_visitor()
+    {
         $this->visitor =& env('visitor', new UserVisitor());
     }
 }
@@ -336,7 +352,8 @@ class FrontendApp extends ECBaseApp {
  * @author    Garbin
  * @usage     none
  */
-class UserVisitor extends BaseVisitor {
+class UserVisitor extends BaseVisitor
+{
     var $_info_key = 'user_info';
 
     /**
@@ -348,7 +365,8 @@ class UserVisitor extends BaseVisitor {
      *
      * @return    void
      */
-    function logout() {
+    function logout()
+    {
         /* 将购物车中的相关项的session_id置为空 */
         $mod_cart =& m('cart');
         $mod_cart->edit("user_id = '" . $this->get('user_id') . "'", [
@@ -366,8 +384,10 @@ class UserVisitor extends BaseVisitor {
  * @author    Garbin
  * @usage     none
  */
-class MallbaseApp extends FrontendApp {
-    function _run_action() {
+class MallbaseApp extends FrontendApp
+{
+    function _run_action()
+    {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && in_array(APP, [ 'apply' ]) ) {
             header('Location: index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
@@ -378,7 +398,8 @@ class MallbaseApp extends FrontendApp {
         parent::_run_action();
     }
 
-    function _config_view() {
+    function _config_view()
+    {
         parent::_config_view();
 
         $template_name = $this->_get_template_name();
@@ -389,8 +410,70 @@ class MallbaseApp extends FrontendApp {
         $this->_view->res_base = SITE_URL . "/themes/mall/{$template_name}/styles/{$style_name}";
     }
 
+    /**
+     * 检测是否存在当前微信帐号
+     */
+    public function checkWechatLogin()
+    {
+        // 如果已经登录,不需以下动作
+        if ( $this->visitor->has_login ) {
+            return;
+        }
+
+        $openid = $_SESSION['wx_openid']; // 获取微信openid
+        $userArr = []; // 用户信息(数据库)
+        $userID = ''; // 用户ID
+
+        // 如果数据库有 拿出来准备登录
+        if(!$openid){
+            $memberModel =& m('member');
+            $userArr = $memberModel->get([
+                'conditions' => "openid='$openid'",
+                'count'      => false
+            ]);
+        }
+
+        // 如果没有用户信息
+        if ( $userArr === false || empty( $userArr ) ) {
+            // 查询239服务器的redis
+            $userInfo = Cache::store('redis239')->get($openid . '#SHOP');
+            if ( empty( $userInfo ) ) {
+                // 如果空 需要获取用户信息
+                $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
+                $condition = "redirect_url=" . urlencode($redirectUrl);
+                header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?' . $condition);
+                return;
+            } else {
+                // 不为空 就插入数据库成为新的用户
+                $memberModel =& m('member');
+                $userID = $memberModel->add([
+                    'user_name' => $userInfo['nickname'],
+                    'password'  => md5($openid),
+                    'reg_time'  => gmtime(),
+                    'gender'    => $userInfo['sex'],
+                    'portrait'  => $userInfo['headimgurl'],
+                    'openid' => $userInfo['openId'],
+                ]);
+
+                if ( !$userID ) $this->_errors = $memberModel->get_error();
+            }
+        } else {
+            $userID = $userArr['user_id'];
+        }
+
+        // 直接登录
+        if ( defined('IS_WECHAT') && IS_WECHAT && $userID) {
+            $this->_do_login($userID);
+        }else{
+            $this->_error('未知错误');
+        }
+
+        return;
+    }
+
     /* 取得支付方式实例 */
-    function _get_payment( $code, $payment_info ) {
+    function _get_payment( $code, $payment_info )
+    {
         include_once( ROOT_PATH . '/includes/payment.base.php' );
         include( ROOT_PATH . '/includes/payments/' . $code . '/' . $code . '.payment.php' );
         $class_name = ucfirst($code) . 'Payment';
@@ -404,7 +487,8 @@ class MallbaseApp extends FrontendApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_template_name() {
+    function _get_template_name()
+    {
         $template_name = Conf::get('template_name');
         if ( !$template_name ) {
             $template_name = 'default';
@@ -419,7 +503,8 @@ class MallbaseApp extends FrontendApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_style_name() {
+    function _get_style_name()
+    {
         $style_name = Conf::get('style_name');
         if ( !$style_name ) {
             $style_name = 'default';
@@ -435,14 +520,16 @@ class MallbaseApp extends FrontendApp {
  * @author    Garbin
  * @usage     none
  */
-class ShoppingbaseApp extends MallbaseApp {
-    function _run_action() {
+class ShoppingbaseApp extends MallbaseApp
+{
+    function _run_action()
+    {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
             if ( !IS_AJAX ) {
-               // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
+                // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
 
-               // return;
+                // return;
             } else {
                 $this->json_error('login_please');
 
@@ -460,14 +547,16 @@ class ShoppingbaseApp extends MallbaseApp {
  * @author    Garbin
  * @usage     none
  */
-class MemberbaseApp extends MallbaseApp {
-    function _run_action() {
+class MemberbaseApp extends MallbaseApp
+{
+    function _run_action()
+    {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
             if ( !IS_AJAX ) {
-               // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
+                // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
 
-               // return;
+                // return;
             } else {
                 $this->json_error('login_please');
 
@@ -487,7 +576,8 @@ class MemberbaseApp extends MallbaseApp {
      *
      * @return    void
      */
-    function _curitem( $item ) {
+    function _curitem( $item )
+    {
         $this->assign('has_store', $this->visitor->get('has_store'));
         $this->assign('_member_menu', $this->_get_member_menu());
         $this->assign('_curitem', $item);
@@ -502,7 +592,8 @@ class MemberbaseApp extends MallbaseApp {
      *
      * @return    void
      */
-    function _curmenu( $item ) {
+    function _curmenu( $item )
+    {
         $_member_submenu = $this->_get_member_submenu();
         foreach ( $_member_submenu as $key => $value ) {
             $_member_submenu[ $key ]['text'] = $value['text'] ? $value['text'] : Lang::get($value['name']);
@@ -520,7 +611,8 @@ class MemberbaseApp extends MallbaseApp {
      *
      * @return    void
      */
-    function _get_member_submenu() {
+    function _get_member_submenu()
+    {
         return [];
     }
 
@@ -533,7 +625,8 @@ class MemberbaseApp extends MallbaseApp {
      *
      * @return    void
      */
-    function _get_member_menu() {
+    function _get_member_menu()
+    {
         $menu = [];
 
         /* 我的ECMall */
@@ -730,14 +823,16 @@ class MemberbaseApp extends MallbaseApp {
  * @author    Garbin
  * @usage     none
  */
-class StoreadminbaseApp extends MemberbaseApp {
-    function _run_action() {
+class StoreadminbaseApp extends MemberbaseApp
+{
+    function _run_action()
+    {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
             if ( !IS_AJAX ) {
-             //   header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
+                //   header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
 
-             //   return;
+                //   return;
             } else {
                 $this->json_error('login_please');
 
@@ -795,7 +890,8 @@ class StoreadminbaseApp extends MemberbaseApp {
         parent::_run_action();
     }
 
-    function _get_privileges() {
+    function _get_privileges()
+    {
         $store_id = $this->visitor->get('manage_store');
         $privs = $this->visitor->get('s');
 
@@ -811,7 +907,8 @@ class StoreadminbaseApp extends MemberbaseApp {
     }
 
     /* 获取当前店铺所使用的主题 */
-    function _get_theme() {
+    function _get_theme()
+    {
         $model_store =& m('store');
         $store_info = $model_store->get($this->visitor->get('manage_store'));
         $theme = !empty( $store_info['theme'] ) ? $store_info['theme'] : 'default|default';
@@ -823,7 +920,8 @@ class StoreadminbaseApp extends MemberbaseApp {
         ];
     }
 
-    function _check_add_functions() {
+    function _check_add_functions()
+    {
         $apps_functions = [ // app与function对应关系
             'seller_groupbuy' => 'groupbuy',
             'coupon'          => 'coupon',
@@ -847,7 +945,8 @@ class StoreadminbaseApp extends MemberbaseApp {
  * @author    Garbin
  * @usage     none
  */
-class StorebaseApp extends FrontendApp {
+class StorebaseApp extends FrontendApp
+{
     var $_store_id;
 
     /**
@@ -855,7 +954,8 @@ class StorebaseApp extends FrontendApp {
      *
      * @param int $store_id
      */
-    function set_store( $store_id ) {
+    function set_store( $store_id )
+    {
         $this->_store_id = intval($store_id);
 
         /* 有了store id后对视图进行二次配置 */
@@ -863,7 +963,8 @@ class StorebaseApp extends FrontendApp {
         $this->_config_view();
     }
 
-    function _config_view() {
+    function _config_view()
+    {
         parent::_config_view();
         $template_name = $this->_get_template_name();
         $style_name = $this->_get_style_name();
@@ -876,7 +977,8 @@ class StorebaseApp extends FrontendApp {
     /**
      * 取得店铺信息
      */
-    function get_store_data() {
+    function get_store_data()
+    {
         $cache_server =& cache_server();
         $key = 'function_get_store_data_' . $this->_store_id;
         $store = $cache_server->get($key);
@@ -917,7 +1019,8 @@ class StorebaseApp extends FrontendApp {
     }
 
     /* 取得店铺信息 */
-    function _get_store_info() {
+    function _get_store_info()
+    {
         if ( !$this->_store_id ) {
             /* 未设置前返回空 */
             return [];
@@ -932,7 +1035,8 @@ class StorebaseApp extends FrontendApp {
     }
 
     /* 取得店主信息 */
-    function _get_store_owner() {
+    function _get_store_owner()
+    {
         $user_mod =& m('member');
         $user = $user_mod->get($this->_store_id);
 
@@ -940,7 +1044,8 @@ class StorebaseApp extends FrontendApp {
     }
 
     /* 取得店铺导航 */
-    function _get_store_nav() {
+    function _get_store_nav()
+    {
         $article_mod =& m('article');
 
         return $article_mod->find([
@@ -952,7 +1057,8 @@ class StorebaseApp extends FrontendApp {
 
     /*  取的店铺等级   */
 
-    function _get_store_grade( $field ) {
+    function _get_store_grade( $field )
+    {
         $store_info = $store_info = $this->_get_store_info();
         $sgrade_mod =& m('sgrade');
         $result = $sgrade_mod->get_info($store_info['sgrade']);
@@ -961,7 +1067,8 @@ class StorebaseApp extends FrontendApp {
     }
 
     /* 取得店铺分类 */
-    function _get_store_gcategory() {
+    function _get_store_gcategory()
+    {
         $gcategory_mod =& bm('gcategory', [ '_store_id' => $this->_store_id ]);
         $gcategories = $gcategory_mod->get_list(-1, true);
         import('tree.lib');
@@ -977,7 +1084,8 @@ class StorebaseApp extends FrontendApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_template_name() {
+    function _get_template_name()
+    {
         $store_info = $this->_get_store_info();
         $theme = !empty( $store_info['theme'] ) ? $store_info['theme'] : 'default|default';
         list( $template_name, $style_name ) = explode('|', $theme);
@@ -991,7 +1099,8 @@ class StorebaseApp extends FrontendApp {
      * @author    Garbin
      * @return    string
      */
-    function _get_style_name() {
+    function _get_style_name()
+    {
         $store_info = $this->_get_store_info();
         $theme = !empty( $store_info['theme'] ) ? $store_info['theme'] : 'default|default';
         list( $template_name, $style_name ) = explode('|', $theme);
@@ -1002,14 +1111,16 @@ class StorebaseApp extends FrontendApp {
 
 /* 实现消息基础类接口 */
 
-class MessageBase extends MallbaseApp {
+class MessageBase extends MallbaseApp
+{
 }
 
 ;
 
 /* 实现模块基础类接口 */
 
-class BaseModule extends FrontendApp {
+class BaseModule extends FrontendApp
+{
 }
 
 ;
