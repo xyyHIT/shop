@@ -97,7 +97,6 @@ class ECMall
         /**
          * 如果没有获取到微信用户信息就跳转到微信验证获取
          */
-
         // 是否登录 判断登录的标准,是否获取openid
         if ( IS_WECHAT && empty( $_SESSION['wx_openid'] ) ) {
             // 排除掉验证action
@@ -106,7 +105,6 @@ class ECMall
             } else {
                 $redirectUrl = '/?' . $_SERVER['QUERY_STRING'];
                 $_SESSION['wx_target_url'] = $redirectUrl;
-
                 Wechat::handler()->oauth->redirect()->send();
                 exit();// 不再执行以下代码
             }
