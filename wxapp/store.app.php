@@ -2,6 +2,39 @@
 
 class StoreApp extends StorebaseApp
 {
+
+    /**
+     * 商户基本信息
+     */
+    public function ejBaseInfo(){
+        // 商户ID
+        $storeID = empty($_REQUEST['store_id']) ? 0 : intval($_REQUEST['store_id']);
+        // 当前用户ID
+        $userID = empty($_REQUEST['user_id']) ? 0 : intval($_REQUEST['user_id']);
+
+        $memberModel =& m('member');
+        $storeArr = $memberModel->get([
+            'conditions' => "user_id='{$storeID}'",
+            'join' => 'has_store',
+            'fields' => 'user_name,portrait,store.sgrade', // 商户名 头像 等级(无用)
+        ]);
+
+        $storeModel =& m('store');
+        //粉丝数量
+        $storeArr['followers'] = $storeModel->followersCount($storeID);
+        //是否关注
+        if($memberModel->isFollow($userID,$storeID)){
+            $storeArr['is_follow'] = 1;
+        }else{
+            $storeArr['is_follow'] = 0;
+        }
+
+        // 总收入
+        $storeArr['grossIncome'] = $storeModel->grossIncome($storeID);
+
+        return $this->ej_json_success($storeArr);
+    }
+
     function index()
     {
         /* 店铺信息 */

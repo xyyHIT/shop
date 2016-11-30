@@ -451,11 +451,26 @@ class StoreModel extends BaseModel
      */
     public function followersCount($storeID){
         # Todo 这里考虑缓存...
-
-        $sql = "select count(1) from ecm_collect where type='store' and item_id = $storeID";
+        $sql = "select count(1) from ".DB_PREFIX."collect where type='store' and item_id = $storeID";
         $count = $this->db->getOne($sql);
 
         return $count;
+    }
+
+    /**
+     * 店铺总收入
+     *
+     * @param $storeID
+     *
+     * @return mixed
+     *
+     * by Gavin
+     */
+    public function grossIncome($storeID){
+        $sql = 'select sum(goods_amount) from '.DB_PREFIX.'order where status = 40 and seller_id = '.$storeID;
+        $num = $this->db->getOne($sql);
+
+        return $num;
     }
 
 
