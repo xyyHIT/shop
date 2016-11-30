@@ -1735,5 +1735,13 @@ function html_script( $text )
     return $text;
 }
 
+function html_script_reverse( $text )
+{
+    $text = str_replace('&#091;', '[', $text);
+    $text = str_replace('&#093;', ']', $text);
+    $text = str_replace('&#124;', '|', $text);
+
+    return $text;
+}
 
 ?>

@@ -535,6 +535,12 @@
                         'max' => $max
                     ];
                 }
+
+                // store_id
+                if ( isset( $_REQUEST['store_id'] ) && intval($_REQUEST['store_id']) > 0 ) {
+                    $res['store_id'] = intval($_REQUEST['store_id']);
+                }
+
             }
 
             return $res;
@@ -596,6 +602,9 @@
             }
             if ( isset( $param['brand'] ) ) {
                 $conditions .= " AND g.brand = '" . $param['brand'] . "'";
+            }
+            if ( isset( $param['store_id'] ) ) {
+                $conditions .= " AND g.store_id = '" . $param['store_id'] . "'";
             }
             if ( isset( $param['region_id'] ) ) {
                 $conditions .= " AND s.region_id = '" . $param['region_id'] . "'";

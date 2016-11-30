@@ -42,7 +42,6 @@
 
             /* 可缓存数据 */
             $data = $this->_get_common_info($id);
-            $res = [];
             if ( $data === false ) {
                 return $this->ej_json_failed(3001);
             } else {
@@ -219,6 +218,8 @@
                     return false;
                 }
                 $goods['tags'] = $goods['tags'] ? explode(',', trim($goods['tags'], ',')) : [];
+
+                $goods['description'] = $goods['description'] ? html_script_reverse($goods['description']) : '';
 
                 $data['goods'] = $goods;
 
