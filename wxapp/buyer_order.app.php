@@ -669,4 +669,37 @@
 			return $this->ej_json_success();
         }
 		
+		//提醒卖家发货
+		function remindship(){
+			$order_id = isset($_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
+            }
+			//获取订单信息
+			$model_order =& m('order');
+            $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
+			if(empty($order_info)){
+				return $this->ej_json_failed(3001);
+			}
+			//判断是否属于待付款的状态
+			if($order_info['status'] != ORDER_PENDING){
+				return $this->ej_json_failed(3001);
+			}
+			//获取商家openid
+			$model_member =& m('member');
+            $member_info = $model_member->get("user_id=".$order_info['seller_id']." AND user_id !=" . $this->visitor->get('user_id'));
+			/*TODO 发送给卖家买家微信推送，交易完成 */
+			$templateid = '';//消息模板id
+			$topenid = $member_info['openid'];
+			$data = [
+				'first'=>'',
+				'keyword1'=>'',
+				'keyword2'=>'',
+				'keyword3'=>'',
+				'remark'=>'',
+			];
+			//$result = Wechat::sendNotice($topenid,$templateid,$data);
+			return $this->ej_json_success();
+		}
+		
     }
