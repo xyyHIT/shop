@@ -474,8 +474,8 @@ class MallbaseApp extends FrontendApp
                 $this->_do_login($userID);
 
                 // 重定向
-                $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
-                header("Location: $refreshUrl");
+//                $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
+//                header("Location: $refreshUrl");
 
                 /**
                  * 如果已接口形式调用 这里不能重定向
