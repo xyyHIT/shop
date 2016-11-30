@@ -550,9 +550,8 @@ class ShoppingbaseApp extends MallbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX ) {
+            if ( !IS_AJAX && !IS_WECHAT) {
                 // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
-
                 // return;
             } else {
                 $this->checkWechatLogin();
@@ -578,9 +577,8 @@ class MemberbaseApp extends MallbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX ) {
+            if ( !IS_AJAX && !IS_WECHAT) {
                 // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
-
                 // return;
             } else {
                 $this->checkWechatLogin();
@@ -855,9 +853,8 @@ class StoreadminbaseApp extends MemberbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX ) {
+            if ( !IS_AJAX && !IS_WECHAT) {
                 //   header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
-
                 //   return;
             } else {
                 $this->checkWechatLogin();
