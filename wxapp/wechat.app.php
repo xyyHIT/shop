@@ -19,15 +19,20 @@ class WechatApp extends MallbaseApp
 
     public function test()
     {
-        require ROOT_PATH . '/includes/Http.php';
+        $txt = $_REQUEST['txt'];
+        $txt = preg_replace('/\s\`ecm_(.+?)\`([,|\s]?)/', ' ' .DB_PREFIX. '$1$2', $txt);
+        echo json_encode($_REQUEST['p']);
 
-        $http = new Http();
-        $jsonArr = $http->parseJSON($http->get('http://127.0.0.1:8006', [
-            'app' => 'wechat',
-            'act' => 'json'
-        ]));
 
-        print_r($jsonArr);
+//        require ROOT_PATH . '/includes/Http.php';
+//
+//        $http = new Http();
+//        $jsonArr = $http->parseJSON($http->get('http://127.0.0.1:8006', [
+//            'app' => 'wechat',
+//            'act' => 'json'
+//        ]));
+//
+//        print_r($jsonArr);
     }
 
 

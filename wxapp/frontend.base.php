@@ -428,9 +428,6 @@ class MallbaseApp extends FrontendApp
                 return;
             }
 
-            $userArr = []; // 用户信息(数据库)
-            $userID = ''; // 用户ID
-
             // 如果数据库有 拿出来准备登录
             $memberModel =& m('member');
             $userArr = $memberModel->get([
@@ -444,6 +441,7 @@ class MallbaseApp extends FrontendApp
 
                 // 查询239服务器的redis
                 $userInfo = Cache::store('redis239')->get($openid . '#SHOP');
+                Cache::store('default');// 使用完切换回default
                 if ( empty( $userInfo ) ) {
 //$logger->warning('取redis为空,跳转');
                     // 如果空 需要获取用户信息
@@ -474,14 +472,23 @@ class MallbaseApp extends FrontendApp
             if ( defined('IS_WECHAT') && IS_WECHAT && $userID) {
 //$logger->warning('登录了,userid:'.$userID);
                 $this->_do_login($userID);
+
+                // 重定向
                 $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
                 header("Location: $refreshUrl");
+
+                /**
+                 * 如果已接口形式调用 这里不能重定向
+                 * 重定向任务由前端完成,这里返回数据
+                 */
+                $this->ej_json_failed(3003);
+
                 exit();// 不再执行以下代码
             }else{
                 $this->_error('未知错误');
             }
         }else{
-            echo '这里openid为空了';
+            // openid 空
         }
 
 
@@ -548,9 +555,10 @@ class ShoppingbaseApp extends MallbaseApp
 
                 // return;
             } else {
-                $this->json_error('login_please');
+                $this->checkWechatLogin();
 
-                return;
+//                $this->json_error('login_please');
+//                return;
             }
         }
 
@@ -575,9 +583,10 @@ class MemberbaseApp extends MallbaseApp
 
                 // return;
             } else {
-                $this->json_error('login_please');
+                $this->checkWechatLogin();
 
-                return;
+//                $this->json_error('login_please');
+//                return;
             }
         }
 
@@ -851,9 +860,10 @@ class StoreadminbaseApp extends MemberbaseApp
 
                 //   return;
             } else {
-                $this->json_error('login_please');
+                $this->checkWechatLogin();
 
-                return;
+//                $this->json_error('login_please');
+//                return;
             }
         }
         $referer = $_SERVER['HTTP_REFERER'];
