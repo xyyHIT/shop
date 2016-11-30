@@ -336,7 +336,7 @@
          * @author    newrain
          * @return    void
          */
-        function shipped() {
+        function shipped() {	
 			$order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
 			$invoice_no = isset( $_GET['invoice_no'] ) ? intval($_GET['invoice_no']) : 0;
 			if ( !$order_id || !$invoice_no) {
@@ -384,7 +384,17 @@
 			]);
 
 
-			/* TODO 微信通知发送给买家订单已发货通知 */
+			/* TODO 微信通知发送给买家订单已发货通知   测试代码
+			$data = [
+				'first'=>'您的货物已发货',
+				'keyword1'=>'订单：1000001',
+				'keyword2'=>'顺丰配送',
+				'keyword3'=>'3222220',
+				'keyword4'=>'北京市 朝阳区',
+				'remark'=>'请您耐心等待',
+			];
+			$result = Wechat::sendNotice('o027xw_FWHbfosz9KHWOYsoXMa3s','t4GpuK09mLtHgzFrpBVRzPJsyPSXeWDIPAAvburUo8c',$data);	
+			*/
 			return $this->ej_json_success();
         }
 
