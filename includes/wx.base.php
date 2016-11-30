@@ -1,5 +1,6 @@
 <?php
 use EasyWeChat\Foundation\Application;
+use EasyWeChat\Payment\Order;
 
 /**
  *
