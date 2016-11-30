@@ -57,21 +57,15 @@ class Wechat{
         return self::$handler;
     }
 
-
+	/*edit by newrain*/
     public static function sendNotice($openID,$template,$data){
-        // x8zbClYOLTB8v-jSvKiwdeNfptBBDZ1BLW0FfVYYaB4
         self::init();
         $response = self::handler()->notice->send([
-            'touser' => $_SESSION['wechat_user']['id'],
-            'template_id' => 'rQcUAmp7X4MM2n7dzTwjIw1HjT0IRdfSnzlfvd6tbKQ',
+            'touser' => $openID,
+            'template_id' => $template,
             'url' => '',
             'topcolor' => '#f7f7f7',
-            'data' => [
-                "first"  => "恭喜你购买成功！",
-                "name"   => "巧克力",
-                "price"  => "39.8元",
-                "remark" => "欢迎再次购买！",
-            ],
+			'data' => $data,
         ]);
         return $response;
     }
