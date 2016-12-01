@@ -1,6 +1,6 @@
 <?php
 
-class DefaultApp extends MallbaseApp
+class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 {
 
     /**

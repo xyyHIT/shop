@@ -461,6 +461,7 @@ class MallbaseApp extends FrontendApp
                         'gender'    => $userInfo['sex'],
                         'portrait'  => $userInfo['headimgurl'],
                         'openid' => $userInfo['openId'],
+                        'auction_id' => $userInfo['userId'], // 拍卖ID
                     ]);
 
                     if ( !$userID ) $this->_errors = $memberModel->get_error();

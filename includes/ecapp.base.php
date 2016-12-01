@@ -114,7 +114,7 @@
                 $this->_init_visitor();
 
                 /* 计划任务守护进程 */
-                $this->_run_cron();
+//                $this->_run_cron();
             }
         }
 
