@@ -36,7 +36,7 @@ class FrontendApp extends ECBaseApp
     function _config_view()
     {
         parent::_config_view();
-        $this->_view->template_dir = ROOT_PATH . '/themes';
+		$this->_view->template_dir = ROOT_PATH . '/themes';
         $this->_view->compile_dir = ROOT_PATH . '/temp/compiled/mall';
         $this->_view->res_base = SITE_URL . '/themes';
         $this->_config_seo([
@@ -405,7 +405,8 @@ class MallbaseApp extends FrontendApp
         $template_name = $this->_get_template_name();
         $style_name = $this->_get_style_name();
 
-        $this->_view->template_dir = ROOT_PATH . "/themes/mall/{$template_name}";
+        //$this->_view->template_dir = ROOT_PATH . "/themes/mall/{$template_name}";
+        $this->_view->template_dir = ROOT_PATH . "/shop/html";
         $this->_view->compile_dir = ROOT_PATH . "/temp/compiled/mall/{$template_name}";
         $this->_view->res_base = SITE_URL . "/themes/mall/{$template_name}/styles/{$style_name}";
     }
