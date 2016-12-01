@@ -234,6 +234,7 @@ class NormalOrder extends BaseOrder
         $user_id     =  $visitor->get('user_id');
 		$sumordersn = '1'.$this->_gen_order_sn();//合单前三位为110
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields." VALUES('".$sumorderjson."','".time()."','".$user_id."','".$sumordersn."')");
+		$sumorderid = $order_model->db->insert_id();
 	   /* 插入商品信息 */
 		if(empty($goodslist)){
 			return 0;
@@ -254,6 +255,7 @@ class NormalOrder extends BaseOrder
 		$actorderes['orderidarr'] =  $orderidarr;
 		$actorderes['sumorderarr'] =  $sumorderarr;
 		$actorderes['newordersn'] =  $sumordersn;
+		$actorderes['sumorderid '] =  $sumorderid;
         return $actorderes;
     }
 }
