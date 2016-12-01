@@ -162,21 +162,17 @@ class Wechat{
 		];
 		$app = new Application($options);
 		$payment = $app->payment;
-		/*
-		$attributes = [
-			'trade_type'       => 'JSAPI', // JSAPI，NATIVE，APP...
-			'body'             => 'iPad mini 16G 白色',
-			'detail'           => 'iPad mini 16G 白色',
-			'out_trade_no'     => '1217752501201407033233368018',
-			'total_fee'        => 5388,
-			'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
-			'openid'           => , // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
-		];*/
 		$order = new Order($attributes);
 		$result = $payment->prepare($order);
 		if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
-			$prepayId = $result->prepay_id;
-			return $prepayId;
+			//$prepayId = $result->prepay_id;
+			$prepayarr['appId'] = $result->appid;
+			$prepayarr['timeStamp'] = time();
+			$prepayarr['nonceStr'] = $result->nonce_str;
+			$prepayarr['package'] = $result->prepay_id;
+			$prepayarr['signType'] = 'MD5';
+			$prepayarr['paySign'] = $result->sign;
+			return $prepayarr;
 		}
 		return false;
 	}

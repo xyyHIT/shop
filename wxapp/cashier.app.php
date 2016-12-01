@@ -397,8 +397,8 @@ class CashierApp extends ShoppingbaseApp
 		}
 		$attributes = [
 			'trade_type'       => 'JSAPI', // JSAPI，NATIVE，APP...
-			'body'             => '下单商品',
-			'detail'           => '下单商品',
+			'body'             => '商城下单商品',
+			'detail'           => '商城下单商品',
 			'out_trade_no'     => $out_trade_on,
 			'total_fee'        => $amount,
 			'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
