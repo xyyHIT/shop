@@ -43,7 +43,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         ]);
         $this->assign('page_description', Conf::get('site_description'));
         $this->assign('page_keywords', Conf::get('site_keywords'));
-        $this->display('index.html');
+        $this->display('/index/index.html');
     }
 
     function _get_hot_keywords()

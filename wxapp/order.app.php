@@ -130,6 +130,7 @@ class OrderApp extends ShoppingbaseApp
 		/* 到收银台付款 */
 		$data['ordersn'] = $orderidarr['sumorderarr'];
 		$data['pordersn'] = $orderidarr['newordersn'];
+		$data['porderid'] = $orderidarr['sumorderid'];
 		$data['totalamount'] = $totalamount;
 		return $this->ej_json_success($data);
 	}
