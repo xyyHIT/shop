@@ -1688,6 +1688,7 @@ function is_from_browser()
  */
 function ecm_define( $source )
 {
+    $dirName = $source;
     if ( is_string($source) ) {
         /* 导入数组 */
         $source = include( $source );
@@ -1698,6 +1699,9 @@ function ecm_define( $source )
     }
     foreach ( $source as $key => $value ) {
         if ( is_string($value) || is_numeric($value) || is_bool($value) || is_null($value) ) {
+            if ( strtoupper($key) == 'CONFIG_TYPE' ) {
+                ecm_define(dirname($dirName) . "/yijia_mall_{$value}.cfg.php");
+            }
             /* 如果是可被定义的，则定义 */
             define(strtoupper($key), $value);
         }

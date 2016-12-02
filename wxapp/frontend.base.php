@@ -441,14 +441,14 @@ class MallbaseApp extends FrontendApp
 //$logger->warning('$userArr为空');
 
                 // 查询239服务器的redis
-                $userInfo = Cache::store('redis239')->get($openid . '#SHOP');
+                $userInfo = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
                 Cache::store('default');// 使用完切换回default
                 if ( empty( $userInfo ) ) {
 //$logger->warning('取redis为空,跳转');
                     // 如果空 需要获取用户信息
                     $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
                     $condition = "redirect_url=" . urlencode($redirectUrl);
-                    header('Location: http://devtst.yijiapai.com/yjpai/platform/user/goShop?' . $condition);
+                    header("Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop?" . $condition);
                     exit();// 不再执行以下代码
                 } else {
 //$logger->warning('插入新用户,openid:'.$userInfo['openId']);

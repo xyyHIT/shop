@@ -20,7 +20,7 @@ return [
         'persistent' => false,
         'prefix'     => '',
     ],
-    'redis239' => [
+    'redis-dev' => [
         'type' => 'redis',
         'host' => '192.168.1.239',
         'port'       => 6379,
@@ -31,6 +31,19 @@ return [
         'persistent' => false,
         'prefix'     => '',
     ],
+
+    'redis-mall-test' => [
+        'type' => 'redis',
+        'host' => '10.141.11.136',
+        'port'       => 6379,
+        'password'   => 'manager',
+        'select'     => 0,
+        'timeout'    => 0, // 3600
+        'expire'     => 0,
+        'persistent' => false,
+        'prefix'     => '',
+    ],
+
     // 文件缓存
     'file'      => [
         // 驱动方式
