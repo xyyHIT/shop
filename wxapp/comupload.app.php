@@ -37,6 +37,11 @@ class ComuploadApp extends StoreadminbaseApp {
      * by Gavin 20161122
      */
     public function ejUploadFile4Wechat() {
+//        error_reporting(E_ALL);
+//        ini_set('display_errors', '1');
+        //将出错信息输出到一个文本文件
+//        ini_set('error_log', ROOT_PATH . '/temp/error_log_2.txt');
+
         // 文件上传模型
         $upload_mod =& m('uploadedfile');
 
@@ -73,6 +78,7 @@ class ComuploadApp extends StoreadminbaseApp {
             // 从临时目录拿到文件 上传到万象优图
             $cloudRetArr = ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
             if ( $cloudRetArr['httpcode'] != 200 ) {
+//                return $this->ej_json_failed(-1, $fileUrl);
                 return $this->ej_json_failed(-1, Lang::get('sys_error'));
             }
 
