@@ -5,7 +5,7 @@ define('THUMB_WIDTH', 300);
 define('THUMB_HEIGHT', 300);
 define('THUMB_QUALITY', 85);
 
-class ComuploadApp extends StoreadminbaseApp {
+class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  MemberbaseApp
     var $id = 0;
     var $belong = 0;
     var $store_id = 0;
@@ -37,10 +37,11 @@ class ComuploadApp extends StoreadminbaseApp {
      * by Gavin 20161122
      */
     public function ejUploadFile4Wechat() {
+//        return $this->ej_json_success(['fff'=>'sdfsdfsd']);
 //        error_reporting(E_ALL);
 //        ini_set('display_errors', '1');
         //将出错信息输出到一个文本文件
-//        ini_set('error_log', ROOT_PATH . '/temp/error_log_2.txt');
+        ini_set('error_log', ROOT_PATH . '/temp/error_upload_log.txt');
 
         // 文件上传模型
         $upload_mod =& m('uploadedfile');
@@ -52,6 +53,7 @@ class ComuploadApp extends StoreadminbaseApp {
         $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
 
         $mediaID = $_REQUEST['mediaID'];
+//        $mediaID = 0;
         if ( $mediaID ) {
             $temporaryHandler = Wechat::handler()->material_temporary;
             $fileDir = '/tmp/wechat/';
@@ -124,6 +126,10 @@ class ComuploadApp extends StoreadminbaseApp {
             return $this->ej_json_failed(2001);
         }
 
+    }
+
+    public function test(){
+        return $this->ej_json_failed(-1);
     }
 
     /**

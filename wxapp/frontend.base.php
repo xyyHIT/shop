@@ -405,7 +405,7 @@ class MallbaseApp extends FrontendApp
         $template_name = $this->_get_template_name();
         $style_name = $this->_get_style_name();
 
-        //$this->_view->template_dir = ROOT_PATH . "/themes/mall/{$template_name}";
+//        $this->_view->template_dir = ROOT_PATH . "/themes/mall/{$template_name}";
         $this->_view->template_dir = ROOT_PATH . "/shop/html";
         $this->_view->compile_dir = ROOT_PATH . "/temp/compiled/mall/{$template_name}";
         $this->_view->res_base = SITE_URL . "/themes/mall/{$template_name}/styles/{$style_name}";
@@ -439,16 +439,15 @@ class MallbaseApp extends FrontendApp
             // 如果没有用户信息
             if ( $userArr === false || empty( $userArr ) ) {
 //$logger->warning('$userArr为空');
-
-                // 查询239服务器的redis
+                // 查询配置文件中服务器的redis
                 $userInfo = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
                 Cache::store('default');// 使用完切换回default
                 if ( empty( $userInfo ) ) {
-//$logger->warning('取redis为空,跳转');
                     // 如果空 需要获取用户信息
                     $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
                     $condition = "redirect_url=" . urlencode($redirectUrl);
                     header("Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop?" . $condition);
+//$logger->warning('取redis为空,跳转,地址:'."Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop?" . $condition);
                     exit();// 不再执行以下代码
                 } else {
 //$logger->warning('插入新用户,openid:'.$userInfo['openId']);
@@ -865,52 +864,30 @@ class StoreadminbaseApp extends MemberbaseApp
 //                return;
             }
         }
-        $referer = $_SERVER['HTTP_REFERER'];
-        if ( strpos($referer, 'act=login') === false ) {
-            $ret_url = $_SERVER['HTTP_REFERER'];
-            $ret_text = 'go_back';
-        } else {
-            $ret_url = SITE_URL . '/index.php';
-            $ret_text = 'back_index';
-        }
 
         /* 检查是否是店铺管理员 */
         if ( !$this->visitor->get('manage_store') ) {
             /* 您不是店铺管理员 */
-            $this->show_warning(
-                'not_storeadmin',
-                'apply_now', 'index.php?app=apply',
-                $ret_text, $ret_url
-            );
-
-            return;
+            return $this->ej_json_failed(-1,Lang::get('not_storeadmin'));
         }
 
         /* 检查是否被授权 */
         $privileges = $this->_get_privileges();
         if ( !$this->visitor->i_can('do_action', $privileges) ) {
-            $this->show_warning('no_permission', $ret_text, $ret_url);
-
-            return;
+            return $this->ej_json_failed(-1,Lang::get('no_permission'));
         }
 
         /* 检查店铺开启状态 */
         $state = $this->visitor->get('state');
         if ( $state == 0 ) {
-            $this->show_warning('apply_not_agree', $ret_text, $ret_url);
-
-            return;
+            return $this->ej_json_failed(-1,Lang::get('apply_not_agree'));
         } elseif ( $state == 2 ) {
-            $this->show_warning('store_is_closed', $ret_text, $ret_url);
-
-            return;
+            return $this->ej_json_failed(-1,Lang::get('store_is_closed'));
         }
 
         /* 检查附加功能 */
         if ( !$this->_check_add_functions() ) {
-            $this->show_warning('not_support_function', $ret_text, $ret_url);
-
-            return;
+            return $this->ej_json_failed(-1,Lang::get('not_support_function'));
         }
 
         parent::_run_action();

@@ -31,7 +31,6 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 
     function index()
     {
-        $arr = [ 'a' => '1', 'b' => '2' ];
         $this->assign('index', 1); // 标识当前页面是首页，用于设置导航状态
         $this->assign('icp_number', Conf::get('icp_number'));
 
@@ -43,6 +42,8 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         ]);
         $this->assign('page_description', Conf::get('site_description'));
         $this->assign('page_keywords', Conf::get('site_keywords'));
+
+//        $this->display('index.html');
         $this->display('/index/index.html');
     }
 
