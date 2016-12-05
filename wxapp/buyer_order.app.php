@@ -313,7 +313,9 @@
 				'log_time'       => gmtime(),
 			]);
 			/* 发送给卖家订单取消通知 */
-			return $this->ej_json_success();
+			if($_REQUEST['order_id']){
+				return $this->ej_json_success();
+			}
         }
 
         /**
@@ -355,7 +357,9 @@
 			foreach ( $order_goods as $goods ) {
 				$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
 			}
-			return $this->ej_json_success();
+			if($_GET['order_id']){
+				return $this->ej_json_success();
+			}
         }
 
         /**
