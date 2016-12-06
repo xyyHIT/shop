@@ -348,9 +348,9 @@ class CashierApp extends ShoppingbaseApp
 			$this->_ej_editPayment($order_info['orderid'],$edit_data);
 		}
         /* 开始支付  判断用户是否存在openid*/
-		//if(!$_SESSION['openid']){
-			//return $this->ej_json_failed(3001);
-		//}
+		if(!$_SESSION['wx_openid']){
+			return $this->ej_json_failed(3001);
+		}
 		//选择用户支付方式
 		switch ($payment_info['payment_code'])
 		{
@@ -406,9 +406,9 @@ class CashierApp extends ShoppingbaseApp
 			'body'             => '商城下单商品',
 			'detail'           => '商城下单商品',
 			'out_trade_no'     => $out_trade_on,
-			'total_fee'        => $amount,
+			'total_fee'        => $amount*100,
 			'notify_url'       => '', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
-			'openid'           => 'o027xw47-OMSuA934zdxGc3I6WEk', // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
+			'openid'           => $_SESSION['wx_openid'], // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
 		];
 		//调取微信支付底层代码
 		$prepayarr = Wechat::pay($attributes);
