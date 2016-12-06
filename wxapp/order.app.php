@@ -222,4 +222,39 @@ class OrderApp extends ShoppingbaseApp
 		$model_cart->drop($where_user_id.$where_cart_goods);
 		//优惠券信息处理  v1.0未涉及到优惠券
     }
+	
+	//支付获取订单信息newrain
+	function getpayorder(){
+        $order_id = isset($_REQUEST['order_id']) ? intval($_REQUEST['order_id']) : 0;
+        $type = isset($_REQUEST['type']) ? intval($_REQUEST['type']) : 0;//判断是总单还是分单 0分单 //目前只支持微信支付
+        if (!$order_id)
+        {
+            return $this->ej_json_failed(2001);
+        }
+        //确定订单类型值
+		if($type !=0 && $type != 1){
+			return $this->ej_json_failed(2001);
+		}
+		$order_model =& m('order');
+		$result = array();
+		if($type == 0){
+			//单个订单支付详情
+			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
+			$result['ordersn'] = $order_info['order_sn'];
+			$result['amount'] = $order_info['order_amount'];
+		}else{
+			//合并订单详情
+			$order_info =  $order_model->db->getRow("select id,orderid,ordersn from ".DB_PREFIX."sumorder where id=".intval($order_id)." and userid=".$this->visitor->get('user_id'));
+			//获取总金额
+			$orderarr = json_decode($order_info['orderid'],true);
+			$orderstr = implode(',', array_keys($orderarr));
+			$amount =  $order_model->db->getOne("select sum(order_amount) as sumamount from ".DB_PREFIX."order where order_id in (".$orderstr.')');
+			$result['ordersn'] = $order_info['ordersn'];
+			$result['amount'] = $amount;
+		}
+		if(!$result){
+			return $this->ej_json_failed(3001);
+		}
+		return $this->ej_json_success($result);
+	}
 }
