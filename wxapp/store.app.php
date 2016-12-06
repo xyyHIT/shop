@@ -23,7 +23,9 @@ class StoreApp extends StorebaseApp
         //粉丝数量
         $storeArr['followers'] = $storeModel->followersCount($storeID);
         //是否关注
-        if($this->visitor->has_login && $memberModel->isFollow($userID,$storeID)){
+        if($storeID == $userID){
+            $storeArr['is_follow'] = 2;
+        }else if($this->visitor->has_login && $memberModel->isFollow($userID,$storeID)){
             $storeArr['is_follow'] = 1;
         }else{
             $storeArr['is_follow'] = 0;

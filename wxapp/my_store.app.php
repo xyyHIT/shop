@@ -29,7 +29,7 @@
             $profileArr = $userModel->find([
                 'conditions' => "user_id='{$userID}'",
                 'join' => 'has_store',
-                'fields' => 'user_name,portrait,store.sgrade',
+                'fields' => 'user_name,portrait,store.store_id',
             ]);
 
             // 当前人的账户信息

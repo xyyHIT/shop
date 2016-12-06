@@ -38,6 +38,10 @@ class MemberApp extends MemberbaseApp
         // 关注数
         $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'goods' and user_id=".$userID);
 
+        # Todo 考虑缓存...
+        $storeModel = & m('store');
+        $storeModel->get_info($userID) ? $ret['store_id'] = $userID : $ret['store_id'] = 0;
+
         return $this->ej_json_success($ret);
     }
 
