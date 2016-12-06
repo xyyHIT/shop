@@ -19,7 +19,7 @@ return [
     'DB_CONFIG'          => 'mysql://root:abc@192.168.1.23:3306/ejmall',
 
     'IS_WECHAT'           => false, // 是否在微信中运行
-//    'USER_ID'             => 3, // 如果不在微信运行  !!!自动登录,可调试接口!!!
+    'USER_ID'             => 3, // 如果不在微信运行  !!!自动登录,可调试接口!!!
     'WECHAT_USERINFO_URL' => 'http://devtst.yijiapai.com', // 跳转到拍卖获取微信信息的地址
     'WECHAT_USERINFO_REDIS' => 'redis-dev', // 从哪个redis获取微信用户信息
 
