@@ -686,7 +686,7 @@
 				return $this->ej_json_failed(3001);
 			}
 			//判断是否属于待付款的状态
-			if($order_info['status'] != ORDER_PENDING){
+			if($order_info['status'] != ORDER_ACCEPTED){
 				return $this->ej_json_failed(3001);
 			}
 			//获取商家openid
