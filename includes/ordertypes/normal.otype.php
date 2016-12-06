@@ -255,7 +255,7 @@ class NormalOrder extends BaseOrder
 		$actorderes['orderidarr'] =  $orderidarr;
 		$actorderes['sumorderarr'] =  $sumorderarr;
 		$actorderes['newordersn'] =  $sumordersn;
-		$actorderes['sumorderid '] =  $sumorderid;
+		$actorderes['sumorderid'] =  $sumorderid;
         return $actorderes;
     }
 }
