@@ -441,6 +441,7 @@ class MallbaseApp extends FrontendApp
 //$logger->warning('$userArr为空');
                 // 查询配置文件中服务器的redis
                 $userInfo = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
+//$logger->warning('redisUserInfo:'.json_encode($userInfo));
                 Cache::store('default');// 使用完切换回default
                 if ( empty( $userInfo ) ) {
                     // 如果空 需要获取用户信息
@@ -452,18 +453,63 @@ class MallbaseApp extends FrontendApp
                 } else {
 //$logger->warning('插入新用户,openid:'.$userInfo['openId']);
                     // 不为空 就插入数据库成为新的用户
-                    $memberModel =& m('member');
                     $userID = $memberModel->add([
                         'user_name' => $userInfo['nickname'],
                         'password'  => md5($openid),
                         'reg_time'  => gmtime(),
                         'gender'    => $userInfo['sex'],
-                        'portrait'  => $userInfo['headimgurl'],
+                        'portrait'  => $userInfo['avatar'],
                         'openid' => $userInfo['openId'],
                         'auction_id' => $userInfo['userId'], // 拍卖ID
                     ]);
 
-                    if ( !$userID ) $this->_errors = $memberModel->get_error();
+                    if($memberModel->has_error()){
+                        $this->ej_json_failed(-1);
+                        exit();
+                    }
+
+                    /**
+                     * 给加v用户生成一个店铺
+                     */
+//                    $storeModel =& m('store');
+//                    $store = $storeModel->get($userID);
+//                    // 判断是否开启了店铺申请
+//                    if (Conf::get('store_allow') && !$store && !$store['state'])
+//                    {
+//                        $data = array(
+//                            'store_id'     => $userID,
+//                            'store_name'   => $userInfo['nickname'],
+//                            'owner_name'   => $userInfo['nickname'],
+//                            'owner_card'   => '',
+//                            'region_id'    => '',
+//                            'region_name'  => $userInfo['province'],
+//                            'address'      => $userInfo['country'].$userInfo['province'].$userInfo['city'],
+//                            'zipcode'      => '',
+//                            'tel'          => '',
+//                            'sgrade'       => 1, // 店铺等级ID
+//                            'state'        => 1, // 需要审核 0 ,不需要审核 1
+//                            'add_time'     => gmtime(),
+//                        );
+//                        $storeModel->add($data);
+//
+//                        /**
+//                         * 分类
+//                         */
+////                        $cateID = intval($_POST['cate_id']);
+////                        $storeModel->unlinkRelation('has_scategory', $userID);
+////                        if ($cateID > 0)
+////                        {
+////                            $storeModel->createRelation('has_scategory', $userID, $cateID);
+////                        }
+//
+//                        if($storeModel->has_error()){
+//                            $this->ej_json_failed(-1);
+//                            exit();
+//                        }
+//
+//                    }
+
+
                 }
             } else {
                 $userID = $userArr['user_id'];
@@ -486,7 +532,8 @@ class MallbaseApp extends FrontendApp
 
                 exit();// 不再执行以下代码
             }else{
-                $this->_error('未知错误');
+                $this->ej_json_failed(-1);
+                exit();
             }
         }else{
             // openid 空
