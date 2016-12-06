@@ -311,7 +311,13 @@ class CashierApp extends ShoppingbaseApp
 		$order_model =& m('order');
 		if($type == 0){
 			//单个订单支付详情
-			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
+			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));  
+			  //订单去支付状态，48小时内未支付系统自动交易关闭   临界状态
+			  $overtime = time()-$order_info['add_time'];
+			  if($overtime >=172800){
+					$this->_cancel_order($order_info['order_id'],'48小时内未支付系统自动交易关闭');
+					return $this->ej_json_failed(1006);
+			  }
 		}else{
 			//合并订单详情
 			$order_info =  $order_model->db->getRow("select id,orderid,ordersn from ".DB_PREFIX."sumorder where id=".intval($order_id)." and userid=".$this->visitor->get('user_id'));
@@ -411,6 +417,43 @@ class CashierApp extends ShoppingbaseApp
 		}
 		return $this->ej_json_failed(3001);
 	}
+	
+		/**
+         *    取消订单
+         *
+         * @author    Garbin
+         * @return    void
+         */
+        function _cancel_order($orderid = 0,$remark='') {
+            $order_id = isset( $_REQUEST['order_id'] ) ? intval($_REQUEST['order_id']) : $orderid;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
+            }
+            $model_order =& m('order');
+            /* 只有待付款的订单可以取消 */
+            $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status " . db_create_in([ ORDER_PENDING, ORDER_SUBMITTED ]));
+            if ( empty( $order_info ) ) {
+				return $this->ej_json_failed(3001);
+            }
+			$model_order->edit($order_id, [ 'status' => ORDER_CANCELED,'cancel_time'=>time() ]);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
+			/* 加回商品库存 */
+			$model_order->change_stock('+', $order_id);
+			$cancel_reason = $remark;
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info['status']),
+				'changed_status' => order_status(ORDER_CANCELED),
+				'remark'         => $cancel_reason,
+				'log_time'       => gmtime(),
+			]);
+        }
+
 }
 
 ?>
