@@ -68,41 +68,38 @@ class CartApp extends MallbaseApp
             }
         }
 
-
-        /* 是否添加过 */
-        $model_cart =& m('cart');
-        $item_info = $model_cart->get("spec_id={$spec_id} AND session_id='" . SESS_ID . "'");
-        if ( !empty( $item_info ) ) {
-            return $this->ej_json_failed(-1, Lang::get('goods_already_in_cart'));
-        }
-
         // 数量不足
         if ( $quantity > $spec_info['stock'] ) {
             return $this->ej_json_failed(-1, Lang::get('no_enough_goods'));
         }
 
-        $spec_1 = $spec_info['spec_name_1'] ? $spec_info['spec_name_1'] . ':' . $spec_info['spec_1'] : $spec_info['spec_1'];
-        $spec_2 = $spec_info['spec_name_2'] ? $spec_info['spec_name_2'] . ':' . $spec_info['spec_2'] : $spec_info['spec_2'];
+        $cartModel =& m('cart');
+        $cartData = $cartModel->get("spec_id={$spec_id} AND session_id='" . SESS_ID . "'");
+        // 如果数据库为空就添加购物车
+        if ( empty( $cartData ) ) {
+            $spec_1 = $spec_info['spec_name_1'] ? $spec_info['spec_name_1'] . ':' . $spec_info['spec_1'] : $spec_info['spec_1'];
+            $spec_2 = $spec_info['spec_name_2'] ? $spec_info['spec_name_2'] . ':' . $spec_info['spec_2'] : $spec_info['spec_2'];
+            $specification = $spec_1 . ' ' . $spec_2;
+            /* 将商品加入购物车 */
+            $cart_item = [
+                'user_id'       => $this->visitor->get('user_id'),
+                'session_id'    => SESS_ID,
+                'store_id'      => $spec_info['store_id'],
+                'spec_id'       => $spec_id,
+                'goods_id'      => $spec_info['goods_id'],
+                'goods_name'    => addslashes($spec_info['goods_name']),
+                'specification' => addslashes(trim($specification)),
+                'price'         => $spec_info['price'],
+                'quantity'      => $quantity,
+                'goods_image'   => addslashes($spec_info['default_image']),
+            ];
+            $cartModel->add($cart_item);
+        } else {
+            // 如果数据库已存在,就更新商品数量
+            $cartData['rec_id'] && $cartModel->edit($cartData['rec_id'], "quantity=quantity+$quantity");
+        }
 
-        $specification = $spec_1 . ' ' . $spec_2;
-
-        /* 将商品加入购物车 */
-        $cart_item = [
-            'user_id'       => $this->visitor->get('user_id'),
-            'session_id'    => SESS_ID,
-            'store_id'      => $spec_info['store_id'],
-            'spec_id'       => $spec_id,
-            'goods_id'      => $spec_info['goods_id'],
-            'goods_name'    => addslashes($spec_info['goods_name']),
-            'specification' => addslashes(trim($specification)),
-            'price'         => $spec_info['price'],
-            'quantity'      => $quantity,
-            'goods_image'   => addslashes($spec_info['default_image']),
-        ];
-
-        /* 添加并返回购物车统计即可 */
-        $cart_model =& m('cart');
-        $cart_model->add($cart_item);
+        // 获取购物车信息
         $cart_status = $this->_get_cart_status();
 
         /* 更新被添加进购物车的次数 */
