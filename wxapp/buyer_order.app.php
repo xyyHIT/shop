@@ -147,6 +147,7 @@
             }
 			$result['order_id'] = $order_info['order_id'];
 			$result['order_sn'] = $order_info['order_sn'];
+			$result['invoice_no'] = empty($order_info['invoice_no'])?'':trim($order_info['invoice_no']);
 			$result['seller_id'] = $order_info['seller_id'];
 			$result['seller_name'] = $order_info['seller_name'];
 			$result['buyer_id'] = $order_info['buyer_id'];
@@ -544,6 +545,7 @@
 				foreach ( $orders as $key1 => $order ) {
 					$temp['order_id'] = $order['order_id'];
 					$temp['seller_id'] = $order['seller_id'];
+					$temp['invoice_no'] = empty($order['invoice_no'])?'':trim($order['invoice_no']);
 					$temp['seller_name'] = $order['seller_name'];
 					$temp['buyer_id'] = $order['buyer_id'];
 					$temp['status'] = $order['status'];

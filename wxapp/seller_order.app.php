@@ -636,6 +636,7 @@
 				foreach ( $orders as $value ) {
 					$temp['order_id'] = $value['order_id'];
 					$temp['order_sn'] = $value['order_sn'];
+					$temp['invoice_no'] = empty($value['invoice_no'])?'':trim($value['invoice_no']);
 					$temp['seller_id'] = $value['seller_id'];
 					$temp['seller_name'] = $value['seller_name'];
 					$temp['status'] = $value['status'];
