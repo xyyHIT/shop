@@ -53,10 +53,19 @@
 			//由于有些无法缓存进而将其提取出来 by newrain
 			$res['goods']['good_comment'] = $this->_goods_ejComments($id);//好评量，目前先放假数据，待评价完成  继续编写
 			$res['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'], 6);//店铺精品推荐   默认显示六个
-			$colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
+
+            $colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
 			$res['store']['collectsign'] = empty($colstore)?'0':'1';
-			$colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
-			$res['goods']['collectsign'] = empty($colsgoods)?'0':'1'; 
+            $userID = empty($this->visitor->get('user_id')) ? 0 : intval($this->visitor->get('user_id'));
+            if($data['goods']['store_id'] == $userID){ // 如果是自己的店铺,不需要显示关注按钮
+                $res['store']['collectsign'] = '2';
+            }
+
+            $colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
+			$res['goods']['collectsign'] = empty($colsgoods)?'0':'1';
+
+
+
             return $this->ej_json_success($res);
         }
 
