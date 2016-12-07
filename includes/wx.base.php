@@ -105,63 +105,8 @@ class Wechat{
      * @return mixed
     */
 	public static function pay($attributes){
-		$options =	[
-			/**
-			 * Debug 模式，bool 值：true/false
-			 *
-			 * 当值为 false 时，所有的日志都不会记录
-			 */
-			'debug'   => false,
-			// 艺闻美学
-			'app_id'  => 'wx0e0bc55effb822b4', // AppID
-			'secret'  => '8a2bc1ce662728adf6b4b4c941174187 ', // AppSecret
-			'token'   => 'wx_token',  // Token
-			'aes_key' => 'Mb3ddasQdg1hAGbrynWOFaiPBQ8XGPKQK4pEfr4bcmm', // EncodingAESKey，安全模式下请一定要填写！！
-
-			/**
-			 * 日志配置
-			 *
-			 * level: 日志级别, 可选为：
-			 *         debug/info/notice/warning/error/critical/alert/emergency
-			 * file：日志文件位置(绝对路径!!!)，要求可写权限
-			 */
-			'log'     => [
-				'level' => 'debug',
-				'file'  => ROOT_PATH . '/temp/wechat.log',
-			],
-			/**
-			 * OAuth 配置
-			 *
-			 * scopes：公众平台（snsapi_userinfo / snsapi_base），开放平台：snsapi_login
-			 * callback：OAuth授权完成后的回调页地址
-			 */
-			'oauth'   => [
-				//'scopes'   => [ 'snsapi_userinfo' ], // 有弹框确认,用户信息都可取到
-				'scopes'   => [ 'snsapi_base' ], // 没有弹框,只能拿到openid
-				//'callback' => '/gavin/?app=test&act=oauthCallback', // 沙盒帐号测试没问题
-				'callback' => '/?app=wechat&act=oauthCallback',
-			],
-			/**
-			 * 微信支付
-			 */
-			'payment' => [
-				'merchant_id' => '1343527201',
-				'key'         => 'H7zVQwLMe2JwqHs8U7zCmcmtbP24cNc4',
-				'cert_path'   => 'path/to/your/cert.pem', // XXX: 绝对路径！！！！
-				'key_path'    => 'path/to/your/key',      // XXX: 绝对路径！！！！
-			],
-			/**
-			 * Guzzle 全局设置
-			 *
-			 * 更多请参考： http://docs.guzzlephp.org/en/latest/request-options.html
-			 */
-			'guzzle'  => [
-				'timeout' => 3.0, // 超时时间（秒）
-				//'verify' => false, // 关掉 SSL 认证（强烈不建议！！！）
-			],
-		];
-		$app = new Application($options);
-		$payment = $app->payment;
+        self::init();
+		$payment = self::handler()->payment;
 		$order = new Order($attributes);
 		$result = $payment->prepare($order);
 		if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
