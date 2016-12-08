@@ -47,7 +47,6 @@
             } else {
                 $res = $this->_assign_common_info($data);//抽取接口所需要的对应数据  by newrain
             }
-
             /* 更新浏览次数 */
             $this->_update_views($id);
 			//由于有些无法缓存进而将其提取出来 by newrain
@@ -274,6 +273,7 @@
             $result['goods']['cate_id'] = $data['goods']['cate_id'];
 			//目前支持单一规格 后期添加供选择
             $result['goods']['spec_id'] = $data['goods']['_specs']['0']['spec_id'];
+            $result['goods']['stock'] = $data['goods']['_specs']['0']['stock'];//库存
             $result['goods']['goods_name'] = $data['goods']['goods_name'];
             $result['goods']['collects'] = $data['goods']['collects'];
             $result['goods']['views'] = $data['goods']['views'];
