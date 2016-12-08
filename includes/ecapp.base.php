@@ -1291,15 +1291,7 @@ EOT;
                         $this->_do_login($userID);
 
                         // 重定向
-//                        $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
                         header("Location: $redirectUrl");
-
-                        /**
-                         * 如果已接口形式调用 这里不能重定向
-                         * 重定向任务由前端完成,这里返回数据
-                         */
-//                        $this->ej_json_failed(3003);
-
                         exit();// 不再执行以下代码
                     } else {
                         $this->ej_json_failed(-1);

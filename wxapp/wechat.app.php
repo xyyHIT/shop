@@ -7,7 +7,11 @@ class WechatApp extends MallbaseApp
 {
 
     /**
+     * *************** 很重要 *****************
+     *
      * 重定向到指定html(业务页)
+     *
+     * by Gavin  20161208
      */
     public function redirectHtml(){
         $modul = $_GET['modul'];
@@ -78,5 +82,11 @@ class WechatApp extends MallbaseApp
         print_r($result);
     }
 
+/**
+ * 写日志
+ */
+//$logger = new \Monolog\Logger('ej');
+//$logger->pushHandler(new \Monolog\Handler\StreamHandler(ROOT_PATH.'/temp/debug.log',\Monolog\Logger::WARNING));
+//$logger->warning('logger.....');
 
 }
