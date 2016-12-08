@@ -1807,13 +1807,13 @@ class My_goodsApp extends StoreadminbaseApp
 //            exit ( 0 );
 //        }
 
-        $shipping_mod =& m('shipping');
-        $shippings = $shipping_mod->find("store_id = '{$this->_store_id}' AND enabled = 1");
-        if ( empty( $shippings ) ) {
-            $res = Lang::get('please_install_shipping');
-            $this->ej_json_failed(-1, $res);
-            exit ( 0 );
-        }
+//        $shipping_mod =& m('shipping');
+//        $shippings = $shipping_mod->find("store_id = '{$this->_store_id}' AND enabled = 1");
+//        if ( empty( $shippings ) ) {
+//            $res = Lang::get('please_install_shipping');
+//            $this->ej_json_failed(-1, $res);
+//            exit ( 0 );
+//        }
 
         /* 判断商品数是否已超过限制 */
         $store_mod =& m('store');

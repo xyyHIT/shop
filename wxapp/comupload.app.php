@@ -41,7 +41,7 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
 //        error_reporting(E_ALL);
 //        ini_set('display_errors', '1');
         //将出错信息输出到一个文本文件
-        ini_set('error_log', ROOT_PATH . '/temp/error_upload_log.txt');
+//        ini_set('error_log', ROOT_PATH . '/temp/error_upload_log.txt');
 
         // 文件上传模型
         $upload_mod =& m('uploadedfile');
@@ -52,76 +52,110 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
         // 还可上传大小 单位 B(字节)
         $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
 
-        $mediaID = $_REQUEST['mediaID'];
-//        $mediaID = 0;
-        if ( $mediaID ) {
+        $mediaIDS = $_REQUEST['mediaID'] ? explode(',',$_REQUEST['mediaID']) : '' ;
+
+        if ( is_array($mediaIDS) ) {
+            $uploaded = [];
+
             $temporaryHandler = Wechat::handler()->material_temporary;
             $fileDir = '/tmp/wechat/';
-
             if( !is_dir($fileDir) && !mkdir($fileDir,0700,true)){
                 return $this->ej_json_failed(-1, '目录创建失败');
             }
 
-            // 从微信下载文件 放到临时目录
-            $fileName = $temporaryHandler->download($mediaID, $fileDir);
-            $fileUrl = $fileDir . $fileName;
+            foreach ($mediaIDS as $mediaID){
+                if(empty($mediaID)) continue; // mediaID 为空,跳出当前继续执行
 
-            // 必须是图片
-            $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
-            if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
-                return $this->ej_json_failed(-1, '图片类型不正确');
-            }
+                // 从微信下载文件 放到临时目录
+                $fileName = $temporaryHandler->download($mediaID, $fileDir);
+                $fileUrl = $fileDir . $fileName;
 
-            // 正常文件 && 用户可用空间足够
-            if ( is_file($fileUrl) && $remain !== false && $remain < filesize($fileUrl) ) {
-                return $this->ej_json_failed(-1, Lang::get('space_limit_arrived'));
-            }
-
-            // 从临时目录拿到文件 上传到万象优图
-            $cloudRetArr = ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
-            if ( $cloudRetArr['httpcode'] != 200 ) {
-//                return $this->ej_json_failed(-1, $fileUrl);
-                return $this->ej_json_failed(-1, Lang::get('sys_error'));
-            }
-
-            /* 数据库保存 */
-            $data = [
-                'store_id'  => $this->store_id,
-                'file_type' => $mimeType,
-                'file_size' => filesize($fileUrl),
-                'file_name' => $cloudRetArr['data']['fileid'],
-                'file_path' => $cloudRetArr['data']['downloadUrl'],
-                'belong'    => $this->belong,
-                'item_id'   => $this->id,
-                'add_time'  => gmtime(),
-            ];
-            $file_id = $upload_mod->add($data);
-            if ( !$file_id ) {
-                return $this->ej_json_failed(-1);
-            }
-
-            // 如果是上传商品相册图片
-            if ( $this->instance == 'goods_image' ) {
-                /* 生成缩略图 */
-
-                /* 更新商品相册 */
-                $mod_goods_image = &m('goodsimage');
-                $goods_image = [
-                    'goods_id'   => $this->id,
-                    'image_url'  => $cloudRetArr['data']['downloadUrl'],
-                    'thumbnail'  => $cloudRetArr['data']['downloadUrl'],
-                    'sort_order' => 255,
-                    'file_id'    => $file_id,
-                ];
-                if ( !$mod_goods_image->add($goods_image) ) {
-                    return $this->ej_json_failed(-1);
+                // 必须是图片
+                $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+                if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                    $uploaded[$mediaID] = [
+                        'code' => -1,
+                        'desc' => '图片类型不正确',
+                    ];
+                    continue;
+//                    return $this->ej_json_failed(-1, '图片类型不正确');
                 }
+
+                // 正常文件 && 用户可用空间足够
+                if ( is_file($fileUrl) && $remain !== false && $remain < filesize($fileUrl) ) {
+                    $uploaded[$mediaID] = [
+                        'code' => -1,
+                        'desc' => '很抱歉，您上传的文件所占空间已达上限，请联系商城管理员升级店铺',
+                    ];
+                    continue;
+//                    return $this->ej_json_failed(-1, Lang::get('space_limit_arrived'));
+                }
+
+                // 从临时目录拿到文件 上传到万象优图
+                $cloudRetArr = ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+                if ( $cloudRetArr['httpcode'] != 200 ) {
+                    $uploaded[$mediaID] = [
+                        'code' => -1,
+                        'desc' => '上传服务器错误',
+                    ];
+                    continue;
+//                    return $this->ej_json_failed(-1, Lang::get('sys_error'));
+                }
+
+                /* 数据库保存 */
+                $data = [
+                    'store_id'  => $this->store_id,
+                    'file_type' => $mimeType,
+                    'file_size' => filesize($fileUrl),
+                    'file_name' => $cloudRetArr['data']['fileid'],
+                    'file_path' => $cloudRetArr['data']['downloadUrl'],
+                    'belong'    => $this->belong,
+                    'item_id'   => $this->id,
+                    'add_time'  => gmtime(),
+                ];
+                $file_id = $upload_mod->add($data);
+                if ( !$file_id ) {
+                    $uploaded[$mediaID] = [
+                        'code' => -1,
+                        'desc' => '上传保存出错',
+                    ];
+                    continue;
+//                    return $this->ej_json_failed(-1);
+                }
+
+                // 如果是上传商品相册图片
+                if ( $this->instance == 'goods_image' ) {
+                    /* 更新商品相册 */
+                    $mod_goods_image = &m('goodsimage');
+                    $goods_image = [
+                        'goods_id'   => $this->id,
+                        'image_url'  => $cloudRetArr['data']['downloadUrl'],
+                        'thumbnail'  => $cloudRetArr['data']['downloadUrl'],
+                        'sort_order' => 255,
+                        'file_id'    => $file_id,
+                    ];
+                    if ( !$mod_goods_image->add($goods_image) ) {
+                        $uploaded[$mediaID] = [
+                            'code' => -1,
+                            'desc' => '保存商品图片错误',
+                        ];
+                        continue;
+//                        return $this->ej_json_failed(-1);
+                    }
+                }
+
+                $data['instance'] = $this->instance;
+                $data['file_id'] = $file_id;
+
+                // 上传成功 合并数组  返回数据
+                $uploaded[$mediaID] = [
+                    'code' => 0,
+                    'desc' => 'ok'
+                ];
+                $uploaded[$mediaID] = array_merge($uploaded[$mediaID],$data);
             }
 
-            $data['instance'] = $this->instance;
-            $data['file_id'] = $file_id;
-
-            return $this->ej_json_success($data);
+            return $this->ej_json_success($uploaded);
         } else {
             return $this->ej_json_failed(2001);
         }
