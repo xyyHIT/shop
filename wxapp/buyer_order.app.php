@@ -358,6 +358,27 @@
 			foreach ( $order_goods as $goods ) {
 				$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
 			}
+			//获取卖家的openid，记录流水表
+			$userModel =& m('member');
+			$sellArr = $userModel->get([
+				'conditions' => "user_id='".$order_info['seller_id']."'",
+				'fields' => 'openid',
+			]);
+			//像流水表更新
+			$model_order->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$sellArr['openid']."' WHERE order_id=$order_id");
+			//查出流水向拍卖对接
+			$sreamarr = $model_order->db->getRow("SELECT tran_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=$order_id");
+			$data['tran_id'] = $sreamarr['tran_id'];
+			$data['open_id'] = $sreamarr['sopen_id'];
+			$data['trade_amount'] = $sreamarr['trade_amount'];
+			$data['pay_type'] = 1;
+			$data['order_sn'] = $sreamarr['order_sn'];
+			$data['title'] = '订单支付';
+			$data['trade_type'] = 28;
+			$data['order_id'] = $order_id;
+			include ROOT_PATH.'/includes/aes.base.php';
+			$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
+			$this->_confirmcurl(array('data'=>$serialjson));
 			if($_GET['order_id']){
 				return $this->ej_json_success();
 			}
@@ -706,6 +727,19 @@
 			];
 			//$result = Wechat::sendNotice($topenid,$templateid,$data);
 			return $this->ej_json_success();
+		}
+		
+		function _confirmcurl($curlPost){
+			//初始化
+			$ch = curl_init("http://tst.yijiapai.com/yjpai/common/tools/addAccountCheck");
+			//设置
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_POST, 1);    //设施post方式提交数据
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);    //设置POST的数据
+			//执行会话并获取内容
+			$output = curl_exec($ch);
+			curl_close($ch);
+			return json_decode($output,true);
 		}
 		
     }
