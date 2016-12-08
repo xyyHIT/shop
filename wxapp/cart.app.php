@@ -515,7 +515,7 @@ class CartApp extends MallbaseApp
         $userID = $this->visitor->get('user_id');
         if ( $userID ) {
             $cartModel =& m('cart');
-            $sql = "select count(1) from ecm_cart where user_id = $userID $where";
+            $sql = "select sum(quantity) from ecm_cart where user_id = $userID $where";
             $count = $cartModel->getOne($sql);
         }
 
