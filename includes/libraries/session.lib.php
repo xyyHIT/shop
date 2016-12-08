@@ -23,7 +23,7 @@ class SessionProcessor
     var $session_table  = '';
     var $session_data_table = '';
 
-    var $max_life_time  = 1440; // SESSION 过期时间
+    var $max_life_time  = 3600; // SESSION 过期时间 默认 1440
 
     var $session_name   = '';
     var $session_id     = '';

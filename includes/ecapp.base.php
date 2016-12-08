@@ -116,6 +116,7 @@
                 /* 计划任务守护进程 */
 //                $this->_run_cron();
             }
+
         }
 
         function _init_visitor() {
@@ -534,6 +535,24 @@ EOT;
             parent::display($f);
 
             if ( $this->_hook('end_display', [ 'display_file' => & $f ]) ) {
+                return;
+            }
+        }
+
+        /**
+         * 显示html
+         *
+         * @param $tpl
+         *
+         * by Gavin 20161207
+         */
+        public function ejDisplay($tpl){
+            if ( $this->_hook('on_display', [ 'display_file' => & $tpl ]) ) {
+                return;
+            }
+            parent::display($tpl);
+
+            if ( $this->_hook('end_display', [ 'display_file' => & $tpl ]) ) {
                 return;
             }
         }
@@ -1174,6 +1193,134 @@ EOT;
             }
 
             $ms->feed->add($event, $data);
+        }
+
+        /**
+         * 核实登录,没用户添加用户,没登录进行登录操作
+         */
+        public function checkLoginIdentity(){
+            $openid = $_SESSION['wx_openid']; // 获取微信openid
+            /** openid不能为空,只要为空就需要从微信再次获取 */
+            if ( $openid ) {
+
+                // 重定向地址
+                $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
+
+                // 确保拍卖redis存在,不存在就需要重定向获取
+                $isNext = Cache::store(WECHAT_USERINFO_REDIS)->has($openid . '#YJPAI');
+                $auctionInfoArr = Cache::get($openid . '#SHOP');
+                Cache::store('default');// 使用完切换回default
+
+                // 拍卖微信数据
+                $wxUserInfoArr = $auctionInfoArr['wxUserInfo'] ? $auctionInfoArr['wxUserInfo'] : [];
+                // 拍卖用户数据
+                $userInfoArr = $auctionInfoArr['userInfo'] ? $auctionInfoArr['userInfo'] : [];
+
+                if( !$isNext || empty( $wxUserInfoArr ) || empty( $userInfoArr ) ){
+                    $condition = "redirect_url=" . urlencode($redirectUrl);
+                    header("Location: " . WECHAT_USERINFO_URL . "/yjpai/platform/user/goShop?" . $condition);
+                    exit();
+                }
+
+                // 如果未登录 需自动登录
+                if ( !$this->visitor->has_login ) {
+                    // 如果数据库有 拿出来准备登录
+                    $memberModel =& m('member');
+                    $userArr = $memberModel->get([
+                        'conditions' => "openid='$openid'",
+                        'count'      => false
+                    ]);
+
+                    // 如果没有用户信息
+                    if ( $userArr === false || empty( $userArr ) ) {
+                        // 不为空 就插入数据库成为新的用户
+                        $userID = $memberModel->add([
+                            'user_name'  => $wxUserInfoArr['nickname'],
+                            'password'   => md5($wxUserInfoArr['openId']),
+                            'reg_time'   => gmtime(),
+                            'gender'     => $wxUserInfoArr['sex'],
+                            'portrait'   => $wxUserInfoArr['avatar'],
+                            'openid'     => $wxUserInfoArr['openId'],
+                            'auction_id' => $wxUserInfoArr['userId'], // 拍卖ID
+                        ]);
+
+                        if ( $memberModel->has_error() ) {
+                            $this->ej_json_failed(-1);
+                            exit();
+                        }
+
+                        /**
+                         * 给加v用户生成一个店铺
+                         */
+                        // 必须是拍卖vip用户 且 允许开店
+                        if ( $userInfoArr['vip'] && Conf::get('store_allow') ) {
+                            $storeModel =& m('store');
+                            $store = $storeModel->get($userID);
+
+                            // 没开过店铺
+                            if ( !$store && !$store['state'] ) {
+                                $data = [
+                                    'store_id'    => $userID,
+                                    'store_name'  => $userInfoArr['name'],
+                                    'owner_name'  => $userInfoArr['name'],
+                                    'owner_card'  => '',
+                                    'region_id'   => '',
+                                    'region_name' => $wxUserInfoArr['province'],
+                                    'address'     => $wxUserInfoArr['country'] . $wxUserInfoArr['province'] . $wxUserInfoArr['city'],
+                                    'zipcode'     => '',
+                                    'tel'         => '',
+                                    'sgrade'      => 1, // 店铺等级ID
+                                    'state'       => 1, // 需要审核 0 ,不需要审核 1
+                                    'add_time'    => gmtime(),
+                                ];
+                                $storeModel->add($data);
+
+                                if ( $storeModel->has_error() ) {
+                                    $this->ej_json_failed(-1);
+                                    exit();
+                                }
+                            }
+                        }
+
+                    } else {
+                        $userID = $userArr['user_id'];
+                    }
+
+                    // 直接登录
+                    if ( $userID ) {
+                        $this->_do_login($userID);
+
+                        // 重定向
+//                        $refreshUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}{$_SESSION['wx_target_url']}";
+                        header("Location: $redirectUrl");
+
+                        /**
+                         * 如果已接口形式调用 这里不能重定向
+                         * 重定向任务由前端完成,这里返回数据
+                         */
+//                        $this->ej_json_failed(3003);
+
+                        exit();// 不再执行以下代码
+                    } else {
+                        $this->ej_json_failed(-1);
+                        exit();
+                    }
+                }
+
+            } else {
+                $this->ej_json_failed(3003); // openid为空 刷新当前页面
+                exit();
+            }
+        }
+
+        /**
+         * 重定向
+         *
+         * @param $url
+         */
+        public function redirect($url){
+            header("Location: /shop/html$url");
+            exit();
         }
 
     }

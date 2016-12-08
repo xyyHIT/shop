@@ -266,6 +266,17 @@ class BaseApp extends Object
         return $str;
     }
 
+    /**
+     * 重定向
+     * @param $url
+     *
+     * by Gavin 20161207
+     */
+    public function redirect($url){
+        header($url);
+        exit();
+    }
+
 }
 
 ?>

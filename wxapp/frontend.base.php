@@ -11,12 +11,80 @@ class FrontendApp extends ECBaseApp
     function __construct()
     {
         $this->FrontendApp();
+
         //用户保持常登录状态 调试时才会使用
         if ( !$this->visitor->has_login ) {
             if ( defined('IS_WECHAT') && defined('USER_ID') && !IS_WECHAT && USER_ID ) {
                 $this->_do_login(USER_ID);
             }
         }
+// checkLoginIdentity
+        if( IS_WECHAT ){
+            if( empty( $_SESSION['wx_openid'] ) ){
+                if(strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
+                    // 删除无用参数
+                    $get = $_GET;
+                    $modul = $get['modul'];
+                    $action = $get['action'];
+                    unset($get['app']);
+                    unset($get['act']);
+                    unset($get['modul']);
+                    unset($get['action']);
+
+                    // 生成url query
+                    $query = http_build_query($get);
+
+                    /**
+                     * 从微信获取openid
+                     */
+                    $redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
+                    $query && $redirectUrl .= '?' . $query;
+                    $_SESSION['wx_target_url'] = $redirectUrl;
+                    Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
+                    exit();// 不再执行以下代码
+                }else if(!(strtolower(APP) === 'wechat' && in_array(strtolower(ACT),['oauthcallback','notify']))){
+                    $this->ej_json_failed(3003); // 刷新当前页面
+                    exit();
+                }
+            }else{
+                strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
+                && in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
+            }
+
+        }
+
+
+        /**
+         * 如果进入html页面,必须要有openid,这里进行过滤
+         */
+//        if(IS_WECHAT && empty( $_SESSION['wx_openid'] ) && strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
+//            // 删除无用参数
+//            $get = $_GET;
+//            $modul = $get['modul'];
+//            $action = $get['action'];
+//            unset($get['app']);
+//            unset($get['act']);
+//            unset($get['modul']);
+//            unset($get['action']);
+//
+//            // 生成url query
+//            $query = http_build_query($get);
+//
+//            /**
+//             * 从微信获取openid
+//             */
+//            $redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
+//            $query && $redirectUrl .= '?' . $query;
+//            $_SESSION['wx_target_url'] = $redirectUrl;
+//            Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
+//            exit();// 不再执行以下代码
+//        }
+//
+//        if(IS_WECHAT && empty($_SESSION['wx_openid']) && !(strtolower(APP) === 'wechat' && in_array(strtolower(ACT),['oauthcallback','notify'])) ){
+//            $this->ej_json_failed(3003); // 刷新当前页面
+//            exit();
+//        }
+
     }
 
     function FrontendApp()
@@ -30,13 +98,12 @@ class FrontendApp extends ECBaseApp
             $this->show_warning(Conf::get('closed_reason'));
             exit;
         }
-        # 在运行action之前，无法访问到visitor对象
     }
 
     function _config_view()
     {
         parent::_config_view();
-		$this->_view->template_dir = ROOT_PATH . '/themes';
+        $this->_view->template_dir = ROOT_PATH . '/themes';
         $this->_view->compile_dir = ROOT_PATH . '/temp/compiled/mall';
         $this->_view->res_base = SITE_URL . '/themes';
         $this->_config_seo([
@@ -421,7 +488,7 @@ class MallbaseApp extends FrontendApp
 //$logger->warning('以下是checkWechatLogin');
         $openid = $_SESSION['wx_openid']; // 获取微信openid
         /** openid不能为空,只要为空就从微信获取 */
-        if($openid){
+        if ( $openid ) {
 //$logger->warning('获取到openid:'.$openid);
             // 如果已经登录,不需以下动作
             if ( $this->visitor->has_login ) {
@@ -440,30 +507,34 @@ class MallbaseApp extends FrontendApp
             if ( $userArr === false || empty( $userArr ) ) {
 //$logger->warning('$userArr为空');
                 // 查询配置文件中服务器的redis
-                $userInfo = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
-//$logger->warning('redisUserInfo:'.json_encode($userInfo));
+                $redisInfoArr = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
+                $wxUserInfoArr = $redisInfoArr['wxUserInfo'] ? $redisInfoArr['wxUserInfo'] : [];
+                $userInfoArr = $redisInfoArr['userInfo'] ? $redisInfoArr['userInfo'] : [];
+//$logger->warning('redisUserInfo:'.json_encode($redisInfoArr));
                 Cache::store('default');// 使用完切换回default
-                if ( empty( $userInfo ) ) {
+                if ( empty( $wxUserInfoArr ) || empty( $userInfoArr ) ) {
                     // 如果空 需要获取用户信息
                     $redirectUrl = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['SERVER_NAME']}?{$_SERVER['QUERY_STRING']}";
                     $condition = "redirect_url=" . urlencode($redirectUrl);
-                    header("Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop?" . $condition);
+                    header("Location: " . WECHAT_USERINFO_URL . "/yjpai/platform/user/goShop?" . $condition);
 //$logger->warning('取redis为空,跳转,地址:'."Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop?" . $condition);
+//                    header("Location: " . WECHAT_USERINFO_URL . "/yjpai/platform/user/goShop");
+//$logger->warning('取redis为空,跳转,地址:'."Location: ".WECHAT_USERINFO_URL."/yjpai/platform/user/goShop");
                     exit();// 不再执行以下代码
                 } else {
-//$logger->warning('插入新用户,openid:'.$userInfo['openId']);
+//$logger->warning('插入新用户,openid:'.$redisInfoArr['openId']);
                     // 不为空 就插入数据库成为新的用户
                     $userID = $memberModel->add([
-                        'user_name' => $userInfo['nickname'],
-                        'password'  => md5($openid),
-                        'reg_time'  => gmtime(),
-                        'gender'    => $userInfo['sex'],
-                        'portrait'  => $userInfo['avatar'],
-                        'openid' => $userInfo['openId'],
-                        'auction_id' => $userInfo['userId'], // 拍卖ID
+                        'user_name'  => $wxUserInfoArr['nickname'],
+                        'password'   => md5($wxUserInfoArr['openId']),
+                        'reg_time'   => gmtime(),
+                        'gender'     => $wxUserInfoArr['sex'],
+                        'portrait'   => $wxUserInfoArr['avatar'],
+                        'openid'     => $wxUserInfoArr['openId'],
+                        'auction_id' => $wxUserInfoArr['userId'], // 拍卖ID
                     ]);
 
-                    if($memberModel->has_error()){
+                    if ( $memberModel->has_error() ) {
                         $this->ej_json_failed(-1);
                         exit();
                     }
@@ -471,44 +542,46 @@ class MallbaseApp extends FrontendApp
                     /**
                      * 给加v用户生成一个店铺
                      */
-//                    $storeModel =& m('store');
-//                    $store = $storeModel->get($userID);
-//                    // 判断是否开启了店铺申请
-//                    if (Conf::get('store_allow') && !$store && !$store['state'])
-//                    {
-//                        $data = array(
-//                            'store_id'     => $userID,
-//                            'store_name'   => $userInfo['nickname'],
-//                            'owner_name'   => $userInfo['nickname'],
-//                            'owner_card'   => '',
-//                            'region_id'    => '',
-//                            'region_name'  => $userInfo['province'],
-//                            'address'      => $userInfo['country'].$userInfo['province'].$userInfo['city'],
-//                            'zipcode'      => '',
-//                            'tel'          => '',
-//                            'sgrade'       => 1, // 店铺等级ID
-//                            'state'        => 1, // 需要审核 0 ,不需要审核 1
-//                            'add_time'     => gmtime(),
-//                        );
-//                        $storeModel->add($data);
-//
-//                        /**
-//                         * 分类
-//                         */
-////                        $cateID = intval($_POST['cate_id']);
-////                        $storeModel->unlinkRelation('has_scategory', $userID);
-////                        if ($cateID > 0)
-////                        {
-////                            $storeModel->createRelation('has_scategory', $userID, $cateID);
-////                        }
-//
-//                        if($storeModel->has_error()){
-//                            $this->ej_json_failed(-1);
-//                            exit();
-//                        }
-//
-//                    }
+                    // 必须是拍卖vip用户 且 允许开店
+                    if ( $userInfoArr['vip'] && Conf::get('store_allow') ) {
+                        $storeModel =& m('store');
+                        $store = $storeModel->get($userID);
 
+                        // 没开过店铺
+                        if ( !$store && !$store['state'] ) {
+                            $data = [
+                                'store_id'    => $userID,
+                                'store_name'  => $userInfoArr['name'],
+                                'owner_name'  => $userInfoArr['name'],
+                                'owner_card'  => '',
+                                'region_id'   => '',
+                                'region_name' => $wxUserInfoArr['province'],
+                                'address'     => $wxUserInfoArr['country'] . $wxUserInfoArr['province'] . $wxUserInfoArr['city'],
+                                'zipcode'     => '',
+                                'tel'         => '',
+                                'sgrade'      => 1, // 店铺等级ID
+                                'state'       => 1, // 需要审核 0 ,不需要审核 1
+                                'add_time'    => gmtime(),
+                            ];
+                            $storeModel->add($data);
+
+                            /**
+                             * 分类
+                             */
+//                        $cateID = intval($_POST['cate_id']);
+//                        $storeModel->unlinkRelation('has_scategory', $userID);
+//                        if ($cateID > 0)
+//                        {
+//                            $storeModel->createRelation('has_scategory', $userID, $cateID);
+//                        }
+
+                            if ( $storeModel->has_error() ) {
+                                $this->ej_json_failed(-1);
+                                exit();
+                            }
+                        }
+
+                    }
 
                 }
             } else {
@@ -516,7 +589,7 @@ class MallbaseApp extends FrontendApp
             }
 
             // 直接登录
-            if ( defined('IS_WECHAT') && IS_WECHAT && $userID) {
+            if ( defined('IS_WECHAT') && IS_WECHAT && $userID ) {
 //$logger->warning('登录了,userid:'.$userID);
                 $this->_do_login($userID);
 
@@ -531,11 +604,11 @@ class MallbaseApp extends FrontendApp
                 $this->ej_json_failed(3003);
 
                 exit();// 不再执行以下代码
-            }else{
+            } else {
                 $this->ej_json_failed(-1);
                 exit();
             }
-        }else{
+        } else {
             // openid 空
         }
 
@@ -598,14 +671,13 @@ class ShoppingbaseApp extends MallbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX && !IS_WECHAT) {
+            if ( !IS_AJAX && !IS_WECHAT ) {
                 // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
                 // return;
             } else {
-                $this->checkWechatLogin();
-
-//                $this->json_error('login_please');
-//                return;
+//                $this->checkWechatLogin();
+                $this->ej_json_failed(3004);
+                exit();
             }
         }
 
@@ -625,14 +697,13 @@ class MemberbaseApp extends MallbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX && !IS_WECHAT) {
+            if ( !IS_AJAX && !IS_WECHAT ) {
                 // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
                 // return;
             } else {
-                $this->checkWechatLogin();
-
-//                $this->json_error('login_please');
-//                return;
+//                $this->checkWechatLogin();
+                $this->ej_json_failed(3004);
+                exit();
             }
         }
 
@@ -901,40 +972,39 @@ class StoreadminbaseApp extends MemberbaseApp
     {
         /* 只有登录的用户才可访问 */
         if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX && !IS_WECHAT) {
+            if ( !IS_AJAX && !IS_WECHAT ) {
                 //   header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
                 //   return;
             } else {
-                $this->checkWechatLogin();
-
-//                $this->json_error('login_please');
-//                return;
+//                $this->checkWechatLogin();
+                $this->ej_json_failed(3004);
+                exit();
             }
         }
 
         /* 检查是否是店铺管理员 */
         if ( !$this->visitor->get('manage_store') ) {
             /* 您不是店铺管理员 */
-            return $this->ej_json_failed(-1,Lang::get('not_storeadmin'));
+            return $this->ej_json_failed(-1, Lang::get('not_storeadmin'));
         }
 
         /* 检查是否被授权 */
         $privileges = $this->_get_privileges();
         if ( !$this->visitor->i_can('do_action', $privileges) ) {
-            return $this->ej_json_failed(-1,Lang::get('no_permission'));
+            return $this->ej_json_failed(-1, Lang::get('no_permission'));
         }
 
         /* 检查店铺开启状态 */
         $state = $this->visitor->get('state');
         if ( $state == 0 ) {
-            return $this->ej_json_failed(-1,Lang::get('apply_not_agree'));
+            return $this->ej_json_failed(-1, Lang::get('apply_not_agree'));
         } elseif ( $state == 2 ) {
-            return $this->ej_json_failed(-1,Lang::get('store_is_closed'));
+            return $this->ej_json_failed(-1, Lang::get('store_is_closed'));
         }
 
         /* 检查附加功能 */
         if ( !$this->_check_add_functions() ) {
-            return $this->ej_json_failed(-1,Lang::get('not_support_function'));
+            return $this->ej_json_failed(-1, Lang::get('not_support_function'));
         }
 
         parent::_run_action();
