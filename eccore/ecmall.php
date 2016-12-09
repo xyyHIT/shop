@@ -1293,6 +1293,11 @@ function ecm_setcookie( $key, $value, $expire = 0, $cookie_path = COOKIE_PATH, $
     setcookie($key, $value, $expire, $cookie_path, $cookie_domain);
 }
 
+function ecm_setrawcookie( $key, $value, $expire = 0, $cookie_path = COOKIE_PATH, $cookie_domain = COOKIE_DOMAIN )
+{
+    setrawcookie($key, $value, $expire, $cookie_path, $cookie_domain);
+}
+
 /**
  *  获取COOKIE的值
  *

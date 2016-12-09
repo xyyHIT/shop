@@ -487,6 +487,7 @@ class CartApp extends MallbaseApp
             /* 以店铺ID为索引 */
             empty( $item['goods_image'] ) && $item['goods_image'] = Conf::get('default_goods_image');
             $carts[ $item['store_id'] ]['store_name'] = $item['store_name'];
+            $carts[ $item['store_id'] ]['store_id'] = $item['store_id']; // 店铺ID
             $carts[ $item['store_id'] ]['amount'] += $item['subtotal'];   //各店铺的总金额
             $carts[ $item['store_id'] ]['quantity'] += $item['quantity'];   //各店铺的总数量
             $carts[ $item['store_id'] ]['goods'][] = $item;

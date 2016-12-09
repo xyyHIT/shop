@@ -23,6 +23,7 @@ return [
     'WECHAT_USERINFO_URL' => 'http://devtst.yijiapai.com', // 跳转到拍卖获取微信信息的地址
     'WECHAT_USERINFO_REDIS' => 'redis-dev', // 从哪个redis获取微信用户信息
 
+
     /**
      * 微信公众号配置
      */

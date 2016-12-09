@@ -24,12 +24,13 @@ $ECMall->startup(array(
     'external_libs' =>  array(
         ROOT_PATH . '/includes/global.lib.php',
         ROOT_PATH . '/includes/libraries/time.lib.php',
-        ROOT_PATH . '/includes/ecapp.base.php',
+        ROOT_PATH . '/includes/ecapp.base.php', // 控制器基类
         ROOT_PATH . '/includes/plugin.base.php',
-        ROOT_PATH . '/wxapp/frontend.base.php',
+        ROOT_PATH . '/wxapp/frontend.base.php', // 前端控制器
         ROOT_PATH . '/includes/subdomain.inc.php',
         ROOT_PATH . '/includes/wx.base.php', // 微信类库
         ROOT_PATH . '/includes/Cache.php', // 缓存库
+        ROOT_PATH . '/includes/Log.php', // 日志
     ),
 ));
 ?>

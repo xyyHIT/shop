@@ -47,6 +47,9 @@ class FrontendApp extends ECBaseApp
                     exit();
                 }
             }else{
+                // 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
+                empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
+
                 strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
                 && in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
             }
