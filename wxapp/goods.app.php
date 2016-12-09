@@ -63,8 +63,6 @@
             $colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
 			$res['goods']['collectsign'] = empty($colsgoods)?'0':'1';
 
-
-
             return $this->ej_json_success($res);
         }
 
@@ -286,7 +284,7 @@
             $result['goods']['vediourl'] = '';//视频地址
             $result['goods']['detail_image'] = '';//详情图片地址   用假数据，后续用真实替换
             $result['goods']['detail_desc'] = $data['goods']['description'];//详情文字描述
-            $result['store']['logo'] = $data['store_data']['store_logo'];
+            $result['store']['logo'] = $data['store_data']['store_logo']; // 店铺logo地址
             $result['store']['sgrade'] = $data['store_data']['sgrade'];//店铺等级
             $result['store']['name'] = $data['store_data']['store_name'];
             $result['store']['goods_count'] = $data['store_data']['goods_count'];
