@@ -214,15 +214,15 @@
 
                 /* 商品信息 */
                 $goods = $this->_goods_mod->get_info($id);
-                if ( $goods['state'] == 2 ) {
+/*                 if ( $goods['state'] == 2 ) {
                     $this->show_warning('the_store_is_closed');
                     exit;
-                }
-                if ( !$goods || $goods['if_show'] == 0 || $goods['closed'] == 1 || $goods['state'] != 1 ) {
+                } */
+/*                 if ( !$goods || $goods['if_show'] == 0 || $goods['closed'] == 1 || $goods['state'] != 1 ) {
                     $this->show_warning('goods_not_exist');
 
                     return false;
-                }
+                } */
                 $goods['tags'] = $goods['tags'] ? explode(',', trim($goods['tags'], ',')) : [];
 
                 $goods['description'] = $goods['description'] ? html_script_reverse($goods['description']) : '';
@@ -231,8 +231,7 @@
 
                 /* 店铺信息 */
                 if ( !$goods['store_id'] ) {
-                    $this->show_warning('store of goods is empty');
-
+                    return $this->ej_json_failed(3001);
                     return false;
                 }
                 $this->set_store($goods['store_id']);
