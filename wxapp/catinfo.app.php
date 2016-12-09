@@ -27,6 +27,7 @@ class CatinfoApp extends MallbaseApp
         }
         /* 按分类、品牌、地区、价格区间统计商品数量 */
         $stats = $this->_get_group_by_info($param, ENABLE_SEARCH_CACHE);
+
         $goods_mod  =& m('goods');
 		$endarr = end($stats['by_category']);
 		$goods_list = array();
@@ -42,7 +43,8 @@ class CatinfoApp extends MallbaseApp
 			}
 			$goods_list = $goods_mod->getAll($sql);
 		}
-		//将商品匹配到分类  by newrain
+
+        //将商品匹配到分类  by newrain
 		$result = $this->_ejcat_goodslist($stats['by_category'],$goods_list);
 		return $this->ej_json_success($result);
     }
