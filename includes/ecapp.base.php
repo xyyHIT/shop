@@ -709,7 +709,7 @@ EOT;
             'data' => $data
         ];
 
-        echo json_encode($result);
+        echo json_encode($result);exit;
     }
 
     /**
@@ -737,7 +737,7 @@ EOT;
             'data' => ''
         ];
 
-        echo ecm_json_encode($result);
+        echo ecm_json_encode($result);exit;
     }
 
     /**
