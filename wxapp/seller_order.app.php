@@ -347,6 +347,7 @@
                 'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
                 'join'       => 'has_orderextm',
             ]);
+			print_r($order_info);exit;
 			//判断订单详情是否为空
 			if(empty($order_info)){
 				return $this->ej_json_failed(2001);
@@ -382,19 +383,23 @@
 				'remark'         => $_REQUEST['remark'],
 				'log_time'       => gmtime(),
 			]);
-
-
-			/* TODO 微信通知发送给买家订单已发货通知   测试代码
+			/* TODO 微信通知发送给买家订单已发货通知   测试代码*/
+			//获取买家openid
+			$model_member =& m('member');
+            $member_info = $model_member->get("user_id=".$order_info[$order_id]['buyer_id']." AND user_id !=" . $this->visitor->get('user_id'));
+			/*TODO 发送给卖家买家微信推送 */
+			$templateid = SHIP_SELLER;//消息模板id
+			$topenid = $member_info['openid'];
 			$data = [
 				'first'=>'您的货物已发货',
-				'keyword1'=>'订单：1000001',
-				'keyword2'=>'顺丰配送',
-				'keyword3'=>'3222220',
-				'keyword4'=>'北京市 朝阳区',
+				'keyword1'=>$order_info[$order_id]['order_sn'],
+				'keyword2'=>'货物配送',
+				'keyword3'=>$order_info[$order_id]['invoice_no'],
+				'keyword4'=>$order_info[$order_id]['consignee']."&nbsp;&nbsp".$order_info[$order_id]['consignee'],
 				'remark'=>'请您耐心等待',
 			];
-			$result = Wechat::sendNotice('o027xw_FWHbfosz9KHWOYsoXMa3s','t4GpuK09mLtHgzFrpBVRzPJsyPSXeWDIPAAvburUo8c',$data);	
-			*/
+			$result = Wechat::sendNotice($topenid,$templateid,$data);	
+			
 			return $this->ej_json_success();
         }
 
