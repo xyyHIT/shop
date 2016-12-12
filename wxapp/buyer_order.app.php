@@ -712,6 +712,9 @@
 			if($order_info['status'] != ORDER_ACCEPTED){
 				return $this->ej_json_failed(3001);
 			}
+			if(!$order_info['if_remind']){
+				return $this->ej_json_failed(1007);
+			}
 			//获取商家openid
 			$model_member =& m('member');
             $member_info = $model_member->get("user_id=".$order_info['seller_id']." AND user_id !=" . $this->visitor->get('user_id'));
