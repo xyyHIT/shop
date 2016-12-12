@@ -130,8 +130,9 @@ class ECMall
 				$idstr = '('.implode(',',$idarr).')';
 				$where = " order_id in {$idstr}";
 			}
-			$where .= ' AND status=' . ORDER_PENDING; 
-			$data['pay_time'] = time();
+			$where .= ' AND status=' . ORDER_PENDING;
+			$paytime =  time();
+			$data['pay_time'] = $paytime;
 			$data['status'] = ORDER_ACCEPTED;
 			$order_model->edit($where, $data);
 			//向yjpai更新商城流水信息
@@ -166,9 +167,9 @@ class ECMall
 				return true;
 			}
 			//向订单流水表插入数据
-			$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id)';
+			$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id,pay_time)';
 			if($type == '0'){
-				$inordergoods = "('fin".$notify->transaction_id."','".$notify->openid."','".$notify->total_fee."','".$notify->out_trade_no."',".$order_info['order_id'].",'".$outputarr['data']."')";
+				$inordergoods = "('fin".$notify->transaction_id."','".$notify->openid."','".$notify->total_fee."','".$notify->out_trade_no."',".$order_info['order_id'].",'".$outputarr['data']."','".$paytime."')";
 			}else{
 				$idstr = '('.implode(',',$idarr).')';
 				$orderwhere = " order_id in {$idstr}";
@@ -177,7 +178,7 @@ class ECMall
 				$endarr = end($loop_order);
 				foreach ($loop_order as $key => $value)
 				{
-					$inordergoods .= "('fin".$notify->transaction_id.$value['order_id']."','".$notify->openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."')";
+					$inordergoods .= "('fin".$notify->transaction_id.$value['order_id']."','".$notify->openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."','".$paytime."')";
 					if($endarr != $value){
 						$inordergoods .= ',';
 					}
