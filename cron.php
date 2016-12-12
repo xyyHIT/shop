@@ -1,197 +1,46 @@
 <?php
-/**
- *    ej商场框架核心文件，包含最基础的类与函数
- *
- * @author-update  xxy   20161027
- */
-/*---------------------以下是系统常量-----------------------*/
-/* 记录程序启动时间 */
-define('START_TIME', ecm_microtime());
-
-/* 判断请求方式 */
-define('IS_POST', ( strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ));
-
-/* 判断请求方式 */
+//配置计划任务相关 by newrain
+//error_reporting(E_ERROR | E_WARNING | E_PARSE);//满足版本升级 by xxy  20161026
 define('IN_ECM', true);
-
-/* 定义PHP_SELF常量 */
-define('PHP_SELF', htmlentities(isset( $_SERVER['PHP_SELF'] ) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME']));
-
-/* 当前ECMall程序版本 */
-define('VERSION', '2.3.0');
-
-/* 当前ECMall程序Release */
-define('RELEASE', '20120918');
-
-/*---------------------以下是PHP在不同版本，不同服务器上的兼容处理-----------------------*/
-
-/* 在部分IIS上会没有REQUEST_URI变量 */
-$query_string = isset( $_SERVER['argv'][0] ) ? $_SERVER['argv'][0] : $_SERVER['QUERY_STRING'];
-if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
-    $_SERVER['REQUEST_URI'] = PHP_SELF . '?' . $query_string;
-} else {
-    if ( strpos($_SERVER['REQUEST_URI'], '?') === false && $query_string ) {
-        $_SERVER['REQUEST_URI'] .= '?' . $query_string;
-    }
+define('ROOT_PATH', dirname(__FILE__));
+// composer 自动加载
+include ROOT_PATH.'/vendor/autoload.php';
+/* 定义配置信息 */
+ecm_define(ROOT_PATH . '/data/config.inc.php');
+include ROOT_PATH . '/includes/global.lib.php'; // 缓存库
+require( ROOT_PATH . '/eccore/controller/app.base.php' );     //基础控制器类
+include ROOT_PATH . '/eccore/model/model.base.php';   //模型基础类
+ecm_define(ROOT_PATH . '/data/yijia_mall_test.cfg.php');
+include ROOT_PATH . '/includes/wx.base.php'; // 微信类库
+include ROOT_PATH . '/includes/Cache.php'; // 缓存库
+$order_model =& m('order');
+//获取需要推送的订单  暂时通过流水表持久化完成此功能  后期待优化
+$times = time();
+$difftime = $times-24*3600;
+$streamarr = $order_model->db->getAll("SELECT order_id,openid,o.add_time,order_sn,order_amount FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id WHERE o.add_time >= $difftime AND status=11 AND o.if_cron = 0");
+if($streamarr){
+	$sqlarr = array();
+	foreach($streamarr as $key=>$value){
+		$remindtime = $value['add_time']+48*3600;
+		$data = [
+			'first'=>'亲，您购买的宝贝于"'.date('Y-m-d H:i',$remindtime).'"截止付款,若逾期付款,订单将自动关闭,且用且珍惜哦~',
+			'keyword1'=>$value['order_sn'],
+			'keyword2'=>floatval($value['order_amount']).'元',
+			'keyword3'=>'代付款',
+			'remark'=>'飞速去付款吧！',
+		];
+		//将已经发送的调整计划任务状态
+		array_push($sqlarr,$value['order_id']);
+		//获取相关提醒信息  进行提醒
+		$result = Wechat::sendNotice($value['openid'],'WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk',$data);
+	}
+		//改变订单状态
+		$idstr = '('.implode(',',$sqlarr).')';
+		$where = " order_id in {$idstr}";
+		$where .= ' AND status=11';
+		$datas['if_cron'] = '1';
+		$order_model->edit($where, $datas);
 }
-
-/*---------------------以下是微信支付系统底层基础类及工具-----------------------*/
-
-class ECMall
-{
-    /* 启动 */
-    static function startup( $config = [] )
-    {
-        /* 加载初始化文件 */
-        require( ROOT_PATH . '/eccore/controller/app.base.php' );     //基础控制器类
-        require( ROOT_PATH . '/eccore/model/model.base.php' );   //模型基础类
-        if ( !empty( $config['external_libs'] ) ) {
-            foreach ( $config['external_libs'] as $lib ) {
-                require( $lib );
-            }
-        }
- 		$response = Wechat::handler()->payment->handleNotify(function($notify,$successful){
-			//这里是微信支付等当订单状态改变时的通知地址
-			if (!$successful) {
-				return true;
-			}
-			$order_sn   = 0;
-			if(isset($notify->out_trade_no))
-			{
-				$order_sn = trim($notify->out_trade_no);
-			}
-			if (!$order_sn)
-			{
-				error_log("sn empty \n",3,'./wxpay.log');
-				return true;
-			}
-			//区分改单为分单还是合单
-			$prefix_sn = substr($order_sn,0,2);
-			$order_model =& m('order');
-			if($prefix_sn != '10' && $prefix_sn != '11'){
-				error_log($notify->out_trade_no."prefix_sn empty \n",3,'./wxpay.log');
-				return true;
-			}
-			if($prefix_sn == '10'){
-				//单个订单支付详情
-				$order_info  = $order_model->get("order_sn={$order_sn} and status= 11");
-				//判断用户是否下过订单
-				if (empty($order_info))
-				{
-					error_log($notify->out_trade_no."order empty \n",3,'./wxpay.log');
-					return true;
-				}
-				$payment_code = $order_info['payment_code'];
-				$userid = $order_info['buyer_id'];
-				$type = 0;
-			}else{
-				//合并订单详情
-				$order_info =  $order_model->db->getRow("select id,orderid,ordersn,userid from ".DB_PREFIX."sumorder where ordersn='".$order_sn."'");
-				//判断用户是否下过订单
-				if (empty($order_info))
-				{
-					error_log($notify->out_trade_no."order empty \n",3,'./wxpay.log');
-					return true;
-				}
-				$orderarr = json_decode($order_info['orderid'],true);
-				$idarr = array_keys($orderarr);//获取所有id
-				$order_id = $idarr['0'];
-				$payment_code =  $order_model->db->getOne("select payment_code from ".DB_PREFIX."order where order_id =$order_id and status= 11");
-				if(!$payment_code){
-					error_log($notify->out_trade_no."payment_code empty \n",3,'./wxpay.log');
-					return true;
-				}
-				$userid = $order_info['userid'];
-				$type = 1;
-			}
-			/* 验证艺加支付方式 查看是否开启此支付*/
-			$payment_info = $order_model->db->getRow("select payment_id from ".DB_PREFIX."ejpayment where  payment_code = '".trim($payment_code)."'");
-			if (!$payment_info)
-			{
-				error_log($notify->out_trade_no."payment empty \n",3,'./wxpay.log');
-				return true;
-			}
-			//验证来路的可信性
-			$openid = @trim($notify->openid);
-			if(!$openid){
-				error_log($notify->out_trade_no."openid empty \n",3,'./wxpay.log');
-				return true;
-			}
-			//获取openid对应的userid
-			$user_id =  $order_model->db->getOne("select user_id from ".DB_PREFIX."member where openid ='".$openid."'");
-			if($userid != $user_id){
-				error_log($notify->out_trade_no."user_id empty \n",3,'./wxpay.log');
-				return true;
-			}
-			//改变订单状态
-			if($type == '0'){
-				$where = " order_id = ".$order_info['order_id'];
-			}else{
-				$idstr = '('.implode(',',$idarr).')';
-				$where = " order_id in {$idstr}";
-			}
-			$where .= ' AND status=' . ORDER_PENDING;
-			$paytime =  time();
-			$data['pay_time'] = $paytime;
-			$data['status'] = ORDER_ACCEPTED;
-			$order_model->edit($where, $data);
-			//向yjpai更新商城流水信息
-			//引入加密方法
-			$data = json_encode(array(
-				'tran_id'=> $notify->transaction_id,
-				'open_id'=> $notify->openid,
-				'trade_amount'=> $notify->total_fee,
-				'pay_type'=> 1,
-				'order_sn'=> $notify->out_trade_no,
-				'title'=> '订单支付',
-				'trade_type'=> 20,
-				'order_id'=> empty($type)?$order_info['order_id']:$order_info['id']
-			));
-			$serialjson = Security::encrypt($data,'yijiawang.com#@!');
-			//POST数据
-			$curlPost = array(
-				'data'=>$serialjson
-			);
-			//初始化
-			$ch = curl_init("http://tst.yijiapai.com/yjpai/common/tools/addAccountCheck");
-			//设置
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_POST, 1);    //设施post方式提交数据
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);    //设置POST的数据
-			//执行会话并获取内容
-			$output = curl_exec($ch);
-			curl_close($ch);
-			$outputarr = json_decode($output,true);
-			if(!$outputarr['resCode']){
-				error_log($notify->out_trade_no."----$output---- \n",3,'./wxpay.log');
-				return true;
-			}
-			//向订单流水表插入数据
-			$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id,pay_time)';
-			if($type == '0'){
-				$inordergoods = "('fin".$notify->transaction_id."','".$notify->openid."','".$notify->total_fee."','".$notify->out_trade_no."',".$order_info['order_id'].",'".$outputarr['data']."','".$paytime."')";
-			}else{
-				$idstr = '('.implode(',',$idarr).')';
-				$orderwhere = " order_id in {$idstr}";
-				$loop_order = $order_model->db->getAll("SELECT order_id,order_sn,order_amount FROM ".DB_PREFIX."order WHERE $orderwhere");
-				$inordergoods = '';
-				$endarr = end($loop_order);
-				foreach ($loop_order as $key => $value)
-				{
-					$inordergoods .= "('fin".$notify->transaction_id.$value['order_id']."','".$notify->openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."','".$paytime."')";
-					if($endarr != $value){
-						$inordergoods .= ',';
-					}
-				}
-			}
-			//执行操作
-			$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inordergoods);
-			return true; // 或者错误消息
-		});
-		$response->send();
-    }
-}
-
 /**
  *    所有类的基础类
  *
@@ -255,7 +104,6 @@ class Object
         return $this->_errors;
     }
 }
-
 /**
  *    语言项管理
  *

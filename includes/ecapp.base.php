@@ -73,6 +73,11 @@ define('NOTICE_MAIL', 1); // 邮件通知
 define('NOTICE_MSG', 2); // 站内短消息
 define('EJADD_SHIP', 7); // 延长收货日期  默认7天
 
+/*微信消息模板*/
+define('REMIND_SELLER','pceo0X2lAd-HLcNWHxU4BgWXmwRw-En7RD3Qmo3Umns');//提醒卖家发货
+define('SHIP_SELLER','WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk');//卖家发货
+
+
 
 /**
  *    ECBaseApp
@@ -713,7 +718,7 @@ EOT;
             'data' => $data
         ];
 
-        echo json_encode($result);
+        echo json_encode($result);exit;
     }
 
     /**
@@ -741,7 +746,7 @@ EOT;
             'data' => ''
         ];
 
-        echo ecm_json_encode($result);
+        echo ecm_json_encode($result);exit;
     }
 
     /**
