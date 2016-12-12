@@ -183,7 +183,7 @@ class My_favoriteApp extends MemberbaseApp
         $model_user->unlinkRelation('collect_goods', $this->visitor->get('user_id'), $ids);
         if ($model_user->has_error())
         {
-           return $this->ej_json_failed(1003);
+           return $this->ej_json_failed(3001);
         }
     }
 
@@ -203,7 +203,7 @@ class My_favoriteApp extends MemberbaseApp
         $model_user->unlinkRelation('collect_store', $this->visitor->get('user_id'), $ids);
         if ($model_user->has_error())
         {
-			return $this->ej_json_failed(1003);
+			return $this->ej_json_failed(3001);
         }
     }
 
