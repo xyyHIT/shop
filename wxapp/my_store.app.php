@@ -37,7 +37,8 @@
             // 粉丝数
             $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'store' and item_id=".$userID);
             // 总收入
-            $ret['grossIncome'] = $userModel->getOne('select sum(goods_amount) from '.DB_PREFIX.'order where status = 40 and seller_id = '.$userID);
+            $grossIncome = $userModel->getOne('select sum(goods_amount) from '.DB_PREFIX.'order where status = 40 and seller_id = '.$userID);
+            $ret['grossIncome'] = empty($grossIncome) ? 0 : $grossIncome;
 
             return $this->ej_json_success($ret);
         }

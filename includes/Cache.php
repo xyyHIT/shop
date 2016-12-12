@@ -238,6 +238,63 @@ class Cache
     }
 
     /**
+     * @param $key
+     * @param $hashKey
+     *
+     * @return bool
+     */
+    public static function hHas($key,$hashKey){
+        self::init();
+        self::$readTimes++;
+
+        return self::$handler->hHas($key,$hashKey);
+    }
+
+
+    /**
+     * @param      $key
+     * @param      $hashKey
+     * @param bool $default
+     *
+     * @return bool|mixed|string
+     */
+    public static function hGet($key,$hashKey,$default = false){
+        self::init();
+
+        self::$readTimes++;
+
+        return self::$handler->hGet($key,$hashKey,$default);
+    }
+
+    /**
+     * @param $key
+     * @param $hashKey
+     * @param $value
+     *
+     * @return int
+     */
+    public static function hSet($key,$hashKey,$value){
+        self::init();
+
+        self::$writeTimes++;
+
+        return self::$handler->hSet($key,$hashKey,$value);
+    }
+
+    /**
+     * @param $key
+     * @param $hashKey
+     *
+     * @return int
+     */
+    public static function hDel($key,$hashKey){
+        self::init();
+        self::$writeTimes++;
+
+        return self::$handler->hDel($key,$hashKey);
+    }
+
+    /**
      * 缓存标签
      *
      * @access public

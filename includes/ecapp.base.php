@@ -143,8 +143,12 @@ class ECBaseApp extends BaseApp
         }
         if ( SESSION_TYPE == 'mysql' || defined('IN_BACKEND') ) {
             $this->_session = new SessionProcessor(db(), '`ecm_sessions`', '`ecm_sessions_data`', 'ECM_ID');
-            /* 清理超时的购物车项目 */
-            $this->_session->add_related_table('`ecm_cart`', 'cart', 'session_id', 'user_id=0');
+            /**
+             * 清理超时的购物车项目
+             *
+             * 这里不再清理,必须登录才能加入购物车
+             */
+//            $this->_session->add_related_table('`ecm_cart`', 'cart', 'session_id', 'user_id=0');
         } else if ( SESSION_TYPE == 'memcached' ) {
             $this->_session = new MemcacheSession(SESSION_MEMCACHED, 'ECM_ID');
         } else {
@@ -1338,7 +1342,12 @@ EOT;
                     $this->_do_login($userID);
 
                     // 重定向
-                    header("Location: $redirectUrl");
+                    if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectCart' && strlen(trim($_GET['url'])) > 1 ) {
+                        header('Location: ' . urldecode(trim($_GET['url'])));
+                    } else {
+                        header("Location: $redirectUrl");
+
+                    }
                     exit();// 不再执行以下代码
                 } else {
                     $this->ej_json_failed(-1);
