@@ -712,23 +712,26 @@
 			if($order_info['status'] != ORDER_ACCEPTED){
 				return $this->ej_json_failed(3001);
 			}
-			if(!$order_info['if_remind']){
+			if($order_info['if_remind']){
 				return $this->ej_json_failed(1007);
 			}
+			//将该订单标记为已提醒
+			$model_order->edit($order_id, [ 'if_remind' => '1' ]);
 			//获取商家openid
 			$model_member =& m('member');
             $member_info = $model_member->get("user_id=".$order_info['seller_id']." AND user_id !=" . $this->visitor->get('user_id'));
 			/*TODO 发送给卖家买家微信推送，交易完成 */
-			$templateid = '';//消息模板id
+			$templateid = REMIND_SELLER;//消息模板id
 			$topenid = $member_info['openid'];
 			$data = [
-				'first'=>'',
-				'keyword1'=>'',
-				'keyword2'=>'',
-				'keyword3'=>'',
-				'remark'=>'',
+				'first'=>'您有一个新的待发货订单',
+				'keyword1'=>$order_info['order_sn'],
+				'keyword2'=>$order_info['order_amount'],
+				'keyword3'=>$order_info['buyer_name'],
+				'keyword4'=>'已支付',
+				'remark'=>'客户已经付款，老板快去发货吧',
 			];
-			//$result = Wechat::sendNotice($topenid,$templateid,$data);
+			$result = Wechat::sendNotice($topenid,$templateid,$data);
 			return $this->ej_json_success();
 		}
 		

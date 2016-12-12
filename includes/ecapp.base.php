@@ -73,6 +73,10 @@ define('NOTICE_MAIL', 1); // 邮件通知
 define('NOTICE_MSG', 2); // 站内短消息
 define('EJADD_SHIP', 7); // 延长收货日期  默认7天
 
+/*微信消息模板*/
+define('REMIND_SELLER','pceo0X2lAd-HLcNWHxU4BgWXmwRw-En7RD3Qmo3Umns');//提醒卖家发货
+
+
 
 /**
  *    ECBaseApp
