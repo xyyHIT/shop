@@ -23,7 +23,7 @@ if($streamarr){
 	foreach($streamarr as $key=>$value){
 		$remindtime = $value['add_time']+48*3600;
 		$data = [
-			'first'=>'亲，您购买的宝贝于"'.$remindtime.'"截止付款,若逾期付款,订单将自动关闭,且用且珍惜哦~',
+			'first'=>'亲，您购买的宝贝于"'.date('Y-m-d H:i',$remindtime).'"截止付款,若逾期付款,订单将自动关闭,且用且珍惜哦~',
 			'keyword1'=>$value['order_sn'],
 			'keyword2'=>floatval($value['order_amount']).'元',
 			'keyword3'=>'代付款',
