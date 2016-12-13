@@ -41,9 +41,10 @@ class OrderApp extends ShoppingbaseApp
             $str_tmp = '';
             foreach ($goods_beyond as $goods)
             {
-                $str_tmp .= $goods['goods_name'] . '库存只剩' . $goods['stock'].'件啦，';
+                //$str_tmp .= $goods['goods_name'] . '库存只剩' . $goods['stock'].'件啦，';
+                $str_tmp .= $goods['goods_name'] . ',';
             }
-			$strstock = "您购买的".$str_tmp."请修改数量再重新提交哦！";
+			$strstock = "您购买的".$str_tmp."目前库存不足，系统已为您自动配置！";
 			return $this->ej_json_failed(1005,$strstock);
         }
 		//拼装结果集
@@ -139,11 +140,17 @@ class OrderApp extends ShoppingbaseApp
     function _check_beyond_stock($goods_items)
     {
         $goods_beyond_stock = array();
+		$model_cart =& m('cart');
         foreach ($goods_items as $rec_id => $goods)
         {
             if ($goods['quantity'] > $goods['stock'])
             {
                 $goods_beyond_stock[$goods['spec_id']] = $goods;
+				$where = "rec_id = ".$goods['rec_id'];
+				/* 修改数量 */
+				$model_cart->edit($where, [
+					'quantity' => $goods['stock'],
+				]);
             }
         }
         return $goods_beyond_stock;
