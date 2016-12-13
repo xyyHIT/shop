@@ -27,7 +27,11 @@
                 <!--{if !$payment.system_enabled}-->
             <a href="index.php?app=payment&amp;act=enable&amp;code={$payment.code}">{$lang.enable}</a>
                 <!--{else}-->
+				<!--{if $payment.code neq 'wx'}-->
                 <a href="javascript:if(confirm('{$lang.disable_confirm}'))window.location='index.php?app=payment&act=disable&code={$payment.code}';">{$lang.disable}</a>
+				<!--{else}-->
+				默认开启
+				<!--{/if}-->
                 <!--{/if}-->
                 </td>
         </tr>

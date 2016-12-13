@@ -5,7 +5,7 @@ return array(
     'name'      => Lang::get('bank'),
     'desc'      => Lang::get('bank_desc'),
     'is_online' => '0',
-    'author'    => 'ECMall TEAM',
+    'author'    => '艺加PHP',
     'website'   => 'http://ecmall.shopex.cn',
     'version'   => '1.0',
     'currency'  => Lang::get('bank_currency'),
