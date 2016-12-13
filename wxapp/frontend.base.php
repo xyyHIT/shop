@@ -50,13 +50,20 @@ class FrontendApp extends ECBaseApp
                 // 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
                 empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
 
-                // 登录重定向html
+                /**
+                 * 重新登录并操作(添加购物车,喜欢,关注商品,关注店铺)
+                 *
+                 * 这里进行登录,并重定向到商品页,前端完成添加购物车功能
+                 */
+                strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
+
+                /**
+                 * 访问特定html时,需登录才可访问
+                 *
+                 * 这里进行登录并重定向
+                 */
                 strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
                 && in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
-
-                // 登录购物车重定向
-                strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectCart' && strlen(trim($_GET['url'])) > 1
-                && $this->checkLoginIdentity();
             }
 
         }

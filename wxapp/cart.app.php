@@ -106,8 +106,8 @@ class CartApp extends MallbaseApp
             ];
             $cartModel->add($cart_item);
         } else {
-            // 购物车中商品数量等于库存数量 就不允许再添加
-            if ( $cartData['quantity'] == $spec_info['stock'] ) {
+            // 购物车中商品数量大于或等于库存数量 就不允许再添加
+            if ( $cartData['quantity'] >= $spec_info['stock'] ) {
                 return $this->ej_json_failed(-1, Lang::get('no_enough_goods'));
             }
             // 如果数据库已存在,就更新商品数量
@@ -151,7 +151,8 @@ class CartApp extends MallbaseApp
         }
 
         /* 修改数量 */
-        $where = "spec_id={$spec_id} AND session_id='" . SESS_ID . "'";
+//        $where = "spec_id={$spec_id} AND session_id='" . SESS_ID . "'";
+        $where = "spec_id={$spec_id} AND user_id='" . $this->visitor->get('user_id') . "'";
         $model_cart =& m('cart');
 
         /* 获取购物车中的信息，用于获取价格并计算小计 */

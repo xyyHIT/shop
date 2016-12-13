@@ -1347,11 +1347,15 @@ EOT;
                     $this->_do_login($userID);
 
                     // 重定向
-                    if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectCart' && strlen(trim($_GET['url'])) > 1 ) {
-                        header('Location: ' . urldecode(trim($_GET['url'])));
+                    if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' ) {
+                        if( strlen(trim($_GET['url'])) > 1 ){
+                            header('Location: ' . urldecode(trim($_GET['url'])));
+                        }else{
+//                            header('Location: ' . urldecode(trim($_GET['url'])));
+                        }
+
                     } else {
                         header("Location: $redirectUrl");
-
                     }
                     exit();// 不再执行以下代码
                 } else {
