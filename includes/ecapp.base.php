@@ -74,9 +74,8 @@ define('NOTICE_MSG', 2); // 站内短消息
 define('EJADD_SHIP', 7); // 延长收货日期  默认7天
 
 /*微信消息模板*/
-define('REMIND_SELLER','pceo0X2lAd-HLcNWHxU4BgWXmwRw-En7RD3Qmo3Umns');//提醒卖家发货
-define('SHIP_SELLER','WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk');//卖家发货
-
+define('REMIND_SELLER', 'pceo0X2lAd-HLcNWHxU4BgWXmwRw-En7RD3Qmo3Umns');//提醒卖家发货
+define('SHIP_SELLER', 'WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk');//卖家发货
 
 
 /**
@@ -718,15 +717,18 @@ EOT;
             'data' => $data
         ];
 
-        echo json_encode($result);exit;
+        echo json_encode($result);
+        exit;
     }
 
     /**
      * 请求失败 返回json
      *
-     * @param $errCode // 失败码
+     * @param       $errCode
+     * @param null  $errStr
+     * @param array $data
      */
-    function ej_json_failed( $errCode, $errStr = null )
+    function ej_json_failed( $errCode, $errStr = null, $data = [] )
     {
         $this->json_header();
 
@@ -743,10 +745,11 @@ EOT;
         $result = [
             'code' => $errCode,
             'msg'  => $errStr ? $errStr : $errorCodeArr[ $errCode ],
-            'data' => ''
+            'data' => $data ? $data : '',
         ];
 
-        echo ecm_json_encode($result);exit;
+        echo ecm_json_encode($result);
+        exit;
     }
 
     /**
@@ -1348,9 +1351,9 @@ EOT;
 
                     // 重定向
                     if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' ) {
-                        if( strlen(trim($_GET['url'])) > 1 ){
+                        if ( strlen(trim($_GET['url'])) > 1 ) {
                             header('Location: ' . urldecode(trim($_GET['url'])));
-                        }else{
+                        } else {
 //                            header('Location: ' . urldecode(trim($_GET['url'])));
                         }
 

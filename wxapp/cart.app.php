@@ -31,7 +31,7 @@ class CartApp extends MallbaseApp
         $store_id = isset( $_REQUEST['store_id'] ) ? intval($_REQUEST['store_id']) : 0;
         $count = $this->_get_cart_count($store_id);
 
-        if(is_null($count) || empty($count)) $count = 0;
+        if ( is_null($count) || empty( $count ) ) $count = 0;
 
         return $this->ej_json_success([ 'count' => $count ]);
     }
@@ -46,7 +46,7 @@ class CartApp extends MallbaseApp
         $spec_id = isset( $_REQUEST['spec_id'] ) ? intval($_REQUEST['spec_id']) : 0;
         $quantity = isset( $_REQUEST['quantity'] ) ? intval($_REQUEST['quantity']) : 0;
 
-        if(!$this->visitor->has_login){
+        if ( !$this->visitor->has_login ) {
             # Todo ...
             // 未登录添加购物车,放入redis,带登录添加
 //            Cache::hset($_SESSION['wx_openid'],'waiting_cart_add',$spec_id.'|'.$quantity);
@@ -146,7 +146,14 @@ class CartApp extends MallbaseApp
             return $this->ej_json_failed(-1, Lang::get('no_such_spec'));
         }
 
-        if ( $quantity > $spec_info['stock'] ) {
+        /**
+         * 当前购物车大于库存数时,直接更新到库存数
+         */
+        $isAgain = false;
+        if($quantity > $spec_info['stock'] + 1){
+            $quantity = $spec_info['stock'];
+            $isAgain = true;
+        }else if ( $quantity > $spec_info['stock'] ) {
             return $this->ej_json_failed(-1, Lang::get('no_enough_goods'));
         }
 
@@ -181,7 +188,15 @@ class CartApp extends MallbaseApp
             'amount'   => $cart_status['carts'][ $store_id ]['amount']  //店铺购物车总计
         ];
 
-        return $this->ej_json_success($ret);
+        if ( $isAgain ) {
+            $ret['operation'] = [
+                'quantity' => $quantity
+            ];
+
+            return $this->ej_json_failed(1011, null, $ret);
+        } else {
+            return $this->ej_json_success($ret);
+        }
     }
 
     /**

@@ -37,12 +37,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
      * by Gavin 20161122
      */
     public function ejUploadFile4Wechat() {
-//        return $this->ej_json_success(['fff'=>'sdfsdfsd']);
-//        error_reporting(E_ALL);
-//        ini_set('display_errors', '1');
-        //将出错信息输出到一个文本文件
-//        ini_set('error_log', ROOT_PATH . '/temp/error_upload_log.txt');
-
         // 文件上传模型
         $upload_mod =& m('uploadedfile');
 
@@ -78,7 +72,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                         'desc' => '图片类型不正确',
                     ];
                     continue;
-//                    return $this->ej_json_failed(-1, '图片类型不正确');
                 }
 
                 // 正常文件 && 用户可用空间足够
@@ -88,7 +81,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                         'desc' => '很抱歉，您上传的文件所占空间已达上限，请联系商城管理员升级店铺',
                     ];
                     continue;
-//                    return $this->ej_json_failed(-1, Lang::get('space_limit_arrived'));
                 }
 
                 // 从临时目录拿到文件 上传到万象优图
@@ -99,7 +91,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                         'desc' => '上传服务器错误',
                     ];
                     continue;
-//                    return $this->ej_json_failed(-1, Lang::get('sys_error'));
                 }
 
                 /* 数据库保存 */
@@ -109,6 +100,8 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                     'file_size' => filesize($fileUrl),
                     'file_name' => $cloudRetArr['data']['fileid'],
                     'file_path' => $cloudRetArr['data']['downloadUrl'],
+                    'cloud_image_id' => $cloudRetArr['data']['fileid'],
+                    'cloud_image_data' => json_encode($cloudRetArr),
                     'belong'    => $this->belong,
                     'item_id'   => $this->id,
                     'add_time'  => gmtime(),
@@ -120,7 +113,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                         'desc' => '上传保存出错',
                     ];
                     continue;
-//                    return $this->ej_json_failed(-1);
                 }
 
                 // 如果是上传商品相册图片
@@ -140,7 +132,6 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                             'desc' => '保存商品图片错误',
                         ];
                         continue;
-//                        return $this->ej_json_failed(-1);
                     }
                 }
 

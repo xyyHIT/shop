@@ -220,6 +220,35 @@ class My_goodsApp extends StoreadminbaseApp
         return $this->ej_json_success();
     }
 
+    /**
+     * 艺加 - 删除图片
+     *
+     * by Gavin 20161213
+     */
+    function ejDropImage()
+    {
+        $fileID = empty( $_REQUEST['file_id'] ) ? 0 : intval($_REQUEST['file_id']);
+        $uploadedfile = $this->_uploadedfile_mod->get([
+            'conditions' => "f.file_id = '$fileID' AND f.store_id = '{$this->_store_id}'",
+            'join'       => 'belongs_to_goodsimage',
+            'fields'     => 'goods_image.image_url, goods_image.thumbnail, goods_image.image_id, f.file_id,f.cloud_image_id',
+        ]);
+        if ( $uploadedfile ) {
+            $this->_uploadedfile_mod->drop($fileID);
+
+            $this->_image_mod->drop($uploadedfile['image_id']);
+
+            if($uploadedfile['cloud_image_id']){
+                $arr = \Tencentyun\ImageV2::del(CLOUD_IMAGE_BUCKET,$uploadedfile['cloud_image_id']);
+//Log::getLogger()->warning(json_encode($arr));
+            }
+
+            return $this->ej_json_success();
+        }
+
+        return $this->ej_json_failed(-1,Lang::get('no_image_droped'));
+    }
+
     function index()
     {
         /* 取得店铺商品分类 */
