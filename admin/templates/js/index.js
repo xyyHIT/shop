@@ -106,10 +106,12 @@ function loadSubmenu(){
     /* 将子菜单逐项添加到菜单中 */
     $.each(m.children, function(k, v){
         var p = v.parent ? v.parent : currTab;
-        var item = $('<dd><a href="javascript:;" url="' + v.url + '" parent="' + p + '" id="item_' + k + '">' + v.text + '</a></dd>');
-        item.children('a').click(function(){
-            openItem(this.id.substr(5));
-        });
+		if(v.text != '关于我们'){
+			var item = $('<dd><a href="javascript:;" url="' + v.url + '" parent="' + p + '" id="item_' + k + '">' + v.text + '</a></dd>');
+			item.children('a').click(function(){
+				openItem(this.id.substr(5));
+			});
+		}
         $('#submenu').append(item);
     });
 }
