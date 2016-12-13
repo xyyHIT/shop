@@ -41,9 +41,10 @@ class OrderApp extends ShoppingbaseApp
             $str_tmp = '';
             foreach ($goods_beyond as $goods)
             {
-                $str_tmp .= $goods['goods_name'] . ';' . Lang::get('stock') . ':' . $goods['stock'];
+                $str_tmp .= $goods['goods_name'] . '库存只剩' . $goods['stock'].'件啦，';
             }
-			return $this->ej_json_failed(1005,$str_tmp);
+			$strstock = "您购买的".$str_tmp."请修改数量再重新提交哦！";
+			return $this->ej_json_failed(1005,$strstock);
         }
 		//拼装结果集
 		$result['list'] = $resultarr;
@@ -89,9 +90,10 @@ class OrderApp extends ShoppingbaseApp
             $str_tmp = '';
             foreach ($goods_beyond as $goods)
             {
-                $str_tmp .= $goods['goods_name'] . ';' . Lang::get('stock') . ':' . $goods['stock'];
+                $str_tmp .= $goods['goods_name'] . '库存只剩' . $goods['stock'].'件啦，';
             }
-			return $this->ej_json_failed(1005,$str_tmp);
+			$strstock = "您购买的".$str_tmp."请修改数量再重新提交哦！";
+			return $this->ej_json_failed(1005,$strstock);
         }
 		/* 在此获取生成订单的两个基本要素：用户提交的数据（POST），商品信息（包含商品列表，商品总价，商品总数量，类型），所属店铺 */
 		/* 优惠券数据处理   暂时不考虑团购  如2期添加  详情见index action中*/
