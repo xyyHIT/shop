@@ -1,27 +1,7 @@
 {include file="header.html"}
-<script language="javascript">
-$(function(){
-    $.getJSON('{$spt}&jsoncallback=?',function(){});
-    $.getJSON('http://ecmall.shopex.cn/system/notice2.php?charset={$cur_lang}&uniqueid={$uniqueid}&jsoncallback=?',function(data){
-        var message='';
-        $.each(data,function(i){
-            message += '<li>' + data[i] + '</li>';
-        });
-        $('#news').html(message);
-    }
-);
-});
-<!--{if $dangerous_apps}-->
-var dangerous_apps = '';
-<!--{foreach from=$dangerous_apps item=da}-->
-dangerous_apps += "{$da}\r\n";
-<!--{/foreach}-->
-alert(dangerous_apps);
-<!--{/if}-->
-</script>
 <div id="rightTop">
 <p>
-    {$lang.hello}<b>{$admin.user_name}</b>{$lang.welcome_to_ecmall}
+    {$lang.hello}<b>{$admin.user_name}</b>，欢迎使用商城管理系统。
     <!--[ <a target="_blank" href="{$site_url}/index.php?app=message&amp;act=inbox" class="tidings">{$lang.new_pm}</a>: {$new.total} ]
 -->    {$lang.last_login} {$admin.last_login|date:complete} {$lang.last_ip} {$admin.last_ip}
 </p>
@@ -37,7 +17,7 @@ alert(dangerous_apps);
     </ul>
 </dd>
 <!--{/if}-->
-<dt>{$lang.ecmall_news}</dt>
+<dt>商城动态</dt>
 <dd>
     <ul id="news">
     </ul>
