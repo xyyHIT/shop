@@ -1,6 +1,5 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);//满足版本升级 by xxy  20161026
-header("Access-Control-Allow-Origin: *");
 define('ROOT_PATH', dirname(__FILE__));
 include(ROOT_PATH . '/eccore/ecmall.php');
 
