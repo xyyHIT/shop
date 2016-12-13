@@ -287,6 +287,7 @@
             $result['store']['sgrade'] = $data['store_data']['sgrade'];//店铺等级
             $result['store']['name'] = $data['store_data']['store_name'];
             $result['store']['goods_count'] = $data['store_data']['goods_count'];
+            $result['store']['auction_id'] = $data['store_data']['store_owner']['auction_id'];
             $result['store']['collect_count'] = $this->_ejget_collect_num('store', $data['goods']['store_id']);
             $result['store']['tel'] = $data['store_data']['tel'];//店铺联系电话（和卖家的区分）			
 			return $result;
