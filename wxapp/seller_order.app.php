@@ -397,7 +397,7 @@
 				'keyword4'=>$order_info[$order_id]['consignee'].$order_info[$order_id]['address'],
 				'remark'=>'请您耐心等待',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data);	
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=0");	
 			
 			return $this->ej_json_success();
         }

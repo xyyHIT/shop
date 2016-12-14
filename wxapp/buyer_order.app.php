@@ -731,7 +731,7 @@
 				'keyword4'=>'已支付',
 				'remark'=>'客户已经付款，老板快去发货吧',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data);
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
 			return $this->ej_json_success();
 		}
 		

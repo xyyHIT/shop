@@ -59,12 +59,12 @@ class Wechat{
     }
 
 	/*edit by newrain*/
-    public static function sendNotice($openID,$template,$data){
+    public static function sendNotice($openID,$template,$data,$url=''){
         self::init();
         $response = self::handler()->notice->send([
             'touser' => $openID,
             'template_id' => $template,
-            'url' => '',
+            'url' => $url,
             'topcolor' => '#f7f7f7',
 			'data' => $data,
         ]);
