@@ -185,8 +185,9 @@ class My_favoriteApp extends MemberbaseApp
         {
            return $this->ej_json_failed(3001);
         }
-		/* 更新被收藏次数 */
-        $model_user->update_collect_count($item_id);
+		/* 更新被收藏次数 针对商城调整*/
+		$model_goods =& m('goods');
+        $model_goods->update_collect_count($item_id);
     }
 
     /**
