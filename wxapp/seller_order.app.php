@@ -347,7 +347,6 @@
                 'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
                 'join'       => 'has_orderextm',
             ]);
-			print_r($order_info);exit;
 			//判断订单详情是否为空
 			if(empty($order_info)){
 				return $this->ej_json_failed(2001);
