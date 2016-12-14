@@ -26,13 +26,13 @@ if($streamarr){
 			'first'=>'亲，您购买的宝贝于"'.date('Y-m-d H:i',$remindtime).'"截止付款,若逾期付款,订单将自动关闭,且用且珍惜哦~',
 			'keyword1'=>$value['order_sn'],
 			'keyword2'=>floatval($value['order_amount']).'元',
-			'keyword3'=>'代付款',
+			'keyword3'=>'待付款',
 			'remark'=>'飞速去付款吧！',
 		];
 		//将已经发送的调整计划任务状态
 		array_push($sqlarr,$value['order_id']);
 		//获取相关提醒信息  进行提醒
-		$result = Wechat::sendNotice($value['openid'],'WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk',$data);
+		$result = Wechat::sendNotice($value['openid'],'WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk',$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$value['order_id']."&type=0");
 	}
 		//改变订单状态
 		$idstr = '('.implode(',',$sqlarr).')';
