@@ -39,7 +39,6 @@ class Wechat{
 
             $redis = Cache::store(WECHAT_USERINFO_REDIS)->handler();
             Cache::store('default'); // 使用完切换回default
-
             $cache->setRedis($redis);
 
             self::$handler->access_token->setCacheKey('YIJIAWANG_ACCESS_TOKEN_KEY');
