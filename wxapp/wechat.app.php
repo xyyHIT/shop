@@ -28,8 +28,6 @@ class WechatApp extends MallbaseApp
      */
     public function notify()
     {
-
-Log::getLogger()->warning('Adding a new user', array('username' => 'Seldaek'));
 //        Log::addInfo('Adding a new user', array('username' => 'Seldaek'));
 
         $auctionID = $_GET['user_id'] ? $_GET['user_id'] : 0; // 拍卖用户ID
