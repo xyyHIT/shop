@@ -344,7 +344,7 @@
             }
             $model_order =& m('order');
             $order_info = $model_order->findAll([
-                'conditions' => "order_alias.order_id={$order_id}",
+                'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
                 'join'       => 'has_orderextm',
             ]);
 			//判断订单详情是否为空
