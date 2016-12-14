@@ -206,8 +206,7 @@
         function _get_common_info( $id ) {
             $cache_server =& cache_server();
             $key = 'page_of_goods_' . $id;
-            //$data = $cache_server->get($key);
-			$data = false;//暂时关闭缓存
+            $data = $cache_server->get($key);
             $cached = true;
             if ( $data === false ) {
                 $cached = false;
