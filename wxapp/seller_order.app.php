@@ -347,7 +347,6 @@
                 'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
                 'join'       => 'has_orderextm',
             ]);
-			print_r($order_info);exit;
 			//判断订单详情是否为空
 			if(empty($order_info)){
 				return $this->ej_json_failed(2001);
@@ -394,11 +393,11 @@
 				'first'=>'您的货物已发货',
 				'keyword1'=>$order_info[$order_id]['order_sn'],
 				'keyword2'=>'货物配送',
-				'keyword3'=>$order_info[$order_id]['invoice_no'],
-				'keyword4'=>$order_info[$order_id]['consignee']."&nbsp;&nbsp".$order_info[$order_id]['consignee'],
+				'keyword3'=>$invoice_no,
+				'keyword4'=>$order_info[$order_id]['consignee'].$order_info[$order_id]['address'],
 				'remark'=>'请您耐心等待',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data);	
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=0");	
 			
 			return $this->ej_json_success();
         }

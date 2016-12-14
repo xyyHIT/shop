@@ -219,9 +219,9 @@
 							$result['statusname'] = $this->ejstatus['30'];
 							$result['lefttime'] = ejlefttime($sumshiptime,$times);//剩余时间
 							if($type==0){
-								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i')."</time> 后订单将自动确认收货，请确保已收到商品！</p></div></div>";
+								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货，请确保已收到商品！</p></div></div>";
 							}else{
-								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i')."</time> 后订单将自动确认收货！</p></div></div>";
+								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货！</p></div></div>";
 							}
 						}
 				break;
@@ -675,7 +675,7 @@
             }else{
 				//当用户已经点击过延长，再次点击为取消延长收货
 				if($order_info['add_shiptime']){
-					$delayval = 0;
+					return $this->ej_json_failed(1008);
 				}
 			}
 			$model_order->edit($order_id, [ 'add_shiptime' => $delayval ]);
@@ -731,7 +731,7 @@
 				'keyword4'=>'已支付',
 				'remark'=>'客户已经付款，老板快去发货吧',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data);
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
 			return $this->ej_json_success();
 		}
 		
