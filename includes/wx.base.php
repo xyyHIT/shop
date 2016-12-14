@@ -1,6 +1,7 @@
 <?php
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
+use Doctrine\Common\Cache\RedisCache;
 
 /**
  *
@@ -32,6 +33,17 @@ class Wechat{
     public static function init(){
         if(!self::$handler instanceof Application){
             self::$handler = new Application(self::options());
+
+            // access_token 存储方式
+            $cache = new RedisCache();
+
+            $redis = Cache::store(WECHAT_USERINFO_REDIS)->handler();
+            Cache::store('default'); // 使用完切换回default
+
+            $cache->setRedis($redis);
+
+            self::$handler->access_token->setCacheKey('YIJIAWANG_ACCESS_TOKEN_KEY');
+            self::$handler->access_token->setCache($cache);
         }
 
         return self::$handler;
