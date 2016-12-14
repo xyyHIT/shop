@@ -76,7 +76,7 @@ class Wechat{
             'touser' => $openID,
             'template_id' => $template,
             'url' => $url,
-            'topcolor' => '#f7f7f7',
+            'topcolor' => '#e86f0e',
 			'data' => $data,
         ]);
         return $response;

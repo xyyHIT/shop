@@ -62,6 +62,8 @@
 
             $colsgoods =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='goods' and item_id=".$data['goods']['goods_id']." and user_id=".$this->visitor->get('user_id'));
 			$res['goods']['collectsign'] = empty($colsgoods)?'0':'1';
+			$collects =  $this->_goods_mod->db->getOne("select collects from ".DB_PREFIX."goods_statistics where goods_id=".$data['goods']['goods_id']);
+			$res['goods']['collects'] = empty($collects)?'0':$collects;
 
             return $this->ej_json_success($res);
         }
