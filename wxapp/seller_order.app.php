@@ -7,7 +7,7 @@
      * @usage     none
      */
     class Seller_orderApp extends StoreadminbaseApp {
-		var $ejstatus = array('0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成');
+		var $ejstatus = array('0'=>'交易关闭','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成');
         /**
          * 回复商品评价
          *
