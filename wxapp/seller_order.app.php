@@ -389,10 +389,21 @@
 			/*TODO 发送给卖家买家微信推送 */
 			$templateid = SHIP_SELLER;//消息模板id
 			$topenid = $member_info['openid'];
+			//获取货物单号信息
+			require ROOT_PATH.'/includes/Http.php';
+			$http = new Http();
+			$url ='http://highapi.kuaidi.com/openapi-querycountordernumber.html';
+			$jsonArr = $http->parseJSON($http->get($url, [
+				'id' => '12f3f629d0d68fbe3bc8370843961c31',
+				'nu' => $invoice_no
+			]));
+			if(!isset($jsonArr['company'])){
+				$jsonArr['company'] = '货物配送';
+			}
 			$data = [
 				'first'=>'您的货物已发货',
 				'keyword1'=>$order_info[$order_id]['order_sn'],
-				'keyword2'=>'货物配送',
+				'keyword2'=>$jsonArr['company'],
 				'keyword3'=>$invoice_no,
 				'keyword4'=>$order_info[$order_id]['consignee'].$order_info[$order_id]['address'],
 				'remark'=>'请您耐心等待',
