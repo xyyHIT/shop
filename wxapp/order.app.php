@@ -21,6 +21,11 @@ class OrderApp extends ShoppingbaseApp
 		$totalamount = 0;
 		$resultarr = array();
 		foreach($checkoutinfo as $value){
+			//是否失效
+			if($value['if_show']!='1' || $value['closed'] == 1){
+				return $this->ej_json_failed(1009);
+				break;
+			}
 			$payshiprice = 0; //用户应付运费   针对商品不同运费不同  筛选价格最高运费
 			foreach($value['goods'] as $v){
 				if($v['shiprice']>=$payshiprice){
@@ -71,6 +76,11 @@ class OrderApp extends ShoppingbaseApp
 		$totalamount = 0;
 		$resultarr = array();
 		foreach($goods_info as $value){
+			//是否失效
+			if($value['if_show']!='1' || $value['closed'] == 1){
+				return $this->ej_json_failed(1009);
+				break;
+			}
 			$payshiprice = 0; //用户应付运费   针对商品不同运费不同  筛选价格最高运费
 			foreach($value['goods'] as $v){
 				if($v['shiprice']>=$payshiprice){
@@ -175,9 +185,10 @@ class OrderApp extends ShoppingbaseApp
         /* 只有是自己购物车的项目才能购买 */
         $where_user_id = $this->visitor->get('user_id') ? " AND cart.user_id=" . $this->visitor->get('user_id') : '';
         $cart_model =& m('cart');
-		$sql =  "select cart.*,s.store_name,sp.stock,sp.shiprice from ".DB_PREFIX."cart cart ".
+		$sql =  "select cart.*,s.store_name,sp.stock,sp.shiprice,g.if_show,g.closed from ".DB_PREFIX."cart cart ".
 				' LEFT JOIN '.DB_PREFIX.'store s on s.store_id = cart.store_id '.
 				' LEFT JOIN '.DB_PREFIX.'goods_spec sp on sp.goods_id = cart.goods_id '.
+				' LEFT JOIN '.DB_PREFIX.'goods g on g.goods_id = cart.goods_id '.
 				' where 1=1 ' . $where_store_id . $where_user_id . $where_cart_goods;//添加sess_id  保证单点购物的唯一性
 		$cart_items = $cart_model->getAll($sql);
         if (empty($cart_items))
