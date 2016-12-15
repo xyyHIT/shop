@@ -21,13 +21,13 @@ class OrderApp extends ShoppingbaseApp
 		$totalamount = 0;
 		$resultarr = array();
 		foreach($checkoutinfo as $value){
-			//是否失效
-			if($value['if_show']!='1' || $value['closed'] == 1){
-				return $this->ej_json_failed(1009);
-				break;
-			}
 			$payshiprice = 0; //用户应付运费   针对商品不同运费不同  筛选价格最高运费
 			foreach($value['goods'] as $v){
+				//是否失效
+				if($v['if_show']!='1' || $v['closed'] == 1){
+					return $this->ej_json_failed(1009);
+					break;
+				}
 				if($v['shiprice']>=$payshiprice){
 					$payshiprice = $v['shiprice'];
 				}
@@ -76,13 +76,13 @@ class OrderApp extends ShoppingbaseApp
 		$totalamount = 0;
 		$resultarr = array();
 		foreach($goods_info as $value){
-			//是否失效
-			if($value['if_show']!='1' || $value['closed'] == 1){
-				return $this->ej_json_failed(1009);
-				break;
-			}
 			$payshiprice = 0; //用户应付运费   针对商品不同运费不同  筛选价格最高运费
 			foreach($value['goods'] as $v){
+				//是否失效
+				if($v['if_show']!='1' || $v['closed'] == 1){
+					return $this->ej_json_failed(1009);
+					break;
+				}
 				if($v['shiprice']>=$payshiprice){
 					$payshiprice = $v['shiprice'];
 				}
