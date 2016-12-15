@@ -694,4 +694,17 @@ function ejlefttime($enddate,$startdate){
 	return $days."天".$hours."小时".$mins."分".$secs."秒";
 }
 
+if( !function_exists('auction_user') ){
+
+    /**
+     * 获取拍卖用户信息
+     *
+     * @return array
+     */
+    function auction_user(){
+
+        return [];
+    }
+}
+
 ?>
