@@ -1,59 +1,13 @@
 {include file="header.html"}
-<script type="text/javascript" src="index.php?act=jslang"></script>
-<script type="text/javascript">
-    //<!CDATA[
-    $(function () {
-//        $('#image_form').validate({
-//            errorPlacement: function (error, element) {
-//                $(element).next('.field_notice').hide();
-//                $(element).after(error);
-//            },
-//            success: function (label) {
-//                label.addClass('right').text('OK!');
-//            },
-//            onkeyup: false,
-//            rules: {
-//                image: {
-//                    required: true,
-//                    remote   : {
-//                        url :'index.php?app=recommend&act=check_recom' ,
-//                        type:'get',
-//                        data:{
-//                            image : function(){
-//                                return $('#image').val();
-//                            },
-//                            id : '{$recommend.recom_id}'
-//                        }
-//                    }
-//                },
-//
-//                image_link: {
-//                    url: true
-//                }
-//            },
-//            messages: {
-//                image: {
-//                    required: '请选择上传的文件',
-//                    remote: '图片上传失败,请重新上传'
-//                }
-//            }
-//        });
-    });
-    //]]>
-</script>
 <div id="rightTop">
     <p>轮播图</p>
     <ul class="subnav">
         <li><a class="btn1" href="index.php?app=CycleImage">列表</a></li>
-        {if $image.image_id}
-        <li><a class="btn1" href="index.php?app=CycleImage&amp;act=add">新增</a></li>
-        {else}
         <li><span>新增</span></li>
-        {/if}
     </ul>
 </div>
 <div class="info">
-    <form method="post" enctype="multipart/form-data" id="image_form" action="index.php?app=CycleImage&amp;act=add">
+    <form method="post" enctype="multipart/form-data" id="image_form" action="index.php?app=CycleImage&amp;act=store">
         <table class="infoTable">
             <tr>
                 <th class="paddingT15">图片:</th>
@@ -71,7 +25,7 @@
             </tr>
             <tr>
                 <th></th>
-                <td class="ptb20"><input class="formbtn" type="submit" name="Submit" value="保存"/>
+                <td class="ptb20"><input class="formbtn" type="submit" name="submit" value="保存"/>
                     <input class="formbtn" type="reset" name="Reset" value="重置"/>
                 </td>
             </tr>

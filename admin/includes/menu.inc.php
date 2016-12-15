@@ -70,6 +70,11 @@ return array(
                 'text'  => Lang::get('noticetemplate'),
                 'url'   => 'index.php?app=mailtemplate',
             ),
+            'cycleImages' => array(
+                'text'  => '轮播图',
+//                'url'   => 'index.php?app=goods',
+                'url'   => 'index.php?app=CycleImage',
+            )
         ),
     ),
     // 商品

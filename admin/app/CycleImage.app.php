@@ -1,11 +1,9 @@
 <?php
 /**
- *    商品管理控制器
+ *    轮播图管理
  */
-class CycleIamgeApp extends BackendApp
+class CycleImageApp extends BackendApp
 {
-    var $_goods_mod;
-
     /**
      * @var CycleImageModel
      */
@@ -13,9 +11,10 @@ class CycleIamgeApp extends BackendApp
 
     function __construct()
     {
-        $this->GoodsApp();
+        $this->app();
     }
-    function GoodsApp()
+
+    function app()
     {
         parent::BackendApp();
 
@@ -32,198 +31,174 @@ class CycleIamgeApp extends BackendApp
         $this->display('cycle_image.index.html');
     }
 
-    function add()
-    {
-        if (!IS_POST)
-        {
-            $this->import_resource(array(
-                'script' => 'jquery.plugins/jquery.validate.js'
-            ));
-            $this->display('recommend.form.html');
-        }
-        else
-        {
-            /* 检查名称是否已存在 */
-            if (!$this->_recommend_mod->unique(trim($_POST['recom_name'])))
-            {
-                $this->show_warning('name_exist');
-                return;
-            }
-
-            $data = array(
-                'recom_name'   => $_POST['recom_name'],
-            );
-
-            $recom_id = $this->_recommend_mod->add($data);
-            if (!$recom_id)
-            {
-                $this->show_warning($this->_recommend_mod->get_error());
-                return;
-            }
-
-            $this->show_message('add_ok',
-                'back_list',    'index.php?app=recommend',
-                'continue_add', 'index.php?app=recommend&amp;act=add'
-            );
-        }
+    /**
+     * 创建
+     */
+    public function create(){
+        $this->import_resource([
+            'script' => 'jquery.plugins/jquery.validate.js'
+        ]);
+        $this->display('cycle_image.create.html');
     }
 
-    /* 推荐商品到 */
-    function recommend()
-    {
-        if (!IS_POST)
-        {
-            /* 取得推荐类型 */
-            $recommend_mod =& bm('recommend', array('_store_id' => 0));
-            $recommends = $recommend_mod->get_options();
-            if (!$recommends)
-            {
-                $this->show_warning('no_recommends', 'go_back', 'javascript:history.go(-1);', 'set_recommend', 'index.php?app=recommend');
-                return;
-            }
-            $this->assign('recommends', $recommends);
-            $this->display('goods.batch.html');
+    /**
+     * 保存
+     */
+    public function store(){
+        if($_FILES['image']['error'] > 0){
+            $this->show_message('上传文件为空或者文件错误');
+            return false;
         }
-        else
-        {
-            $id = isset($_POST['id']) ? trim($_POST['id']) : '';
-            if (!$id)
-            {
-                $this->show_warning('Hacking Attempt');
-                return;
-            }
 
-            $recom_id = empty($_POST['recom_id']) ? 0 : intval($_POST['recom_id']);
-            if (!$recom_id)
-            {
-                $this->show_warning('recommend_required');
-                return;
-            }
-
-            $ids = explode(',', $id);
-            $recom_mod =& bm('recommend', array('_store_id' => 0));
-            $recom_mod->createRelation('recommend_goods', $recom_id, $ids);
-            $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
-            $this->show_message('recommend_ok',
-                'back_list', 'index.php?app=goods&page=' . $ret_page,
-                'view_recommended_goods', 'index.php?app=recommend&amp;act=view_goods&amp;id=' . $recom_id);
+        $fileUrl = $_FILES["image"]["tmp_name"];
+        // 必须是图片
+        $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+        if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+            $this->show_warning('图片类型不正确,只支持 gif,jpeg,png,bmp 类型的图片');
+            return false;
         }
+
+        // 从临时目录拿到文件 上传到万象优图
+        $cloudRetArr = \Tencentyun\ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+        if ( $cloudRetArr['httpcode'] != 200 ) {
+            $this->show_warning('上传服务器腾讯云服务器出错,请重试或联系技术人员');
+            return false;
+        }
+
+        /* 数据库保存 */
+        $data = [
+            'image_type' => $mimeType,
+            'image_size' => filesize($fileUrl),
+            'image_name' => $_FILES['image']['name'],
+            'image_url' => $cloudRetArr['data']['downloadUrl'],
+            'image_link' => $_GET['image_link'] ? $_GET['image_link'] : '',
+            'cloud_image_id' => $cloudRetArr['data']['fileid'],
+            'cloud_image_data' => json_encode($cloudRetArr),
+        ];
+        $imageID = $this->cycleImageModel->add($data);
+        if ( !$imageID ) {
+            $this->show_warning('上传保存时出错');
+            return false;
+        }
+
+        $this->show_message('保存成功',
+            'back_list',    'index.php?app=CycleImage',
+            'continue_add', 'index.php?app=CycleImage&amp;act=create'
+        );
+
     }
 
-    /* 编辑商品 */
-    function edit()
-    {
-        if (!IS_POST)
+    /**
+     * 编辑
+     */
+    public function edit(){
+        $id = empty($_GET['id']) ? 0 : intval($_GET['id']);
+        /* 是否存在 */
+        $image = $this->cycleImageModel->get_info($id);
+        if (!$image)
         {
-            // 第一级分类
-            $cate_mod =& bm('gcategory', array('_store_id' => 0));
-            $this->assign('gcategories', $cate_mod->get_options(0, true));
-
-            $this->headtag('<script type="text/javascript" src="{lib file=mlselection.js}"></script>');
-            $this->display('goods.batch.html');
+            $this->show_warning('轮播图不存在');
+            return;
         }
-        else
-        {
-            $id = isset($_POST['id']) ? trim($_POST['id']) : '';
-            if (!$id)
-            {
-                $this->show_warning('Hacking Attempt');
-                return;
-            }
-
-            $ids = explode(',', $id);
-            $data = array();
-            if ($_POST['cate_id'] > 0)
-            {
-                $data['cate_id'] = $_POST['cate_id'];
-                $data['cate_name'] = $_POST['cate_name'];
-            }
-            if (trim($_POST['brand']))
-            {
-                $data['brand'] = trim($_POST['brand']);
-            }
-            if ($_POST['closed'] >= 0)
-            {
-                $data['closed'] = $_POST['closed'] ? 1 : 0;
-                $data['close_reason'] = $_POST['closed'] ? $_POST['close_reason'] : '';
-            }
-
-            if (empty($data))
-            {
-                $this->show_warning('no_change_set');
-                return;
-            }
-
-            $this->_goods_mod->edit($ids, $data);
-            $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
-            $this->show_message('edit_ok',
-                'back_list', 'index.php?app=goods&page=' . $ret_page);
-        }
+        $this->assign('image', $image);
+        $this->display('cycle_image.edit.html');
     }
 
-    //异步修改数据
-   function ajax_col()
-   {
-       $id     = empty($_GET['id']) ? 0 : intval($_GET['id']);
-       $column = empty($_GET['column']) ? '' : trim($_GET['column']);
-       $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
-       $data   = array();
-
-       if (in_array($column ,array('goods_name', 'brand', 'closed')))
-       {
-           $data[$column] = $value;
-           $this->_goods_mod->edit($id, $data);
-           if(!$this->_goods_mod->has_error())
-           {
-               echo ecm_json_encode(true);
-           }
-       }
-       else
-       {
-           return ;
-       }
-       return ;
-   }
-
-    /* 删除商品 */
-    function drop()
-    {
-        if (!IS_POST)
-        {
-            $this->display('goods.batch.html');
+    /**
+     * 更新
+     */
+    public function update(){
+        $id = isset($_REQUEST['id']) ? trim($_REQUEST['id']) : '';
+        if(!$id){
+            $this->show_message('未选取条目');
+            return false;
         }
-        else
-        {
-            $id = isset($_POST['id']) ? trim($_POST['id']) : '';
-            if (!$id)
-            {
-                $this->show_warning('Hacking Attempt');
-                return;
-            }
-            $ids = explode(',', $id);
 
-            // notify store owner
-            $ms =& ms();
-            $goods_list = $this->_goods_mod->find(array(
-                "conditions" => $ids,
-                "fields" => "goods_name, store_id",
-            ));
-            foreach ($goods_list as $goods)
-            {
-                //$content = sprintf(LANG::get('toseller_goods_droped_notify'), );
-                $content = get_msg('toseller_goods_droped_notify', array('reason' => trim($_POST['drop_reason']),
-                    'goods_name' => addslashes($goods['goods_name'])));
-                $ms->pm->send(MSG_SYSTEM, $goods['store_id'], '', $content);
+        $data = [];
+        // 只有上传图片时,才更新
+        if($_FILES['image']['error'] == 0){
+            $fileUrl = $_FILES["image"]["tmp_name"];
+            // 必须是图片
+            $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+            if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                $this->show_warning('图片类型不正确,只支持 gif,jpeg,png,bmp 类型的图片');
+                return false;
             }
 
-            // drop
-            $this->_goods_mod->drop_data($ids);
-            $this->_goods_mod->drop($ids);
-            $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
-            $this->show_message('drop_ok',
-                'back_list', 'index.php?app=goods&page=' . $ret_page);
+            // 从临时目录拿到文件 上传到万象优图
+            $cloudRetArr = \Tencentyun\ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+            if ( $cloudRetArr['httpcode'] != 200 ) {
+                $this->show_warning('上传服务器腾讯云服务器出错,请重试或联系技术人员');
+                return false;
+            }
+
+            $data = [
+                'image_type' => $mimeType,
+                'image_size' => filesize($fileUrl),
+                'image_name' => $_FILES['image']['name'],
+                'image_url' => $cloudRetArr['data']['downloadUrl'],
+                'cloud_image_id' => $cloudRetArr['data']['fileid'],
+                'cloud_image_data' => json_encode($cloudRetArr),
+            ];
         }
+
+        $data['image_link'] = $_REQUEST['image_link'] ? $_REQUEST['image_link'] : '';
+
+        $imageID = $this->cycleImageModel->update($id,$data);
+        if ( !$imageID ) {
+            $this->show_warning('更新失败');
+            return false;
+        }
+
+        $this->show_message('更新成功',
+            'back_list',    'index.php?app=CycleImage'
+        );
     }
+
+    /**
+     * 删除
+     */
+    public function destroy(){
+        $id = isset($_REQUEST['id']) ? trim($_REQUEST['id']) : '';
+        if(!$id){
+            $this->show_message('未选取条目');
+            return false;
+        }
+
+        $ids = explode(',',$id);
+        $this->cycleImageModel->drop($ids);
+
+        $this->show_message('删除成功',
+            'back_list',    'index.php?app=CycleImage'
+        );
+
+    }
+
+//    //异步修改数据
+//   function ajax_col()
+//   {
+//       $id     = empty($_GET['id']) ? 0 : intval($_GET['id']);
+//       $column = empty($_GET['column']) ? '' : trim($_GET['column']);
+//       $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
+//       $data   = array();
+//
+//       if (in_array($column ,array('goods_name', 'brand', 'closed')))
+//       {
+//           $data[$column] = $value;
+//           $this->_goods_mod->edit($id, $data);
+//           if(!$this->_goods_mod->has_error())
+//           {
+//               echo ecm_json_encode(true);
+//           }
+//       }
+//       else
+//       {
+//           return ;
+//       }
+//       return ;
+//   }
+//
+
 }
 
 ?>
