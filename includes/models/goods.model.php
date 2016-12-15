@@ -99,6 +99,12 @@ class GoodsModel extends BaseModel {
             'foreign_key' => 'goods_id',
             'dependent'   => true, // 依赖
         ],
+        // 一个商品有多个购物车条目
+        'has_carts' => array(
+            'model'         => 'cart',
+            'type'          => HAS_MANY,
+            'foreign_key'   => 'goods_id',
+        ),
     ];
 
     var $_autov = [

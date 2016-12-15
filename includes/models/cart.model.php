@@ -19,6 +19,14 @@ class CartModel extends BaseModel
             'foreign_key' => 'spec_id',
             'reverse'   =>  'has_cart_items',
         ),
+
+        // 一个购物车条目只属于一个商品
+        'belongs_to_goods'  => array(
+            'type'      =>  BELONGS_TO,
+            'model'     =>  'goods',
+            'foreign_key' => 'goods_id',
+            'reverse'   =>  'has_carts',
+        )
     );
 
     /**

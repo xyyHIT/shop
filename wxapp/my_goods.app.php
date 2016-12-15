@@ -12,6 +12,9 @@ define('BRAND_REFUSE', 0);
 
 class My_goodsApp extends StoreadminbaseApp
 {
+    /**
+     * @var GoodsModel
+     */
     var $_goods_mod;
     var $_spec_mod;
     var $_image_mod;
@@ -199,7 +202,7 @@ class My_goodsApp extends StoreadminbaseApp
     }
 
     /**
-     * 艺加 - 删除商品
+     * 艺加 - 删除商品  ******非物理删除*******
      *
      * by Gavin 20161114
      */
@@ -211,10 +214,8 @@ class My_goodsApp extends StoreadminbaseApp
         }
 
         $ids = explode(',', $id);
-        $this->_goods_mod->drop_data($ids);
-        $rows = $this->_goods_mod->drop($ids);
-        if ( $this->_goods_mod->has_error() ) {
-            return $this->ej_json_failed(-1, Lang::get(current($this->_goods_mod->get_error())['msg']));
+        if ( !$this->_goods_mod->edit($ids,['closed'=>1,'close_reason'=>'用户删除']) ) {
+            return $this->ej_json_failed(-1, '删除失败');
         }
 
         return $this->ej_json_success();
