@@ -4,6 +4,11 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 {
 
     /**
+     * @var CycleImageModel
+     */
+    private $cycleImageModel = null;
+
+    /**
      * 获取首页信息
      *
      * by Gavin 20161124
@@ -14,7 +19,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         $categoryArr = $this->_CategoryList(true);
 
         // 获取轮播图
-        $cycleImageArr = $this->_GetCycleImages();
+        $cycleImageArr = $this->_ejCycleImages();
 
         // 获取推荐信息
         $recom_mod =& m('recommend');
@@ -72,6 +77,23 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         }
 
         return $imagesArr;
+    }
+
+    /**
+     * 获取轮播图
+     *
+     * by Gavin 20161215
+     */
+    public function _ejCycleImages(){
+        $this->cycleImageModel =& m('CycleImage');
+
+        $fields = 'image_id,image_url,image_link,image_name';
+
+        $data = $this->cycleImageModel->getList($fields);
+
+//Log::getLogger()->warning('获取轮播图',$data);
+
+        return $data;
     }
 
     /**
