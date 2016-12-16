@@ -70,7 +70,7 @@ return array(
     'web_server' => 'WEB 服务器',
     'php_version' => 'PHP 版本',
     'mysql_version' => 'MYSQL 版本',
-    'ecmall_version' => 'ECMall 版本',
+    'ecmall_version' => '艺加商城 版本',
     'install_date' => '安装日期',
     'remind_info' => '站长提醒',
     'reminds' => array(
