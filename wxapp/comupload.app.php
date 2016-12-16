@@ -40,11 +40,14 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
         // 文件上传模型
         $upload_mod =& m('uploadedfile');
 
+        /**
+         * 取消空间限制
+         */
         /* 取得剩余空间（单位：字节），false表示不限制 */
-        $store_mod =& m('store');
-        $settings = $store_mod->get_settings($this->store_id);
+//        $store_mod =& m('store');
+//        $settings = $store_mod->get_settings($this->store_id);
         // 还可上传大小 单位 B(字节)
-        $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
+//        $remain = $settings['space_limit'] > 0 ? $settings['space_limit'] * 1024 * 1024 - $upload_mod->get_file_size($this->store_id) : false;
 
         $mediaIDS = $_REQUEST['mediaID'] ? explode(',',$_REQUEST['mediaID']) : '' ;
 
@@ -75,13 +78,13 @@ class ComuploadApp extends StoreadminbaseApp { //   StoreadminbaseApp  Memberbas
                 }
 
                 // 正常文件 && 用户可用空间足够
-                if ( is_file($fileUrl) && $remain !== false && $remain < filesize($fileUrl) ) {
-                    $uploaded[$mediaID] = [
-                        'code' => -1,
-                        'desc' => '很抱歉，您上传的文件所占空间已达上限，请联系商城管理员升级店铺',
-                    ];
-                    continue;
-                }
+//                if ( is_file($fileUrl) && $remain !== false && $remain < filesize($fileUrl) ) {
+//                    $uploaded[$mediaID] = [
+//                        'code' => -1,
+//                        'desc' => '很抱歉，您上传的文件所占空间已达上限，请联系商城管理员升级店铺',
+//                    ];
+//                    continue;
+//                }
 
                 // 从临时目录拿到文件 上传到万象优图
                 $cloudRetArr = ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
