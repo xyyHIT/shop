@@ -368,7 +368,6 @@ class My_goodsApp extends StoreadminbaseApp
         }
 
         /* 取得商品列表 */
-
         $goods_list = $this->_goods_mod->get_list([
             'conditions' => $conditions,
             'count'      => $count,
@@ -382,7 +381,7 @@ class My_goodsApp extends StoreadminbaseApp
     function _get_conditions()
     {
         /* 搜索条件 */
-        $conditions = "1 = 1";
+        $conditions = "1 = 1 AND closed = 0";
         if ( trim($_REQUEST['keyword']) ) {
             $str = "LIKE '%" . trim($_REQUEST['keyword']) . "%'";
             $conditions .= " AND (goods_name {$str} OR brand {$str} OR cate_name {$str})";
