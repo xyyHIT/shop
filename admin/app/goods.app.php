@@ -123,8 +123,10 @@ class GoodsApp extends BackendApp
             }
 
             $ids = explode(',', $id);
+            $goodsModel = & m('goods');
             $recom_mod =& bm('recommend', array('_store_id' => 0));
             $recom_mod->createRelation('recommend_goods', $recom_id, $ids);
+            $goodsModel->edit($ids,['recommended'=>'1']);
             $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
             $this->show_message('recommend_ok',
                 'back_list', 'index.php?app=goods&page=' . $ret_page,

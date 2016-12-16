@@ -222,6 +222,9 @@ class RecommendApp extends BackendApp
         $goods_ids = explode(',', $_GET['goods_id']);
         $this->_recommend_mod->unlinkRelation('recommend_goods', $id, $goods_ids);
 
+        $goodsModel = & m('goods');
+        $goodsModel->edit($goods_ids,['recommended'=>'0']);
+
         $this->show_message('drop_goods_from_ok');
     }
 
