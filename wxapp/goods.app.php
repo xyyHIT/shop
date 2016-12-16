@@ -291,12 +291,14 @@
 				$result['goods']['if_lose'] = '0';//是否失效 0微信
 			}
             $result['store']['logo'] = $data['store_data']['store_logo']; // 店铺logo地址
-            $result['store']['sgrade'] = $data['store_data']['sgrade'];//店铺等级
+			//获取与拍卖对接用户等级与电话
+			$paiowner = auction_user($data['store_data']['store_owner']['auction_id'],$data['store_data']['store_owner']['openid']);
+            $result['store']['sgrade'] = empty($paiowner['level'])?'':$paiowner['level'];//店铺等级
             $result['store']['name'] = $data['store_data']['store_name'];
             $result['store']['goods_count'] = $data['store_data']['goods_count'];
             $result['store']['auction_id'] = $data['store_data']['store_owner']['auction_id'];
             $result['store']['collect_count'] = $this->_ejget_collect_num('store', $data['goods']['store_id']);
-            $result['store']['tel'] = $data['store_data']['tel'];//店铺联系电话（和卖家的区分）			
+            $result['store']['tel'] = empty($paiowner['mobile'])?'':$paiowner['mobile'];//店铺等级;//店铺联系电话（和卖家的区分）			
 			return $result;
         }
 
