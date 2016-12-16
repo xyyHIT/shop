@@ -16,7 +16,7 @@ class StoreApp extends StorebaseApp
         $storeArr = $memberModel->get([
             'conditions' => "user_id='{$storeID}'",
             'join' => 'has_store',
-            'fields' => 'user_name,portrait,auction_id', // 商户名 头像 等级(无用)
+            'fields' => 'user_name,portrait,auction_id,openid', // 商户名 头像 拍卖id 微信openid
         ]);
 
         $storeModel =& m('store');
@@ -33,6 +33,10 @@ class StoreApp extends StorebaseApp
 
         // 总收入
         $storeArr['grossIncome'] = $storeModel->grossIncome($storeID);
+
+        $storeArr = array_merge($storeArr,auction_user($storeArr['auction_id'],$storeArr['openid']));
+
+        unset($storeArr['openid']);
 
         return $this->ej_json_success($storeArr);
     }

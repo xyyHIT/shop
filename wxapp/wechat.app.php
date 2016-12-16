@@ -29,9 +29,7 @@ class WechatApp extends MallbaseApp
     public function notify()
     {
         $auctionID = $_GET['user_id'] ? $_GET['user_id'] : 0; // 拍卖用户ID
-
 //Log::getLogger()->warning('拍卖回调...用户',[$auctionID]);
-
         # Todo 考虑redis队列更新...
         if ( $auctionID ) {
             $memberModel = &m('member');
@@ -161,6 +159,13 @@ class WechatApp extends MallbaseApp
         print_r($result);
     }
 
+    /**
+     * 仅供测试使用
+     */
+    public function test(){
+//        Cache::store(WECHAT_USERINFO_REDIS)->rm('o55jRw7oEmeXiqZ8IyqWFDckRPh8#SHOP');
+//        auction_user('00011607201018IBkvxulq','o55jRw7oEmeXiqZ8IyqWFDckRPh8');
+    }
     /**
      * 写日志
      */
