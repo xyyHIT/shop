@@ -730,7 +730,9 @@ if( !function_exists('auction_user') ){
 
             if( $jsonArr['resCode'] == 1 ){
                 $reArr['level'] = $jsonArr['data']['saler']['level'];
-                $reArr['mobile'] = $jsonArr['data']['mobile'];
+                if(isset($jsonArr['data']['mobile'])){
+                    $reArr['mobile'] = $jsonArr['data']['mobile'];
+                }
             }
         }else{
             // 从redis取
