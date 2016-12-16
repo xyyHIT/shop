@@ -18,55 +18,55 @@ class FrontendApp extends ECBaseApp
                 $this->_do_login(USER_ID);
             }
         }
-		if(!in_array(strtolower(ACT),['mlselection'])){
-        if( IS_WECHAT ){
-            if( empty( $_SESSION['wx_openid'] ) ){
-                if(strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
-                    // 删除无用参数
-                    $get = $_GET;
-                    $modul = $get['modul'];
-                    $action = $get['action'];
-                    unset($get['app']);
-                    unset($get['act']);
-                    unset($get['modul']);
-                    unset($get['action']);
+		if(!in_array(strtolower(APP),['mlselection'])){
+			if( IS_WECHAT ){
+				if( empty( $_SESSION['wx_openid'] ) ){
+					if(strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
+						// 删除无用参数
+						$get = $_GET;
+						$modul = $get['modul'];
+						$action = $get['action'];
+						unset($get['app']);
+						unset($get['act']);
+						unset($get['modul']);
+						unset($get['action']);
 
-                    // 生成url query
-                    $query = http_build_query($get);
+						// 生成url query
+						$query = http_build_query($get);
 
-                    /**
-                     * 从微信获取openid
-                     */
-                    $redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
-                    $query && $redirectUrl .= '?' . $query;
-                    $_SESSION['wx_target_url'] = $redirectUrl;
-                    Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
-                    exit();// 不再执行以下代码
-                }else if(!(strtolower(APP) === 'wechat' && in_array(strtolower(ACT),['oauthcallback','notify']))){
-                    $this->ej_json_failed(3003); // 刷新当前页面
-                    exit();
-                }
-            }else{
-                // 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
-                empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
+						/**
+						 * 从微信获取openid
+						 */
+						$redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
+						$query && $redirectUrl .= '?' . $query;
+						$_SESSION['wx_target_url'] = $redirectUrl;
+						Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
+						exit();// 不再执行以下代码
+					}else if(!(strtolower(APP) === 'wechat' && in_array(strtolower(ACT),['oauthcallback','notify']))){
+						$this->ej_json_failed(3003); // 刷新当前页面
+						exit();
+					}
+				}else{
+					// 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
+					empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
 
-                /**
-                 * 重新登录并操作(添加购物车,喜欢,关注商品,关注店铺)
-                 *
-                 * 这里进行登录,并重定向到商品页,前端完成添加购物车功能
-                 */
-                strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
+					/**
+					 * 重新登录并操作(添加购物车,喜欢,关注商品,关注店铺)
+					 *
+					 * 这里进行登录,并重定向到商品页,前端完成添加购物车功能
+					 */
+					strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
 
-                /**
-                 * 访问特定html时,需登录才可访问
-                 *
-                 * 这里进行登录并重定向
-                 */
-                strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
-                && in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
-            }
+					/**
+					 * 访问特定html时,需登录才可访问
+					 *
+					 * 这里进行登录并重定向
+					 */
+					strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
+					&& in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
+				}
 
-        }
+			}
 		}
 
     }
