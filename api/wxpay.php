@@ -21,6 +21,7 @@ ECMall::startup(array(
         ROOT_PATH . '/includes/ecapp.base.php',
         ROOT_PATH . '/includes/plugin.base.php',
 		ROOT_PATH . '/includes/wx.base.php', // 微信类库
+		ROOT_PATH . '/includes/Cache.php', // 缓存库
 		ROOT_PATH . '/includes/aes.base.php', //aes加密函数库
         APP_ROOT  . '/api.base.php',
     ),

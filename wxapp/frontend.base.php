@@ -18,7 +18,7 @@ class FrontendApp extends ECBaseApp
                 $this->_do_login(USER_ID);
             }
         }
-
+		if(!in_array(strtolower(ACT),['mlselection'])){
         if( IS_WECHAT ){
             if( empty( $_SESSION['wx_openid'] ) ){
                 if(strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
@@ -67,6 +67,7 @@ class FrontendApp extends ECBaseApp
             }
 
         }
+		}
 
     }
 
