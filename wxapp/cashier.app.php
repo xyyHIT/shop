@@ -311,22 +311,37 @@ class CashierApp extends ShoppingbaseApp
 		$order_model =& m('order');
 		if($type == 0){
 			//单个订单支付详情
-			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));  
-			  //订单去支付状态，48小时内未支付系统自动交易关闭   临界状态
-			  $overtime = time()-$order_info['add_time'];
-			  if($overtime >=172800){
-					$this->_cancel_order($order_info['order_id'],'48小时内未支付系统自动交易关闭');
-					return $this->ej_json_failed(1006);
-			  }
+			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
+			//判断用户是否下过订单
+			if (empty($order_info))
+			{
+				return $this->ej_json_failed(3001);
+			}
+			//限制订单待付款状态
+			if($order_info['status'] != ORDER_PENDING){
+				return $this->ej_json_failed(3001);
+			}
+			//订单去支付状态，48小时内未支付系统自动交易关闭   临界状态
+			$overtime = time()-$order_info['add_time'];
+			if($overtime >=172800){
+				$this->_cancel_order($order_info['order_id'],'48小时内未支付系统自动交易关闭');
+				return $this->ej_json_failed(1006);
+			}
 		}else{
 			//合并订单详情
 			$order_info =  $order_model->db->getRow("select id,orderid,ordersn from ".DB_PREFIX."sumorder where id=".intval($order_id)." and userid=".$this->visitor->get('user_id'));
+			//判断用户是否下过订单
+			if (empty($order_info))
+			{
+				return $this->ej_json_failed(3001);
+			}
+			//限制订单待付款状态
+			$orderarr = json_decode($order_info['orderid'],true);
+			$sumstatus  = $order_model->getOne("SELECT status from ".DB_PREFIX."order WHERE order_id=".key($orderarr));
+			if($sumstatus != ORDER_PENDING){
+				return $this->ej_json_failed(3001);
+			}
 		}
-        //判断用户是否下过订单
-        if (empty($order_info))
-        {
-			return $this->ej_json_failed(3001);
-        }
         /* 验证艺加支付方式 查看是否开启此支付*/
 		$payment_info = $order_model->db->getRow("select payment_id,payment_code,payment_name from ".DB_PREFIX."ejpayment where payment_id=".intval($payment_id));
         if (!$payment_info)
