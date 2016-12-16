@@ -16,6 +16,7 @@
         </tr>
         <!--{/if}-->
         <!--{foreach from=$payments item=payment}-->
+		<!--{if $payment.code eq 'wx'}-->
         <tr class="tatr2">
             <td class="firstCell">{$payment.name}</td>
             <td><span class="padding1">{$payment.desc}</span></td>
@@ -28,13 +29,14 @@
             <a href="index.php?app=payment&amp;act=enable&amp;code={$payment.code}">{$lang.enable}</a>
                 <!--{else}-->
 				<!--{if $payment.code neq 'wx'}-->
-                <a href="javascript:if(confirm('{$lang.disable_confirm}'))window.location='index.php?app=payment&act=disable&code={$payment.code}';">{$lang.disable}</a>
+<!--                 <a href="javascript:if(confirm('{$lang.disable_confirm}'))window.location='index.php?app=payment&act=disable&code={$payment.code}';">{$lang.disable}</a> -->
 				<!--{else}-->
 				默认开启
 				<!--{/if}-->
                 <!--{/if}-->
                 </td>
         </tr>
+		<!--{/if}-->
         <!--{foreachelse}-->
         <tr class="no_data">
             <td colspan="7">{$lang.no_installed_payment}</td>
