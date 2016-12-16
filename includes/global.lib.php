@@ -699,12 +699,47 @@ if( !function_exists('auction_user') ){
     /**
      * 获取拍卖用户信息
      *
+     * @param string $auctionID
+     * @param string $openid
+     *
      * @return array
+     *
      */
-    function auction_user(){
+    function auction_user($auctionID = '',$openid = ''){
+        // 需要返回的数据
+        $reArr = [
+            'level' => '',
+            'mobile' => '',
+        ];
 
-        return [];
+        $auctionInfoArr = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP'); Cache::store('default');
+        // 拍卖卖家微信数据
+        $salerInfoArr = $auctionInfoArr['saler'] ? $auctionInfoArr['saler'] : [];
+        // 拍卖用户数据
+        $userInfoArr = $auctionInfoArr['userInfo'] ? $auctionInfoArr['userInfo'] : [];
+
+        // 只要redis是空 就重新http获取
+        if ( empty( $salerInfoArr ) || empty( $userInfoArr ) ) {
+            // http 请求拍卖信息
+            require_once ROOT_PATH.'/includes/Http.php';
+            $http = new Http();
+            $url = WECHAT_USERINFO_URL."/yjpai/common/tools/getUserForShop";
+            $jsonArr = $http->parseJSON($http->get($url, [
+                'userId' => $auctionID
+            ]));
+
+            if( $jsonArr['resCode'] == 1 ){
+                $reArr['level'] = $jsonArr['data']['saler']['level'];
+                $reArr['mobile'] = $jsonArr['data']['mobile'];
+            }
+        }else{
+            // 从redis取
+            $reArr['level'] = $salerInfoArr['level'];
+            $reArr['mobile'] = $userInfoArr['mobile'];
+        }
+        return $reArr;
     }
+
 }
 
 ?>
