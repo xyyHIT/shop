@@ -14,11 +14,11 @@ return array(
                 'text'  => Lang::get('aboutus_page'),
                 'url'   => 'index.php?act=aboutus',
             ),
-            'base_setting'  => array(
+/*             'base_setting'  => array(
                 'parent'=> 'setting',
                 'text'  => Lang::get('base_setting'),
                 'url'   => 'index.php?app=setting&act=base_setting',
-            ),
+            ), */
             'user_manage' => array(
                 'text'  => Lang::get('user_manage'),
                 'parent'=> 'user',
@@ -46,19 +46,19 @@ return array(
         'text'      => Lang::get('setting'),
         'default'   => 'base_setting',
         'children'  => array(
-            'base_setting'  => array(
+/*             'base_setting'  => array(
                 'text'  => Lang::get('base_setting'),
                 'url'   => 'index.php?app=setting&act=base_setting',
             ),
             'region' => array(
                 'text'  => Lang::get('region'),
                 'url'   => 'index.php?app=region',
-            ),
+            ), */
             'payment' => array(
                 'text'  => Lang::get('payment'),
                 'url'   => 'index.php?app=payment',
             ),
-            'theme' => array(
+/*             'theme' => array(
                 'text'  => Lang::get('theme'),
                 'url'   => 'index.php?app=theme',
             ),
@@ -69,7 +69,7 @@ return array(
             'mailtemplate' => array(
                 'text'  => Lang::get('noticetemplate'),
                 'url'   => 'index.php?app=mailtemplate',
-            ),
+            ), */
             'cycleImages' => array(
                 'text'  => '轮播图',
 //                'url'   => 'index.php?app=goods',
@@ -133,10 +133,10 @@ return array(
                 'text' => Lang::get('admin_manage'),
                  'url'   => 'index.php?app=admin',
              ),
-             'user_notice' => array(
+/*              'user_notice' => array(
                 'text' => Lang::get('user_notice'),
                 'url'  => 'index.php?app=notice',
-             ),
+             ), */
         ),
     ),
     // 交易
@@ -150,7 +150,7 @@ return array(
             ),
         ),
     ),
-    // 网站
+/*     // 网站
     'website' => array(
         'text'      => Lang::get('website'),
         'default'   => 'acategory',
@@ -207,7 +207,7 @@ return array(
                 'url'   => 'index.php?app=widget',
             ),
         ),
-    ),
+    ), */
 );
 
 ?>

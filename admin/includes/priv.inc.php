@@ -22,12 +22,12 @@ $menu_data = array
     'mall_setting' => array
     (
         'default'     => 'default|all',//后台登录
-        'setting'     => 'setting|all',//网站设置
-        'region'       => 'region|all',//地区设置
+        //'setting'     => 'setting|all',//网站设置
+        //'region'       => 'region|all',//地区设置
         'payment'    => 'payment|all',//支付方式
-        'theme'     => 'theme|all',//主题设置
-        'mailtemplate'   => 'mailtemplate|all',//邮件模板
-        'template'  => 'template|all',//模板编辑
+        //'theme'     => 'theme|all',//主题设置
+        //'mailtemplate'   => 'mailtemplate|all',//邮件模板
+        //'template'  => 'template|all',//模板编辑
     ),
     'goods_admin' => array
     (
@@ -46,13 +46,13 @@ $menu_data = array
     (
         'user'  => 'user|all',//会员管理
         'admin' => 'admin|all',//管理员管理
-        'notice' => 'notice|all',//会员通知
+        //'notice' => 'notice|all',//会员通知
     ),
     'order' => array
     (
         'order'   => 'order|all',//订单管理
     ),
-    'website' => array
+/*     'website' => array
     (
         'acategory'    => 'acategory|all',//文章分类
         'article'      => array('article' => 'article|all', 'upload' => array('comupload' => 'comupload|all', 'swfupload' => 'swfupload|all')),//文章管理
@@ -70,7 +70,7 @@ $menu_data = array
         'plugin' => 'plugin|all',//插件管理
         'module'   => 'module|all',//模块管理
         'widget'   => 'widget|all',//挂件管理
-    ),
+    ), */
     'clear_cache' =>array
     (
         'clear_cache' => 'clear_cache|all',//清空缓存
