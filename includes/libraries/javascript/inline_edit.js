@@ -45,6 +45,7 @@ $('span[ectype="inline_edit"]').click(function(){
     var req      = $(this).attr('required');
     var type     = $(this).attr('datatype');
     var max      = $(this).attr('maxvalue');
+    var editVal  = '';
     $('<input type="text">').css({border:'1px solid #ccc',width:'80%',height:'20px'})
                         .attr({value:s_value,size:5})
                         .appendTo($(this).parent())
@@ -53,29 +54,30 @@ $('span[ectype="inline_edit"]').click(function(){
                         .keyup(function(event){
                         if(event.keyCode == 13)
                         {
+                            editVal = $(this).val();
                             if(req)
                             {
-                                if(!required($(this).attr('value'),s_value,$(this)))
+                                if(!required(editVal,s_value,$(this)))
                                 {
                                     return;
                                 }
                             }
                             if(type)
                             {
-                                if(!check_type(type,$(this).attr('value'),s_value,$(this)))
+                                if(!check_type(type,editVal,s_value,$(this)))
                                 {
                                     return;
                                 }
                             }
                             if(max)
                             {
-                                if(!check_max($(this).attr('value'),s_value,max,$(this)))
+                                if(!check_max(editVal,s_value,max,$(this)))
                                 {
                                     return;
                                 }
                             }
-                            $(this).prev('span').show().text($(this).attr("value"));
-                            $.get('index.php?app='+app+'&act=ajax_col&ajax=1',{id:s_id,column:s_name,value:$(this).attr('value')},function(data){
+                            $(this).prev('span').show().text(editVal);
+                            $.get('index.php?app='+app+'&act=ajax_col&ajax=1',{id:s_id,column:s_name,value:editVal},function(data){
                                 if(data === 'false')
                                 {
                                     alert(lang.name_exist);
@@ -87,29 +89,30 @@ $('span[ectype="inline_edit"]').click(function(){
                         }
                     })
                         .blur(function(){
-                        if(req)
+                            editVal = $(this).val();
+                            if(req)
                         {
-                            if(!required($(this).attr('value'),s_value,$(this)))
+                            if(!required(editVal,s_value,$(this)))
                             {
                                 return;
                             }
                         }
                         if(type)
                         {
-                            if(!check_type(type,$(this).attr('value'),s_value,$(this)))
+                            if(!check_type(type,editVal,s_value,$(this)))
                             {
                                 return;
                             }
                         }
                         if(max)
                         {
-                            if(!check_max($(this).attr('value'),s_value,max,$(this)))
+                            if(!check_max(editVal,s_value,max,$(this)))
                             {
                                 return;
                             }
                         }
                         $(this).prev('span').show().text($(this).attr('value'));
-                        $.get('index.php?app='+app+'&act=ajax_col&ajax=1',{id:s_id,column:s_name,value:$(this).attr('value')},function(data){
+                        $.get('index.php?app='+app+'&act=ajax_col&ajax=1',{id:s_id,column:s_name,value:editVal},function(data){
                             if(data === 'false')
                                 {
                                     alert(lang.name_exist);
@@ -119,7 +122,8 @@ $('span[ectype="inline_edit"]').click(function(){
                         });
                         $(this).remove();
                     });
-    $(this).hide();
+    // $(this).hide();
+    $(this).text(editVal);
 });
 //给需要修改的图片添加异步修改行为
 $('img[ectype="inline_edit"]').click(function(){

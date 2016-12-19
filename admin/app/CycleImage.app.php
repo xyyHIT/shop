@@ -28,6 +28,8 @@ class CycleImageApp extends BackendApp
 
         $this->assign('list', $list);
 
+        $this->import_resource(array('script' => 'inline_edit.js'));
+
         $this->display('cycle_image.index.html');
     }
 
@@ -174,30 +176,30 @@ class CycleImageApp extends BackendApp
 
     }
 
-//    //异步修改数据
-//   function ajax_col()
-//   {
-//       $id     = empty($_GET['id']) ? 0 : intval($_GET['id']);
-//       $column = empty($_GET['column']) ? '' : trim($_GET['column']);
-//       $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
-//       $data   = array();
-//
-//       if (in_array($column ,array('goods_name', 'brand', 'closed')))
-//       {
-//           $data[$column] = $value;
-//           $this->_goods_mod->edit($id, $data);
-//           if(!$this->_goods_mod->has_error())
-//           {
-//               echo ecm_json_encode(true);
-//           }
-//       }
-//       else
-//       {
-//           return ;
-//       }
-//       return ;
-//   }
-//
+    //异步修改数据
+   function ajax_col()
+   {
+       $id     = empty($_GET['id']) ? 0 : intval($_GET['id']);
+       $column = empty($_GET['column']) ? '' : trim($_GET['column']);
+       $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
+       $data   = array();
+
+       if (in_array($column ,array('image_name', 'image_link')))
+       {
+           $data[$column] = $value;
+           $this->cycleImageModel->edit($id, $data);
+           if(!$this->cycleImageModel->has_error())
+           {
+               echo ecm_json_encode(true);
+           }
+       }
+       else
+       {
+           return ;
+       }
+       return ;
+   }
+
 
 }
 
