@@ -6,7 +6,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
     /**
      * @var CycleImageModel
      */
-    private $cycleImageModel = null;
+    private $businessImageModel = null;
 
     /**
      * 获取首页信息
@@ -86,11 +86,11 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
      * by Gavin 20161215
      */
     public function _ejCycleImages(){
-        $this->cycleImageModel =& m('CycleImage');
+        $this->businessImageModel =& m('BusinessImage');
 
         $fields = 'image_id,image_url,image_link,image_name';
 
-        $data = $this->cycleImageModel->getList($fields);
+        $data = $this->businessImageModel->getList($fields,"type='cycle'");
 
 //Log::getLogger()->warning('获取轮播图',$data);
 

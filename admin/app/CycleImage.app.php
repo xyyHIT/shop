@@ -5,7 +5,7 @@
 class CycleImageApp extends BackendApp
 {
     /**
-     * @var CycleImageModel
+     * @var BusinessImageModel
      */
     private $cycleImageModel = null;
 
@@ -18,7 +18,7 @@ class CycleImageApp extends BackendApp
     {
         parent::BackendApp();
 
-        $this->cycleImageModel =& m('CycleImage');
+        $this->cycleImageModel =& m('BusinessImage');
     }
 
     /* 商品列表 */
@@ -76,6 +76,7 @@ class CycleImageApp extends BackendApp
             'image_link' => $_GET['image_link'] ? $_GET['image_link'] : '',
             'cloud_image_id' => $cloudRetArr['data']['fileid'],
             'cloud_image_data' => json_encode($cloudRetArr),
+            'type' => 'cycle'
         ];
         $imageID = $this->cycleImageModel->add($data);
         if ( !$imageID ) {

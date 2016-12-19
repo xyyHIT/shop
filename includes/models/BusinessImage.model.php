@@ -6,11 +6,11 @@
  *
  ******************************************************************************/
 
-/* 轮播图模型 */
-class CycleImageModel extends BaseModel {
-    var $table = 'cycle_image';
+/* 广告图,业务图,商品推荐图,分类轮播图 */
+class BusinessImageModel extends BaseModel {
+    var $table = 'business_image';
     var $prikey = 'image_id';
-    var $_name = 'cycleImage';
+    var $_name = 'businessImage';
 
     /**
      * 获取轮播图列表
