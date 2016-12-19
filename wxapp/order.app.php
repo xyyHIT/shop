@@ -68,7 +68,7 @@ class OrderApp extends ShoppingbaseApp
 	function actorder(){
 		$param = isset($_REQUEST['recid'])?stripslashes($_REQUEST['recid']):'';//recid为 ["13","15"]
 		$goods_info = $this->_ejget_ordercarts($param);//下单购物车接口
-		if($goods_info === false){
+		if(empty($goods_info)){
 			return $this->ej_json_failed(1010);
 		}
 		//检测所有购物车中的商品，完成库存判断 && 筛选用户所需要的总价格
