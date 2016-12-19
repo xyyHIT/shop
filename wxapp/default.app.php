@@ -15,6 +15,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
      */
     function ejIndex()
     {
+        # Todo 缓存...
         // 取得分类
         $categoryArr = $this->_CategoryList(true);
 
@@ -23,7 +24,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 
         // 获取推荐信息
         $recom_mod =& m('recommend');
-        $recommendArr = $recom_mod->get_recommended_goods_all(6, true);
+        $recommendArr = $recom_mod->get_recommended_goods_all();
 
         $allArr = [
             'categories'  => $categoryArr,

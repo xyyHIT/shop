@@ -84,7 +84,7 @@ class RecommendModel extends BaseModel {
      *
      * @return array
      */
-    public function get_recommended_goods_all( $num, $default_image = true ) {
+    public function get_recommended_goods_all( $default_image = true ) {
         $recommends = $this->getRecommends();
         $conditions = "g.if_show = 1 AND g.closed = 0 AND s.state = 1 ";
 
@@ -96,8 +96,9 @@ class RecommendModel extends BaseModel {
             "   LEFT JOIN " . DB_PREFIX . "store AS s ON g.store_id = s.store_id " .
             "WHERE " . $conditions .
             "AND g.goods_id IS NOT NULL " .
-            "ORDER BY rg.sort_order " .
-            "LIMIT {$num}";
+            "ORDER BY rg.sort_order " ;
+
+Log::getLogger()->warning('获取推荐商品sql',[$sql]);
 
         $res = $this->db->query($sql);
 
