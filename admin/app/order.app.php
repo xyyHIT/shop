@@ -152,6 +152,7 @@ class OrderApp extends BackendApp
                 $order_detail['data']['goods_list'][$key]['goods_image'] = SITE_URL . '/' . $goods['goods_image'];
             }
         }
+		$order_info['add_time'] = date('Y-m-d H:i:s',$order_info['add_time']);
         $this->assign('order', $order_info);
         $this->assign($order_detail['data']);
         $this->display('order.view.html');
