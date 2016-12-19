@@ -36,7 +36,9 @@ class MemberApp extends MemberbaseApp
         // 当前人的账户信息
         $ret = current($profileArr);
         // 关注数
-        $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'goods' and user_id=".$userID);
+//        $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'goods' and user_id=".$userID);
+        $ret['followers'] = $userModel->getOne("select count(1) from ecm_collect where type = 'store' and user_id = {$userID} ");
+
 
         # Todo 考虑缓存...
         $storeModel = & m('store');

@@ -98,7 +98,7 @@ class RecommendModel extends BaseModel {
             "AND g.goods_id IS NOT NULL " .
             "ORDER BY rg.sort_order " ;
 
-Log::getLogger()->warning('获取推荐商品sql',[$sql]);
+//Log::getLogger()->warning('获取推荐商品sql',[$sql]);
 
         $res = $this->db->query($sql);
 
