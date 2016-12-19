@@ -339,7 +339,7 @@ class CashierApp extends ShoppingbaseApp
 			$orderarr = json_decode($order_info['orderid'],true);
 			$sumstatus  = $order_model->getOne("SELECT status from ".DB_PREFIX."order WHERE order_id=".key($orderarr));
 			if($sumstatus != ORDER_PENDING){
-				return $this->ej_json_failed(3001);
+				return $this->ej_json_failed(1012);
 			}
 		}
         /* 验证艺加支付方式 查看是否开启此支付*/
