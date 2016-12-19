@@ -170,12 +170,13 @@ class CatinfoApp extends MallbaseApp
                     $layer = $param['layer'];
                     if ($layer < 4)
                     {
-                        $sql = "SELECT g.cate_id_" . ($layer + 1) . " AS id, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.cate_id_" . ($layer + 1) . " > 0 GROUP BY g.cate_id_" . ($layer + 1) . " ORDER BY count DESC";
+                        $sql = "SELECT g.cate_id_" . ($layer + 1) . " AS id, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.cate_id_" . ($layer + 1) . " > 0 GROUP BY g.cate_id_" . ($layer + 1); 
+						//. " ORDER BY count DESC";
                     }
                 }
                 else
                 {
-                    $sql = "SELECT g.cate_id_1 AS id, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.cate_id_1 > 0 GROUP BY g.cate_id_1 ORDER BY count DESC";
+                    $sql = "SELECT g.cate_id_1 AS id, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.cate_id_1 > 0 GROUP BY g.cate_id_1 ";//ORDER BY count DESC";
                 }
 
                 if ($sql)
@@ -194,7 +195,7 @@ class CatinfoApp extends MallbaseApp
                 }
 
                 /* 按品牌统计 */
-                $sql = "SELECT g.brand, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.brand > '' GROUP BY g.brand ORDER BY count DESC";
+                $sql = "SELECT g.brand, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND g.brand > '' GROUP BY g.brand";// ORDER BY count DESC";
                 $by_brands = $goods_mod->db->getAllWithIndex($sql, 'brand');
                 
                 /* 滤去未通过商城审核的品牌 */
@@ -215,7 +216,7 @@ class CatinfoApp extends MallbaseApp
                 
                 
                 /* 按地区统计 */
-                $sql = "SELECT s.region_id, s.region_name, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND s.region_id > 0 GROUP BY s.region_id ORDER BY count DESC";
+                $sql = "SELECT s.region_id, s.region_name, COUNT(*) AS count FROM {$table} WHERE" . $conditions . " AND s.region_id > 0 GROUP BY s.region_id";// ORDER BY count DESC";
                 $data['by_region'] = $goods_mod->getAll($sql);
 
                 /* 按价格统计 */
