@@ -319,7 +319,7 @@ class CashierApp extends ShoppingbaseApp
 			}
 			//限制订单待付款状态
 			if($order_info['status'] != ORDER_PENDING){
-				return $this->ej_json_failed(3001);
+				return $this->ej_json_failed(1012);
 			}
 			//订单去支付状态，48小时内未支付系统自动交易关闭   临界状态
 			$overtime = time()-$order_info['add_time'];
