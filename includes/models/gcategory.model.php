@@ -216,7 +216,7 @@ class GcategoryBModel extends GcategoryModel
         }
         else
         {
-            $sql = "SELECT cate_id, cate_name FROM {$this->table} WHERE parent_id = '$id' AND store_id = '{$this->_store_id}'";
+            $sql = "SELECT cate_id, cate_name FROM {$this->table} WHERE parent_id = '$id' AND store_id = '{$this->_store_id}' ORDER BY sort_order desc";
             $res = $this->getAll($sql);
         }
 
