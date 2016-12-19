@@ -25,49 +25,23 @@ class CatinfoApp extends MallbaseApp
         {
 			return $this->ej_json_failed(2001);
         }
-		
-		$stats = false;
+        /* 按分类、品牌、地区、价格区间统计商品数量 */
+        $stats = $this->_get_group_by_info($param, ENABLE_SEARCH_CACHE);
 
-        if (ENABLE_SEARCH_CACHE)
-        {
-            $cache_server =& cache_server();
-            $key = 'ejgroup_by_info_' . var_export($param, true);
-            $stats = $cache_server->get($key);
-        }
-		
-		if($stats === false){
-			/* 按分类、品牌、地区、价格区间统计商品数量 */
-		//    $stats = $this->_get_group_by_info($param, ENABLE_SEARCH_CACHE);
-			$sqlcat = "SELECT g.cate_id_2 AS id, COUNT(*) AS count FROM ecm_goods g LEFT JOIN ecm_store s ON g.store_id = s.store_id WHERE g.if_show = 1 AND g.closed = 0 AND s.state = 1 AND g.cate_id_1 = '".$param['cate_id']."' AND g.cate_id_2 > 0 GROUP BY g.cate_id_2";
-			$goods_mod  =& m('goods');
-			$category_mod =& bm('gcategory');
-			$children = $category_mod->get_children($param['cate_id'], true);
-			$res = $goods_mod->db->query($sqlcat);
-			while ($row = $goods_mod->db->fetchRow($res))
-			{
-				$stats['by_category'][$row['id']] = array(
-					'cate_id'   => $row['id'],
-					'cate_name' => $children[$row['id']]['cate_name'],
-					'count'     => $row['count']
-				);
-			}
-			$endarr = end($stats['by_category']);
-			$goods_list = array();
-			//循环获取分类对应商品  待优化 
-			if(!empty($stats['by_category'])){
-				foreach($stats['by_category'] as $v){
-					$sql .= "(select g.goods_id,g.default_image,g.goods_name,g.price,g.cate_id from ".DB_PREFIX."goods g ".
-						" LEFT JOIN ".DB_PREFIX."store s ON g.store_id = s.store_id  where g.if_show = 1 AND g.closed = 0 AND s.state = 1 and cate_id=".$v['cate_id']." limit 5)";
-					if($v['cate_id'] != $endarr['cate_id']){
-						$sql .= " union all ";	
-					}
-					
+        $goods_mod  =& m('goods');
+		$endarr = end($stats['by_category']);
+		$goods_list = array();
+		//循环获取分类对应商品  待优化 
+		if(!empty($stats['by_category'])){
+			foreach($stats['by_category'] as $v){
+				$sql .= "(select g.goods_id,g.default_image,g.goods_name,g.price,g.cate_id from ".DB_PREFIX."goods g ".
+					" LEFT JOIN ".DB_PREFIX."store s ON g.store_id = s.store_id  where g.if_show = 1 AND g.closed = 0 AND s.state = 1 and cate_id=".$v['cate_id']." limit 5)";
+				if($v['cate_id'] != $endarr['cate_id']){
+					$sql .= " union all ";	
 				}
-				$goods_list = $goods_mod->getAll($sql);
+				
 			}
-			if(ENABLE_SEARCH_CACHE){
-				$cache_server->set($key, $stats, SEARCH_CACHE_TTL);
-			}
+			$goods_list = $goods_mod->getAll($sql);
 		}
 
         //将商品匹配到分类  by newrain
@@ -207,10 +181,28 @@ class CatinfoApp extends MallbaseApp
 
                 if ($sql)
                 {
-					echo $sql.'adsfasdf';exit;
                     $category_mod =& bm('gcategory');
                     $children = $category_mod->get_children($cate_id, true);
-                    $res = $goods_mod->db->query($sql);
+					$res = $goods_mod->db->getAll($sql);
+					//添加按照分类排序
+					$ifcat = array();
+					if($res){
+						foreach($res as $value){
+							$ifcat[$value['id']] = $value['count'];
+						}
+					}
+					if($children){
+						foreach($children as $k=>$v){
+							if(isset($ifcat[$v['cate_id']])){
+								$data['by_category'][$v['cate_id']] = array(
+									'cate_id'   => $v['cate_id'],
+									'cate_name' => $v['cate_name'],
+									'count'     => $ifcat[$v['cate_id']]
+								);
+							}
+						}
+					}
+                  /*   $res = $goods_mod->db->query($sql);
                     while ($row = $goods_mod->db->fetchRow($res))
                     {
                         $data['by_category'][$row['id']] = array(
@@ -218,7 +210,7 @@ class CatinfoApp extends MallbaseApp
                             'cate_name' => $children[$row['id']]['cate_name'],
                             'count'     => $row['count']
                         );
-                    }
+                    } */
                 }
 
                 /* 按品牌统计 */
@@ -276,7 +268,7 @@ class CatinfoApp extends MallbaseApp
         return $data;
     }
 	/*将分类匹配对应商品数据 by newrain*/
-	function _ejcat_goodslist($catearr,$goodslist){
+	function _ejcat_goodslist($catearr='',$goodslist=''){
 		//声明返回数组
 		$result = array();
 		if(!empty($catearr) && !empty($goodslist)){
