@@ -291,7 +291,6 @@ class RecommendApp extends BackendApp
             return false;
         }
 
-        $data = [];
         // 只有上传图片时,才更新
         if($_FILES['image']['error'] == 0){
             $fileUrl = $_FILES["image"]["tmp_name"];
@@ -319,27 +318,27 @@ class RecommendApp extends BackendApp
                 'fk_id' => $goodsID,
                 'type' => 'recommend',
             ];
+
+            // 业务图模型
+            $businessImageModel = & m('BusinessImage');
+            $image = $businessImageModel->get([
+                "conditions" => "type = 'recommend' and fk_id = {$goodsID}"
+            ]);
+
+            if($image){
+                // 如果已经存在就更新
+                $isTrue = $businessImageModel->update($image['image_id'],$data);
+            }else{
+                // 没有就新增
+                $isTrue = $businessImageModel->add($data);
+            }
+
+            if ( !$isTrue ) {
+                $this->show_warning('失败');
+                return false;
+            }
         }
 
-        // 业务图模型
-        $businessImageModel = & m('BusinessImage');
-
-        $image = $businessImageModel->get([
-            "conditions" => "type = 'recommend' and fk_id = {$goodsID}"
-        ]);
-
-        if($image){
-            // 如果已经存在就更新
-            $isTrue = $businessImageModel->update($image['image_id'],$data);
-        }else{
-            // 没有就新增
-            $isTrue = $businessImageModel->add($data);
-        }
-
-        if ( !$isTrue ) {
-            $this->show_warning('失败');
-            return false;
-        }
 
         $this->show_message('更新成功',
             'back_list',    'index.php?app=recommend'

@@ -134,16 +134,54 @@ class GcategoryApp extends BackendApp
                 $this->show_warning($this->_gcategory_mod->get_error());
                 return;
             }
-			//添加分类图片   by xxy
-			if (!empty($_FILES['portrait']))
-            {
-                $portrait = $this->_caejupload_portrait($cate_id);
-                if ($portrait === false)
-                {
-                    return;
+
+            if($_FILES['image']['error'] == 0){
+                $fileUrl = $_FILES["image"]["tmp_name"];
+                // 必须是图片
+                $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+                if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                    $this->show_warning('图片类型不正确,只支持 gif,jpeg,png,bmp 类型的图片');
+                    return false;
                 }
-                $portrait && $this->_gcategory_mod->edit($cate_id, array('imageurl' => $portrait));
+
+                // 从临时目录拿到文件 上传到万象优图
+                $cloudRetArr = \Tencentyun\ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+                if ( $cloudRetArr['httpcode'] != 200 ) {
+                    $this->show_warning('上传服务器腾讯云服务器出错,请重试或联系技术人员');
+                    return false;
+                }
+
+                $data = [
+                    'image_type' => $mimeType,
+                    'image_size' => filesize($fileUrl),
+                    'image_name' => $_FILES['image']['name'],
+                    'image_url' => $cloudRetArr['data']['downloadUrl'],
+                    'cloud_image_id' => $cloudRetArr['data']['fileid'],
+                    'cloud_image_data' => json_encode($cloudRetArr),
+                    'fk_id' => $cate_id,
+                    'type' => 'category',
+                ];
+
+                // 业务图模型
+                $businessImageModel = & m('BusinessImage');
+                $image = $businessImageModel->get([
+                    "conditions" => "type = 'category' and fk_id = {$cate_id}"
+                ]);
+
+                if($image){
+                    // 如果已经存在就更新
+                    $isTrue = $businessImageModel->update($image['image_id'],$data);
+                }else{
+                    // 没有就新增
+                    $isTrue = $businessImageModel->add($data);
+                }
+
+                if ( !$isTrue ) {
+                    $this->show_warning('失败');
+                    return false;
+                }
             }
+
             $this->show_message('add_ok',
                 'back_list',    'index.php?app=gcategory',
                 'continue_add', 'index.php?app=gcategory&amp;act=add&amp;pid=' . $data['parent_id']
@@ -180,7 +218,8 @@ class GcategoryApp extends BackendApp
         if (!IS_POST)
         {
             /* 是否存在 */
-            $gcategory = $this->_gcategory_mod->get_info($id);
+            $sql = "select g.*,i.image_url from ecm_gcategory as g LEFT JOIN ecm_business_image as i on i.fk_id = g.cate_id and i.type='category' where cate_id = {$id}";
+            $gcategory = $this->_gcategory_mod->getRow($sql);
             if (!$gcategory)
             {
                 $this->show_warning('gcategory_empty');
@@ -262,16 +301,56 @@ class GcategoryApp extends BackendApp
                     $mod_goods->db->query($sql);
                 }
             }
-			//添加分类图片   by xxy
-			if (!empty($_FILES['portrait']))
-            {
-                $portrait = $this->_caejupload_portrait($id);
-                if ($portrait === false)
-                {
-                    return;
+
+
+            if($_FILES['image']['error'] == 0){
+                $fileUrl = $_FILES["image"]["tmp_name"];
+                // 必须是图片
+                $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+                if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                    $this->show_warning('图片类型不正确,只支持 gif,jpeg,png,bmp 类型的图片');
+                    return false;
                 }
-                $portrait && $this->_gcategory_mod->edit($id, array('imageurl' => $portrait));
+
+                // 从临时目录拿到文件 上传到万象优图
+                $cloudRetArr = \Tencentyun\ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+                if ( $cloudRetArr['httpcode'] != 200 ) {
+                    $this->show_warning('上传服务器腾讯云服务器出错,请重试或联系技术人员');
+                    return false;
+                }
+
+                $data = [
+                    'image_type' => $mimeType,
+                    'image_size' => filesize($fileUrl),
+                    'image_name' => $_FILES['image']['name'],
+                    'image_url' => $cloudRetArr['data']['downloadUrl'],
+                    'cloud_image_id' => $cloudRetArr['data']['fileid'],
+                    'cloud_image_data' => json_encode($cloudRetArr),
+                    'fk_id' => $id,
+                    'type' => 'category',
+                ];
+
+                // 业务图模型
+                $businessImageModel = & m('BusinessImage');
+                $image = $businessImageModel->get([
+                    "conditions" => "type = 'category' and fk_id = {$id}"
+                ]);
+
+                if($image){
+                    // 如果已经存在就更新
+                    $isTrue = $businessImageModel->update($image['image_id'],$data);
+                }else{
+                    // 没有就新增
+                    $isTrue = $businessImageModel->add($data);
+                }
+
+                if ( !$isTrue ) {
+                    $this->show_warning('失败');
+                    return false;
+                }
+
             }
+
             $this->show_message('edit_ok',
                 'back_list',    'index.php?app=gcategory',
                 'edit_again',   'index.php?app=gcategory&amp;act=edit&amp;id=' . $id
