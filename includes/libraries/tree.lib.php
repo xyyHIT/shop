@@ -282,7 +282,7 @@ class Tree extends Object
             {
                 continue;
             }
-            $data[] = array('id' => $id, 'value' => $this->getValue($id),'imageurl'=>$this->data[$id]['imageurl'], 'children' => $this->child[$id] ? $this->ejgetArrayList($id , $layer) : array());
+            $data[] = array('id' => $id, 'value' => $this->getValue($id),'imageurl'=>$this->data[$id]['image_url'], 'children' => $this->child[$id] ? $this->ejgetArrayList($id , $layer) : array());
         }
         return $data;
     }

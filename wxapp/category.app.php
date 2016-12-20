@@ -80,7 +80,7 @@ class CategoryApp extends MallbaseApp
 			
             import('tree.lib');
             $tree = new Tree();
-            $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name','imageurl');
+            $tree->setTree($gcategories, 'cate_id', 'parent_id', 'cate_name');
             $data = $tree->ejgetArrayList(0);
             $cache_server->set($key, $data, 3600);
         }

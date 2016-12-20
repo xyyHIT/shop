@@ -58,10 +58,8 @@ class GcategoryModel extends BaseModel
         $parent_id >= 0 && $conditions .= " AND parent_id = '$parent_id'";
         $shown && $conditions .= " AND if_show = 1";
 
-        return $this->find(array(
-            'conditions' => $conditions,
-            'order' => 'sort_order, cate_id',
-        ));
+        $sql = "select g.*,i.image_url from ecm_gcategory as g LEFT JOIN ecm_business_image as i on i.fk_id = g.cate_id and i.type='category' where {$conditions} order by sort_order,cate_id";
+        return $this->getAll($sql);
     }
 
     function get_options($parent_id = -1, $shown = false)
