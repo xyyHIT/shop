@@ -741,6 +741,8 @@ if( !function_exists('auction_user') ){
         }
         return $reArr;
     }
+
+}
 	//前端获取订单等信息
     function get_stats($userid)
     {
@@ -751,6 +753,5 @@ if( !function_exists('auction_user') ){
             'order_shipped' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_SHIPPED . "' AND buyer_id = $userid ")
         );
     }
-}
 
 ?>
