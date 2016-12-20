@@ -39,6 +39,7 @@
             // 总收入
             $grossIncome = $userModel->getOne('select sum(goods_amount) from '.DB_PREFIX.'order where status = 40 and seller_id = '.$userID);
             $ret['grossIncome'] = empty($grossIncome) ? 0 : $grossIncome;
+			$ret['order_sta']=get_stats($this->visitor->get('user_id'));	//获取订单各个状态的数量
 
             return $this->ej_json_success($ret);
         }
