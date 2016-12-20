@@ -1,4 +1,9 @@
 {include file="header.html"}
+<style>
+  .dataTable td {
+    text-align: center;
+  }
+</style>
 <div id="rightTop">
   <p>{$lang.goods_recommended}</p>
   <ul class="subnav">
@@ -17,26 +22,28 @@
   <table width="100%" cellspacing="0" class="dataTable">
     <tr class="tatr1">
       <td width="20" class="firstCell"><input type="checkbox" class="checkall" /></td>
-      <td width="30%">{$lang.goods_name}</td>
+      <td width="20%">{$lang.goods_name}</td>
+      <td width="10%">推荐图</td>
       <td width="100">{$lang.sort_order}</td>
-      <td width="10%">{$lang.store_name}</td>
-      <td width="10%">{$lang.brand}</td>
+      <td width="20%">{$lang.store_name}</td>
       <td>{$lang.cate_name}</td>
       <td>{$lang.if_show}</td>
       <td>{$lang.closed}</td>
       <td>{$lang.views}</td>
+      <td width="60" class="handler"><span>操作</span></td>
     </tr>
     <!--{foreach from=$goods_list item=goods}-->
     <tr class="tatr2">
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$goods.goods_id}" /></td>
       <td>{$goods.goods_name|escape}</td>
+      <td><img src="{$goods.recommend_image}" alt="推荐图" style="max-width: 100%;height: auto;display: block;"></td>
       <td><span ectype="inline_edit" fieldname="sort_order" fieldid="{$smarty.get.id}-{$goods.goods_id}" class="editable" title="{$lang.editable}">{$goods.sort_order}</span></td>
       <td>{$goods.store_name|escape}</td>
-      <td>{$goods.brand|escape}</td>
       <td>{$goods.cate_name|nl2br}</td>
       <td><!-- {if $goods.if_show} --><img src="{res file=style/images/positive_enabled.gif}" /><!--{else}--><img src="{res file=style/images/positive_disabled.gif}" /><!-- {/if} --></td>
       <td><!-- {if $goods.closed} --><img src="{res file=style/images/negative_enabled.gif}" /><!--{else}--><img src="{res file=style/images/negative_disabled.gif}" /><!-- {/if} --></td>
       <td>{$goods.views|default:0}</td>
+      <td class="handler"><span><a href="index.php?app=recommend&amp;act=editRecommendImage&amp;goods_id={$goods.goods_id}">推荐图</a></span></td>
     </tr>
     <!--{foreachelse}-->
     <tr class="no_data">
@@ -47,6 +54,7 @@
   <div id="dataFuncs">
     <div id="batchAction" class="left paddingT15"> &nbsp;&nbsp;
       <input class="formbtn batchButton" type="button" value="{$lang.unrecommend}" name="goods_id" uri="index.php?app=recommend&act=drop_goods_from&id={$smarty.get.id}" />
+      <input class="formbtn batchButton" type="button" value="删除推荐图" name="goods_id" uri="index.php?app=recommend&act=destroyRecommendImage" />
     </div>
   </div>
   <div class="pageLinks"> {if $goods_list}{include file=page.bottom.html}{/if} </div>

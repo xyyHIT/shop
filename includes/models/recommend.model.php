@@ -79,7 +79,6 @@ class RecommendModel extends BaseModel {
     /**
      * 获取所有推荐商品
      *
-     * @param      $num
      * @param bool $default_image
      *
      * @return array
@@ -89,11 +88,12 @@ class RecommendModel extends BaseModel {
         $conditions = "g.if_show = 1 AND g.closed = 0 AND s.state = 1 ";
 
         /* 推荐商品 */
-        $sql = "SELECT rg.recom_id,g.goods_id, g.goods_name, g.default_image, gs.price, gs.stock " .
+        $sql = "SELECT rg.recom_id,g.goods_id, g.goods_name, g.default_image, gs.price, gs.stock, i.image_url " .
             "FROM " . DB_PREFIX . "recommended_goods AS rg " .
             "   LEFT JOIN " . DB_PREFIX . "goods AS g ON rg.goods_id = g.goods_id " .
             "   LEFT JOIN " . DB_PREFIX . "goods_spec AS gs ON g.default_spec = gs.spec_id " .
             "   LEFT JOIN " . DB_PREFIX . "store AS s ON g.store_id = s.store_id " .
+            "   LEFT JOIN " . DB_PREFIX . "business_image as i on i.fk_id = g.goods_id and i.type = 'recommend' " .
             "WHERE " . $conditions .
             "AND g.goods_id IS NOT NULL " .
             "ORDER BY rg.sort_order " ;
@@ -102,9 +102,10 @@ class RecommendModel extends BaseModel {
 
         $res = $this->db->query($sql);
 
-
         while ( $row = $this->db->fetchRow($res) ) {
             $default_image && empty( $row['default_image'] ) && $row['default_image'] = Conf::get('default_goods_image');
+
+            $row['image_url'] && $row['default_image'] = $row['image_url'];
 
             $recommends[$row['recom_id']]['items'][] = $row;
         }

@@ -195,8 +195,14 @@ class RecommendApp extends BackendApp
             'order' => 'recommended_goods.sort_order',
             'count' => true,
         ));
+
+        $businessImageModel = & m('BusinessImage');
         foreach ($goods_list as $key => $goods)
         {
+            $image = $businessImageModel->get([
+                "conditions" => "type = 'recommend' and fk_id = {$goods['goods_id']}"
+            ]);
+            $goods_list[$key]['recommend_image'] = $image ? $image['image_url'] : '';
             $goods_list[$key]['cate_name'] = $goods_mod->format_cate_name($goods['cate_name']);
         }
         $this->assign('goods_list', $goods_list);
@@ -254,6 +260,116 @@ class RecommendApp extends BackendApp
         }
         return ;
     }
+
+    /**
+     * 编辑商品推荐图
+     *
+     */
+    public function editRecommendImage(){
+        $goodsID = empty($_GET['goods_id']) ? 0 : intval($_GET['goods_id']); // 商品ID
+        /* 是否存在 */
+        $businessImageModel = & m('BusinessImage');
+        $image = $businessImageModel->get([
+            "conditions" => "type = 'recommend' and fk_id = {$goodsID}"
+        ]);
+
+        $image['goods_id'] = $goodsID;
+
+        $this->assign('image', $image);
+        $this->display('recommend_goods_image.edit.html');
+    }
+
+    /**
+     * 更新商品推荐图
+     *
+     * @return bool
+     */
+    public function updateRecommendImage(){
+        $goodsID = isset($_REQUEST['goods_id']) ? trim($_REQUEST['goods_id']) : '';
+        if(!$goodsID){
+            $this->show_message('未选取条目');
+            return false;
+        }
+
+        $data = [];
+        // 只有上传图片时,才更新
+        if($_FILES['image']['error'] == 0){
+            $fileUrl = $_FILES["image"]["tmp_name"];
+            // 必须是图片
+            $mimeType = image_type_to_mime_type(exif_imagetype($fileUrl));
+            if(!in_array($mimeType,['image/gif','image/jpeg','image/png','image/bmp'])){
+                $this->show_warning('图片类型不正确,只支持 gif,jpeg,png,bmp 类型的图片');
+                return false;
+            }
+
+            // 从临时目录拿到文件 上传到万象优图
+            $cloudRetArr = \Tencentyun\ImageV2::upload($fileUrl, CLOUD_IMAGE_BUCKET);
+            if ( $cloudRetArr['httpcode'] != 200 ) {
+                $this->show_warning('上传服务器腾讯云服务器出错,请重试或联系技术人员');
+                return false;
+            }
+
+            $data = [
+                'image_type' => $mimeType,
+                'image_size' => filesize($fileUrl),
+                'image_name' => $_FILES['image']['name'],
+                'image_url' => $cloudRetArr['data']['downloadUrl'],
+                'cloud_image_id' => $cloudRetArr['data']['fileid'],
+                'cloud_image_data' => json_encode($cloudRetArr),
+                'fk_id' => $goodsID,
+                'type' => 'recommend',
+            ];
+        }
+
+        // 业务图模型
+        $businessImageModel = & m('BusinessImage');
+
+        $image = $businessImageModel->get([
+            "conditions" => "type = 'recommend' and fk_id = {$goodsID}"
+        ]);
+
+        if($image){
+            // 如果已经存在就更新
+            $isTrue = $businessImageModel->update($image['image_id'],$data);
+        }else{
+            // 没有就新增
+            $isTrue = $businessImageModel->add($data);
+        }
+
+        if ( !$isTrue ) {
+            $this->show_warning('失败');
+            return false;
+        }
+
+        $this->show_message('更新成功',
+            'back_list',    'index.php?app=recommend'
+        );
+    }
+
+    /**
+     * 删除商品推荐图
+     */
+    public function destroyRecommendImage(){
+        $id = isset($_REQUEST['goods_id']) ? $_REQUEST['goods_id'] : '';
+        if(!$id){
+            $this->show_message('未选取条目');
+            return false;
+        }
+
+        $ids = explode(',',$id);
+
+        $recommendImageModel = & m('BusinessImage');
+        $affectedRows = $recommendImageModel->drop("type='recommend' and fk_id".db_create_in($ids));
+
+        if($affectedRows){
+            $this->show_message('删除成功');
+        }else{
+            $this->show_message('删除失败');
+        }
+
+    }
+
+
 }
 
 ?>

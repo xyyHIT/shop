@@ -23,8 +23,8 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         $cycleImageArr = $this->_ejCycleImages();
 
         // 获取推荐信息
-        $recom_mod =& m('recommend');
-        $recommendArr = $recom_mod->get_recommended_goods_all();
+        $recommendModel =& m('recommend');
+        $recommendArr = $recommendModel->get_recommended_goods_all();
 
         $allArr = [
             'categories'  => $categoryArr,

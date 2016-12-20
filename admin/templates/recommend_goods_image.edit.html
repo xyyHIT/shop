@@ -1,0 +1,30 @@
+{include file="header.html"}
+<div id="rightTop">
+    <p>上传商品推荐图</p>
+    <ul class="subnav">
+        <li><a class="btn1" href="index.php?app=recommend">推荐列表</a></li>
+        <li><span>更新</span></li>
+    </ul>
+</div>
+<div class="info">
+    <form method="post" enctype="multipart/form-data" id="image_form" action="index.php?app=recommend&amp;act=updateRecommendImage">
+        <table class="infoTable">
+            <tr>
+                <th class="paddingT15">图片:</th>
+                <td class="paddingT15 wordSpacing5"><input type="file" class="infoTableInput2" name="image" id="image"
+                                                           accept="image/jpeg,image/png,image/gif"/>
+                    <label class="field_notice">选取图片</label>
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td class="ptb20">
+                    <input type="hidden" name="goods_id" value="{$image.goods_id}">
+                    <input class="formbtn" type="submit" name="Submit" value="保存"/>
+                    <input class="formbtn" type="reset" name="Reset" value="重置"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{include file="footer.html"}
