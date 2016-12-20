@@ -80,6 +80,12 @@ class OrderApp extends BackendApp
             'order'         => "$sort $order",
             'count'         => true             //允许统计
         )); //找出所有商城的合作伙伴
+		//更改add_time时间显示
+		if($orders){
+			foreach($orders as $key=>$value){
+				$orders[$key]['add_time'] = empty($value['add_time'])?'':date('Y-m-d H:i:s',$value['add_time']);
+			}
+		}
         $page['item_count'] = $model_order->getCount();   //获取统计的数据
         $this->_format_page($page);
         $this->assign('filtered', $conditions? 1 : 0); //是否有查询条件
@@ -153,6 +159,9 @@ class OrderApp extends BackendApp
             }
         }
 		$order_info['add_time'] = date('Y-m-d H:i:s',$order_info['add_time']);
+		$order_info['pay_time'] = empty($order_info['pay_time'])?'':date('Y-m-d H:i:s',$order_info['pay_time']);
+		$order_info['ship_time'] = empty($order_info['ship_time'])?'':date('Y-m-d H:i:s',$order_info['ship_time']);
+		$order_info['finished_time'] = empty($order_info['finished_time'])?'':date('Y-m-d H:i:s',$order_info['finished_time']);
         $this->assign('order', $order_info);
         $this->assign($order_detail['data']);
         $this->display('order.view.html');

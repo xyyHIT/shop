@@ -28,13 +28,13 @@
             <!--{/if}-->
             <li><b>{$lang.add_time}:</b>{$order.add_time}</li>
             <!--{if $order.pay_time}-->
-            <li><b>{$lang.pay_time}:</b>{$order.pay_time|date:complete}</li>
+            <li><b>{$lang.pay_time}:</b>{$order.pay_time}</li>
             <!--{/if}-->
             <!--{if $order.ship_time}-->
-            <li><b>{$lang.ship_time}:</b>{$order.ship_time|date:complete}</li>
+            <li><b>{$lang.ship_time}:</b>{$order.ship_time}</li>
             <!--{/if}-->
             <!--{if $order.finished_time}-->
-            <li><b>{$lang.finished_time}:</b>{$order.finished_time|date:complete}</li>
+            <li><b>{$lang.finished_time}:</b>{$order.finished_time}</li>
             <!--{/if}-->
             <!--{if $order.postscript}-->
             <li><b>{$lang.postscript}:</b>{$order.postscript|escape}</li>
@@ -63,8 +63,10 @@
         <h2>{$lang.goods_info}</h2>
         <!--{foreach from=$goods_list item=goods}-->
         <div class="order_info">
-            <a href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}" target="_blank" class="order_info_pic"><img width="50" height="50" alt="{$lang.goods_pic}" src="{$goods.goods_image}" /></a>
-            <div class="order_info_text"><a href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}" target="_blank">{$goods.goods_name|escape}</a><br />{$goods.specification|escape}</div>
+            <!-- <a href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}" target="_blank" class="order_info_pic"><img width="50" height="50" alt="{$lang.goods_pic}" src="{$goods.goods_image}" /></a> -->
+            <a href="javascript:void(0);" target="_blank" class="order_info_pic"><img width="50" height="50" alt="{$lang.goods_pic}" src="{$goods.goods_image}" /></a>
+<!--             <div class="order_info_text"><a href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}" target="_blank">{$goods.goods_name|escape}</a><br />{$goods.specification|escape}</div -->>
+            <div class="order_info_text"><a href="javascript:void(0);" target="_blank">{$goods.goods_name|escape}</a><br />{$goods.specification|escape}</div>
             <p><b>{$lang.price} :</b> <span class="red_common">{$goods.price|price}</span></p>
             <p><b>{$lang.quantity} :</b> {$goods.quantity}</p>
         </div>
