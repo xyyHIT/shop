@@ -59,7 +59,8 @@ class GcategoryModel extends BaseModel
         $shown && $conditions .= " AND if_show = 1";
 
         $sql = "select g.*,i.image_url from ecm_gcategory as g LEFT JOIN ecm_business_image as i on i.fk_id = g.cate_id and i.type='category' where {$conditions} order by sort_order,cate_id";
-        return $this->getAll($sql);
+
+        return $this->db->getAllWithIndex($sql, $this->prikey);
     }
 
     function get_options($parent_id = -1, $shown = false)
@@ -259,6 +260,7 @@ class GcategoryBModel extends GcategoryModel
                     $res[] = array('cate_id' => $row['cate_id'], 'cate_name' => $row['cate_name']);
                     $id    = $row['parent_id'];
                 }
+//Log::getLogger()->warning('分类sql',[$sql]);
             }
         }
 
