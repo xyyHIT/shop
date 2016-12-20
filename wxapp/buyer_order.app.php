@@ -286,6 +286,7 @@
          * @return    void
          */
         function cancel_order($orderid = 0,$remark='') {
+			$ifcan = empty($orderid)?'1':'0';
             $order_id = isset( $_REQUEST['order_id'] ) ? intval($_REQUEST['order_id']) : $orderid;
             if ( !$order_id ) {
 				return $this->ej_json_failed(2001);
@@ -314,7 +315,7 @@
 				'log_time'       => gmtime(),
 			]);
 			/* 发送给卖家订单取消通知 */
-			if($_REQUEST['order_id']){
+			if($ifcan==1){
 				return $this->ej_json_success();
 			}
         }
@@ -326,6 +327,7 @@
          * @return    void
          */
         function confirm_order($orderid = 0) {
+			$ifcon = empty($orderid)?'1':'0';
             $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : $orderid;
             if ( !$order_id ) {
 				return $this->ej_json_failed(2001);
@@ -379,7 +381,7 @@
 			include ROOT_PATH.'/includes/aes.base.php';
 			$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
 			$this->_confirmcurl(array('data'=>$serialjson));
-			if($_GET['order_id']){
+			if($ifcon==1){
 				return $this->ej_json_success();
 			}
         }
