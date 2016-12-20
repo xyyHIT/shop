@@ -60,7 +60,6 @@ class My_goodsApp extends StoreadminbaseApp
             'goods' => $goods_list,
             'page'  => $page
         ];
-
         $this->ej_json_success($retArr);
     }
 
