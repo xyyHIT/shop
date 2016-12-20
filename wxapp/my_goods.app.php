@@ -58,9 +58,9 @@ class My_goodsApp extends StoreadminbaseApp
 
         $retArr = [
             'goods' => $goods_list,
+			'order_sta'=>get_stats($this->visitor->get('user_id')),	//获取订单各个状态的数量
             'page'  => $page
         ];
-
         $this->ej_json_success($retArr);
     }
 
