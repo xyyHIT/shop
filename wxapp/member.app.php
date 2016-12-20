@@ -38,8 +38,7 @@ class MemberApp extends MemberbaseApp
         // 关注数
 //        $ret['followers'] = $userModel->getOne('select count(*) from '.DB_PREFIX."collect where type = 'goods' and user_id=".$userID);
         $ret['followers'] = $userModel->getOne("select count(1) from ecm_collect where type = 'store' and user_id = {$userID} ");
-
-
+		$ret['order_sta']=get_stats($this->visitor->get('user_id'));	//获取订单各个状态的数量
         # Todo 考虑缓存...
         $storeModel = & m('store');
         $storeModel->get_info($userID) ? $ret['store_id'] = $userID : $ret['store_id'] = 0;
