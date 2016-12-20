@@ -294,7 +294,7 @@
             /* 只有待付款的订单可以取消 */
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status " . db_create_in([ ORDER_PENDING, ORDER_SUBMITTED ]));
             if ( empty( $order_info ) ) {
-				return $this->ej_json_failed(3001);
+				return $this->ej_json_failed(1012);
             }
 			$model_order->edit($order_id, [ 'status' => ORDER_CANCELED,'cancel_time'=>time() ]);
 			if ( $model_order->has_error() ) {
