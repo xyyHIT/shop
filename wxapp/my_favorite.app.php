@@ -132,7 +132,7 @@ class My_favoriteApp extends MemberbaseApp
         $page   =   $this->_get_page();    //获取分页信息
         $collect_store = $model_store->find(array(
             'join'  => 'be_collect,belongs_to_user',
-            'fields'=> 'this.*,member.user_name,collect.add_time',
+            'fields'=> 'this.*,member.user_name,collect.add_time,member.openid,member.auction_id',
             'conditions' => 'collect.user_id = ' . $this->visitor->get('user_id') . $conditions,
             'count' => true,
             'order' => 'collect.add_time DESC',
@@ -149,6 +149,11 @@ class My_favoriteApp extends MemberbaseApp
             empty($store['store_logo']) && $collect_store[$key]['store_logo'] = Conf::get('default_store_logo');
             $collect_store[$key]['credit_image'] = $this->_view->res_base . '/images/' . $model_store->compute_credit($store['credit_value'], $step);
 			$collect_store[$key]['collectnum'] = '0';
+			//获取与拍卖对接用户等级与电话
+			if($store['auction_id']){
+				$paiowner = auction_user($store['auction_id'],$store['openid']);
+				$collect_store[$key]['sgrade'] = empty($paiowner['level'])?'1':$paiowner['level'];//店铺等级
+			}
 		}
 		//获取店铺关注数  后期优化存入冗余数据或者redis
 		$idstr = '('.implode(',',$ids).')';
