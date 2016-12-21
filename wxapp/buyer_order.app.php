@@ -166,26 +166,14 @@
 				  $result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-wancheng'></i></div><div class='dTopR'><span>交易失败</span><p>关闭时间：：<time>".$canceltime."</time></p></div></div>";
 				  break;
 				case 11://代付款
-				  //48小时内未支付系统自动交易关闭  考虑到服务性能  故没有采用crontab方式来实现
-				  $overtime = $times-$order_info['order_add_time'];
-				  if($overtime >=172800){
-						$this->cancel_order($order_info['order_id'],'48小时内未支付系统自动交易关闭');
-						$result['statusname'] = $this->ejstatus[ORDER_CANCELED];
-						$result['status'] = '0';
-						$result['lefttime'] = '';//剩余时间
-						/* Todo 发送给卖家订单取消通知 微信通知 */
-						$canceltime = $order_info['order_add_time']+172800;
-						$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-wancheng'></i></div><div class='dTopR'><span>交易失败</span><p>关闭时间：：<time>".date('Y-m-d H:i',$canceltime)."</time></p></div></div>";
-				  }else{
-						$result['statusname'] = $this->ejstatus['11'];
-						$paramtime = $order_info['order_add_time']+172800;
-						$result['lefttime'] = ejlefttime($paramtime,$times);//剩余时间
-						if($type == 0){
-							$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-dengdai'></i></div><div class='dTopR'><span>待付款</span><p><time>".date('Y-m-d',$paramtime)."</time> 后订单将自动关闭，请及时付款！</p></div></div>";	
-						}else{
-							$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-dengdai'></i></div><div class='dTopR'><span>待付款</span><p><time>".date('Y-m-d',$paramtime)."</time> 后订单将自动关闭！</p></div></div>";
-						}	
-				  }
+					$result['statusname'] = $this->ejstatus['11'];
+					$paramtime = $order_info['order_add_time']+172800;
+					$result['lefttime'] = ejlefttime($paramtime,$times);//剩余时间
+					if($type == 0){
+						$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-dengdai'></i></div><div class='dTopR'><span>待付款</span><p><time>".date('Y-m-d',$paramtime)."</time> 后订单将自动关闭，请及时付款！</p></div></div>";	
+					}else{
+						$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-dengdai'></i></div><div class='dTopR'><span>待付款</span><p><time>".date('Y-m-d',$paramtime)."</time> 后订单将自动关闭！</p></div></div>";
+					}
 				  break;
 				case 20://代发货
 						$result['statusname'] = $this->ejstatus['20'];
@@ -200,29 +188,16 @@
 				case 30://代收货
 						$result['statusname'] = $this->ejstatus['20'];
 						if($order_info['add_shiptime'] == 1){//判断用户是否延长收货  默认延长收货为7天
-							$overtime = $times - ($order_info['ship_time']+EJADD_SHIP*86400);
 							$sumshiptime = $order_info['ship_time']+EJADD_SHIP*86400+7*86400;
 						}else{
-							$overtime = $times - $order_info['ship_time'];
 							$sumshiptime = $order_info['ship_time']+7*86400;
 						}
-						//判断用户是否在七天之内确认收货
-						if($overtime >= (7*86400)){
-							//超过七天，系统自动默认确认收货
-							$this->confirm_order($order_info['order_id']);
-							$result['statusname'] = $this->ejstatus['40'];
-							$result['lefttime'] = '';//剩余时间
-							$result['finished_time'] = empty($times)?'':date('Y-m-d H:i',$times);
-							$result['status'] = ORDER_FINISHED;
-							$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-wancheng'></i></div><div class='dTopR'><span>交易完成</span><p>完成时间：<time>".$result['finished_time']."</time></p></div></div>";
+						$result['statusname'] = $this->ejstatus['30'];
+						$result['lefttime'] = ejlefttime($sumshiptime,$times);//剩余时间
+						if($type==0){
+							$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货，请确保已收到商品！</p></div></div>";
 						}else{
-							$result['statusname'] = $this->ejstatus['30'];
-							$result['lefttime'] = ejlefttime($sumshiptime,$times);//剩余时间
-							if($type==0){
-								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货，请确保已收到商品！</p></div></div>";
-							}else{
-								$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货！</p></div></div>";
-							}
+							$result['topshow'] = "<div class='dTop'><div class='dTopL'><i class='iconfont icon-qufahuo'></i></div><div class='dTopR'><span>待收货</span><p><time>".date('Y-m-d H:i',$sumshiptime)."</time> 后订单将自动确认收货！</p></div></div>";
 						}
 				break;
 				case 40://待评价
@@ -286,7 +261,6 @@
          * @return    void
          */
         function cancel_order($orderid = 0,$remark='') {
-			$ifcan = empty($orderid)?'1':'0';
             $order_id = isset( $_REQUEST['order_id'] ) ? intval($_REQUEST['order_id']) : $orderid;
             if ( !$order_id ) {
 				return $this->ej_json_failed(2001);
@@ -315,9 +289,7 @@
 				'log_time'       => gmtime(),
 			]);
 			/* 发送给卖家订单取消通知 */
-			if($ifcan==1){
-				return $this->ej_json_success();
-			}
+			return $this->ej_json_success();
         }
 
         /**
@@ -327,7 +299,6 @@
          * @return    void
          */
         function confirm_order($orderid = 0) {
-			$ifcon = empty($orderid)?'1':'0';
             $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : $orderid;
             if ( !$order_id ) {
 				return $this->ej_json_failed(2001);
@@ -381,9 +352,7 @@
 			include ROOT_PATH.'/includes/aes.base.php';
 			$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
 			$this->_confirmcurl(array('data'=>$serialjson));
-			if($ifcon==1){
-				return $this->ej_json_success();
-			}
+			return $this->ej_json_success();
         }
 
         /**
