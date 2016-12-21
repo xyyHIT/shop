@@ -654,6 +654,7 @@
 					$temp['invoice_no'] = empty($value['invoice_no'])?'':trim($value['invoice_no']);
 					$temp['seller_id'] = $value['seller_id'];
 					$temp['seller_name'] = $value['seller_name'];
+					$temp['buyer_name'] = $value['buyer_name'];
 					$temp['status'] = $value['status'];
 					$temp['statusname'] = $this->ejstatus[$value['status']];
 					switch ($value['status']) {
