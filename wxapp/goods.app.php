@@ -531,7 +531,7 @@
             $goods_mod =& bm('goods', [ '_store_id' => $id ]);
 			$ejgoodslist = "SELECT g.goods_name,g.default_image ,g.price ,g.goods_id,gs.sales FROM ".DB_PREFIX."goods  g ".
 							" LEFT JOIN ".DB_PREFIX."goods_statistics gs ON g.goods_id = gs.goods_id ".
-							" WHERE g.closed =0 AND g.if_show =1 AND g.recommended = 1 LIMIT 6";
+							" WHERE g.closed =0 AND g.if_show =1 AND g.store_id = $id ORDER BY gs.sales desc LIMIT 6";
 			$goods_list = $goods_mod->db->getAll($ejgoodslist);
             foreach ( $goods_list as $key => $goods ) {
                 empty( $goods['default_image'] ) && $goods_list[ $key ]['default_image'] = Conf::get('default_goods_image');
