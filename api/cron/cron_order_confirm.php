@@ -13,38 +13,77 @@ include ROOT_PATH . '/eccore/model/model.base.php';   //模型基础类
 ecm_define(ROOT_PATH . '/data/yijia_mall_test.cfg.php');
 include ROOT_PATH . '/includes/wx.base.php'; // 微信类库
 include ROOT_PATH . '/includes/Cache.php'; // 缓存库
+include ROOT_PATH . '/includes/aes.base.php';
 $order_model =& m('order');
 $order_log =& m('orderlog');
+$model_goodsstatistics =& m('goodsstatistics');
+$model_ordergoods =& m('ordergoods');
 //获取需要推送的订单  暂时通过流水表持久化完成此功能  后期待优化
 $times = time();
-$difftime = $times-172800;
-$streamarr = $order_model->db->getAll("SELECT order_id,openid,o.add_time,order_sn,order_amount FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id WHERE o.add_time >= $difftime AND status=11");
+$normal_difftime = $times-7*86400;//正常系统自动确认 7天自动收货
+$delay_difftime = $times-14*86400;//用户延长确认时间  延长7天自动收货时间
+$streamarr = $order_model->db->getAll("SELECT order_id,m.openid as bopenid,ms.openid as sopenid,o.ship_time,order_sn,order_amount,add_shiptime FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id LEFT JOIN ".DB_PREFIX."member ms ON o.seller_id = ms.user_id WHERE (o.ship_time >= $normal_difftime or (o.ship_time >= $delay_difftime AND o.add_shiptime=1)) AND status=30");
 if($streamarr){
 	$sqlarr = array();
 	foreach($streamarr as $key=>$value){
-		//改变订单状态  待优化
-		$order_model->edit($value['order_id'], [ 'status' => 0,'cancel_time'=>$times ]);
-		/* 加回商品库存 */
-		$order_model->change_stock('+', $value['order_id']);
+		//改变订单状态
+		$order_model->edit($value['order_id'], [ 'status' => 40, 'finished_time' => $times ]);
 		/* 记录订单操作日志 */
 		$order_log->add([
 			'order_id'       => $value['order_id'],
 			'operator'       => '系统服务',
-			'order_status'   => '待付款',
-			'changed_status' => '已取消',
-			'remark'         => '48小时内未支付系统自动交易关闭',
+			'order_status'   => '已发货',
+			'changed_status' => '已完成',
+			'remark'         => '系统自动完成订单',
 			'log_time'       => $times,
 		]);
-		$remindtime = $value['add_time']+172800;
+		/* 更新累计销售件数 */
+		$order_goods = $model_ordergoods->find("order_id=".$value['order_id']);
+		foreach ( $order_goods as $goods ) {
+			$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
+		}
+		//像流水表更新
+		$model_order->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$value['sopenid']."' WHERE order_id=".$value['order_id']);
+		//查出流水向拍卖对接
+		$sreamarr = $model_order->db->getRow("SELECT tran_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=".$value['order_id']);
+		$data['tran_id'] = $sreamarr['tran_id'];
+		$data['open_id'] = $sreamarr['sopen_id'];
+		$data['trade_amount'] = $sreamarr['trade_amount'];
+		$data['pay_type'] = 1;
+		$data['order_sn'] = $sreamarr['order_sn'];
+		$data['title'] = '订单支付';
+		$data['trade_type'] = 28;
+		$data['order_id'] = $value['order_id'];
+		$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
+		_confirmcurl(array('data'=>$serialjson));
+		if($value['add_shiptime'] == 1){
+			$remindtime = $value['add_shiptime']+14*86400;
+		}else{
+			$remindtime = $value['add_shiptime']+7*86400;
+		}
 		$data = [
-			'first'=>'亲，您的订单因逾期付款于"'.date('Y-m-d H:i',$remindtime).'"自动关闭~',
+			'first'=>'亲，您的订单已于！"'.date('Y-m-d H:i',$remindtime).'"自动签收~',
 			'keyword1'=>$value['order_sn'],
-			'keyword2'=>'艺加商城',
+			'keyword2'=>'艺加商城商品',
+			'keyword3'=>date('Y-m-d H:i',$value['ship_time']),
+			'keyword3'=>date('Y-m-d H:i',$remindtime),
 			'remark'=>'请点击"详情"查看更多，如有任何疑问请联系我们。',
 		];
 		//获取相关提醒信息  进行提醒
-		$result = Wechat::sendNotice($value['openid'],'e5jLqrIWtcaNnlLJt7bthAVC3Un_89vzGhvJEG-4cCg',$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$value['order_id']."&type=0");
+		$result = Wechat::sendNotice($value['bopenid'],'0x-63ZoAUyXogs0WOVrnAdisWmf0bcLz4454GEhC9Ss',$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$value['order_id']."&type=0");
 	}
+}
+function _confirmcurl($curlPost){
+	//初始化
+	$ch = curl_init("http://tst.yijiapai.com/yjpai/common/tools/addAccountCheck");
+	//设置
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_POST, 1);    //设施post方式提交数据
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);    //设置POST的数据
+	//执行会话并获取内容
+	$output = curl_exec($ch);
+	curl_close($ch);
+	return json_decode($output,true);
 }
 /**
  *    所有类的基础类
