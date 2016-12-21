@@ -121,10 +121,11 @@ class GoodsModel extends BaseModel {
      * @param int   $scate_ids  店铺商品分类id
      * @param bool  $desc       是否查描述
      * @param bool  $no_picture 没有图片时是否使用no_picture作为默认图片
+     * @param bool  $admin 供后台使用  查看当前商品是否已经推荐
      *
      * @return array
      */
-    function get_list( $params = [], $scate_ids = [], $desc = false, $no_picture = true ) {
+    function get_list( $params = [], $scate_ids = [], $desc = false, $no_picture = true,$admin = false ) {
         is_int($scate_ids) && $scate_ids > 0 && $scate_ids = [ $scate_ids ];
 
         extract($this->_initFindParams($params));
@@ -143,6 +144,10 @@ class GoodsModel extends BaseModel {
             "LEFT JOIN {$gs_mod->table} gs ON g.default_spec = gs.spec_id " .
             "LEFT JOIN {$store_mod->table} s ON g.store_id = s.store_id " .
             "LEFT JOIN {$gstat_mod->table} gst ON g.goods_id = gst.goods_id ";
+
+        // 后台使用
+        $admin && $fields .= ",r.recom_name";
+        $admin && $tables .= "left join ecm_recommended_goods rg on rg.goods_id = g.goods_id left join ecm_recommend r on r.recom_id = rg.recom_id";
 
         /* 条件(WHERE) */
         $conditions = $this->_getConditions($conditions, true);
@@ -167,6 +172,7 @@ class GoodsModel extends BaseModel {
         /* 完整的SQL */
         $this->temp = $tables . $conditions;
         $sql = "SELECT {$fields} FROM {$tables}{$conditions}{$order}{$limit}";
+//Log::getLogger()->warning($sql);
 
         // 以索引形式排序(不要这样做)
 //        $goods_list = $index_key ? $this->db->getAllWithIndex($sql, $index_key) : $this->db->getAll($sql);

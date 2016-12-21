@@ -58,6 +58,9 @@ $(function(){
       <td><span ectype="order_by" fieldname="cate_id">{$lang.gcategory}</span></td>
       <td class="table-center"><span ectype="order_by" fieldname="if_show">{$lang.if_show}</span></td>
       <td class="table-center"><span ectype="order_by" fieldname="closed">{$lang.close}</span></td>
+
+      <td class="table-center">推荐类型</td>
+
       <td><span ectype="order_by" fieldname="views">{$lang.views}</span></td>
 <!--       <td>{$lang.handler}</td> -->
     </tr>
@@ -74,7 +77,10 @@ $(function(){
       <td>{$goods.cate_name|nl2br}</td>
       <td class="table-center"><!-- {if $goods.if_show} --><img src="{res file=style/images/positive_enabled.gif}" /><!--{else}--><img src="{res file=style/images/positive_disabled.gif}" /><!-- {/if} --></td>
       <td class="table-center"><!-- {if $goods.closed} --><img src="{res file=style/images/negative_enabled.gif}" ectype="inline_edit" fieldname="closed" fieldid="{$goods.goods_id}" fieldvalue="1" title="{$lang.editable}"/><!--{else}--><img src="{res file=style/images/negative_disabled.gif}" ectype="inline_edit" fieldname="closed" fieldid="{$goods.goods_id}" fieldvalue="0" title="{$lang.editable}"/><!-- {/if} --></td>
-      <td>{$goods.views|default:0}</td>
+
+      <td class="table-center">{$goods.recom_name}</td>
+
+      <td class="table-center">{$goods.views|default:0}</td>
 <!--       <td><a target="_blank" href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}">{$lang.view}</a></td> -->
     </tr>
     <!--{foreachelse}-->

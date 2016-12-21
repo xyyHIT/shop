@@ -71,7 +71,7 @@ class GoodsApp extends BackendApp
             'count' => true,
             'order' => "$sort $order",
             'limit' => $page['limit'],
-        ));
+        ),$scate_ids = [], $desc = false, $no_picture = true,$admin = true);
         foreach ($goods_list as $key => $goods)
         {
             $goods_list[$key]['cate_name'] = $this->_goods_mod->format_cate_name($goods['cate_name']);
