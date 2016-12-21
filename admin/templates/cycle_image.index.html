@@ -1,4 +1,9 @@
 {include file="header.html"}
+<style>
+  .dataTable td {
+    text-align: center;
+  }
+</style>
 <div id="rightTop">
   <p>轮播图</p>
   <ul class="subnav">
@@ -25,7 +30,7 @@
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$image.image_id}"/></td>
       <td><span ectype="inline_edit" fieldname="image_name" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.image_name|escape}</span></td>
       <!--<td><span></span></td>-->
-      <td><img src="{$image.image_url|escape}" style="max-width: 300px;height: auto;display: block;"></img></td>
+      <td><img src="{$image.image_url|escape}" style="max-width: 100%;height: auto;display: block;"></img></td>
       <td><span ectype="inline_edit" fieldname="image_link" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.image_link|escape}</span></td>
       <td><span ectype="inline_edit" fieldname="sort" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.sort|escape}</span></td>
       <td class="handler"><span><a href="index.php?app=CycleImage&amp;act=edit&amp;id={$image.image_id}">编辑</a></span></td>
