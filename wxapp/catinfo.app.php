@@ -35,7 +35,8 @@ class CatinfoApp extends MallbaseApp
 		if(!empty($stats['by_category'])){
             $sql = '';
 			foreach($stats['by_category'] as $v){
-				$sql .= "(select g.goods_id,g.default_image,g.goods_name,g.price,g.cate_id from ".DB_PREFIX."goods g ".
+				$sql .= "(select g.goods_id,g.default_image,g.goods_name,g.price,g.cate_id,gs.sales from ".DB_PREFIX."goods g ".
+					" LEFT JOIN ".DB_PREFIX."goods_statistics gs ON gs.goods_id = g.goods_id ". 
 					" LEFT JOIN ".DB_PREFIX."store s ON g.store_id = s.store_id  where g.if_show = 1 AND g.closed = 0 AND s.state = 1 and cate_id=".$v['cate_id']." limit 5)";
 				if($v['cate_id'] != $endarr['cate_id']){
 					$sql .= " union all ";	
@@ -297,6 +298,7 @@ class CatinfoApp extends MallbaseApp
 						$tempgood['default_image'] = $v['default_image'];
 						$tempgood['goods_name'] = $v['goods_name'];
 						$tempgood['price'] = $v['price'];
+						$tempgood['sales'] = $v['sales'];
 						array_push($temp['goodslist'],$tempgood);
 					}
 				}
