@@ -24,7 +24,7 @@ class CycleImageApp extends BackendApp
     /* 商品列表 */
     function index()
     {
-        $list = $this->cycleImageModel->getList();
+        $list = $this->cycleImageModel->getList('*',"type='cycle'",'sort asc');
 
         $this->assign('list', $list);
 
@@ -185,7 +185,7 @@ class CycleImageApp extends BackendApp
        $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
        $data   = array();
 
-       if (in_array($column ,array('image_name', 'image_link')))
+       if (in_array($column ,array('image_name', 'image_link','sort')))
        {
            $data[$column] = $value;
            $this->cycleImageModel->edit($id, $data);
