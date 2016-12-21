@@ -51,7 +51,7 @@
             $this->_update_views($id);
 			//由于有些无法缓存进而将其提取出来 by newrain
 			$res['goods']['good_comment'] = $this->_goods_ejComments($id);//好评量，目前先放假数据，待评价完成  继续编写
-			$res['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'], 6);//店铺精品推荐   默认显示六个
+			$res['goods']['commend_goods'] = $this->_get_ejrecommended_goods($data['goods']['store_id'], 8);//店铺精品推荐   默认显示六个
 
             $colstore =  $this->_goods_mod->db->getOne("select user_id from ".DB_PREFIX."collect where type='store' and item_id=".$data['goods']['store_id']." and user_id=".$this->visitor->get('user_id'));
 			$res['store']['collectsign'] = empty($colstore)?'0':'1';
@@ -527,11 +527,11 @@
         }
 
         /* 取得推荐商品 by newrain*/
-        function _get_ejrecommended_goods( $id, $num = 6 ) {
+        function _get_ejrecommended_goods( $id, $num = 8) {
             $goods_mod =& bm('goods', [ '_store_id' => $id ]);
 			$ejgoodslist = "SELECT g.goods_name,g.default_image ,g.price ,g.goods_id,gs.sales FROM ".DB_PREFIX."goods  g ".
 							" LEFT JOIN ".DB_PREFIX."goods_statistics gs ON g.goods_id = gs.goods_id ".
-							" WHERE g.closed =0 AND g.if_show =1 AND g.store_id = $id ORDER BY gs.sales desc LIMIT 6";
+							" WHERE g.closed =0 AND g.if_show =1 AND g.store_id = $id ORDER BY gs.sales desc LIMIT 8";
 			$goods_list = $goods_mod->db->getAll($ejgoodslist);
             foreach ( $goods_list as $key => $goods ) {
                 empty( $goods['default_image'] ) && $goods_list[ $key ]['default_image'] = Conf::get('default_goods_image');
