@@ -19,7 +19,7 @@
             <td width="50%"><span class="all_checkbox"><label for="checkall_1">{$lang.checkall}</label></span>{$lang.cate_name}</td>
             <td>{$lang.sort_order}</td>
             <td>{$lang.if_show}</td>
-            <td class="handler">{$lang.handler}</td>
+            <td width="20%" class="handler">{$lang.handler}</td>
         </tr>
         </thead>
         <!--{/if}-->
@@ -31,8 +31,9 @@
             <td class="align_center"><span class="editable" ectype="inline_edit" fieldname="sort_order" fieldid="{$gcategory.cate_id}" datatype="number" title="{$lang.editable}">{$gcategory.sort_order}</span></td>
             <td class="align_center"><!--{if $gcategory.if_show}--><img src="templates/style/images/positive_enabled.gif" ectype="inline_edit" fieldname="if_show" fieldid="{$gcategory.cate_id}" fieldvalue="1" title="{$lang.editable}"/><!--{else}--><img src="templates/style/images/positive_disabled.gif" ectype="inline_edit" fieldname="if_show" fieldid="{$gcategory.cate_id}" fieldvalue="0" title="{$lang.editable}"/><!--{/if}--></td>
             <td class="handler"><span><a href="index.php?app=gcategory&amp;act=edit&amp;id={$gcategory.cate_id}">{$lang.edit}</a>
-                |
-                <a href="javascript:if(confirm('{$lang.drop_confirm}'))window.location = 'index.php?app=gcategory&amp;act=drop&amp;id={$gcategory.cate_id}';">{$lang.drop}</a><!-- {if $region.layer lt $max_layer} --> | <a href="index.php?app=gcategory&amp;act=add&amp;pid={$gcategory.cate_id}">{$lang.add_child}</a><!-- {/if} -->
+                |<a href="javascript:if(confirm('{$lang.drop_confirm}'))window.location = 'index.php?app=gcategory&amp;act=drop&amp;id={$gcategory.cate_id}';">{$lang.drop}</a>
+                |<a href="index.php?app=GCategoryCycleImage&amp;act=index&amp;cate_id={$gcategory.cate_id}&amp;cate_name={$gcategory.cate_name}">轮播图</a>
+                <!-- {if $region.layer lt $max_layer} --> | <a href="index.php?app=gcategory&amp;act=add&amp;pid={$gcategory.cate_id}">{$lang.add_child}</a><!-- {/if} -->
                 </span>
                 </td>
         </tr>
