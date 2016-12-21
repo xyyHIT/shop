@@ -33,6 +33,7 @@ class CatinfoApp extends MallbaseApp
 		$goods_list = array();
 		//循环获取分类对应商品  待优化 
 		if(!empty($stats['by_category'])){
+            $sql = '';
 			foreach($stats['by_category'] as $v){
 				$sql .= "(select g.goods_id,g.default_image,g.goods_name,g.price,g.cate_id from ".DB_PREFIX."goods g ".
 					" LEFT JOIN ".DB_PREFIX."store s ON g.store_id = s.store_id  where g.if_show = 1 AND g.closed = 0 AND s.state = 1 and cate_id=".$v['cate_id']." limit 5)";
@@ -45,7 +46,16 @@ class CatinfoApp extends MallbaseApp
 		}
 
         //将商品匹配到分类  by newrain
-		$result = $this->_ejcat_goodslist($stats['by_category'],$goods_list);
+        $subData = $this->_ejcat_goodslist($stats['by_category'],$goods_list);
+
+        // 分类轮播图
+        $cycleImage = $goods_mod->getAll("select image_url,image_link,image_name from ecm_business_image i where i.fk_id = {$param['cate_id']} and i.type = 'category_cycle' order by sort asc ");
+
+        $result = [
+            'cycle_image' => $cycleImage,
+            'sub_data' => $subData,
+        ];
+
 		return $this->ej_json_success($result);
     }
     /**
