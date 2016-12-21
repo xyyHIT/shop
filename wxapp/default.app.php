@@ -9,6 +9,11 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
     private $businessImageModel = null;
 
     /**
+     * @var RecommendModel
+     */
+    private $recommendModel = null;
+
+    /**
      * 获取首页信息
      *
      * by Gavin 20161124
@@ -22,17 +27,55 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         // 获取轮播图
         $cycleImageArr = $this->_ejCycleImages();
 
-        // 获取推荐信息
-        $recommendModel =& m('recommend');
-        $recommendArr = $recommendModel->get_recommended_goods_all();
-
         $allArr = [
             'categories'  => $categoryArr,
             'cycleImages' => $cycleImageArr,
-            'recommend'   => $recommendArr,
         ];
 
         return $this->ej_json_success($allArr);
+    }
+
+    public function ejRecommend(){
+        $page = $this->_get_page(3);
+
+        $this->recommendModel = & m('recommend');
+
+        $count = $this->recommendModel->getOne("SELECT COUNT(*) FROM ecm_recommend ");
+        $page['item_count'] = $count;
+
+        $res = $this->recommendModel->db->query("select recom_id from ecm_recommend order by sort asc limit {$page['limit']}");
+        $recoms = [];
+        while ( $row = $this->recommendModel->db->fetchRow($res)){
+            $recoms[$row['recom_id']] = [];
+        }
+
+        # Todo 缓存...
+
+        /* 推荐商品 */
+        $sql = "SELECT rg.recom_id,g.goods_id, g.goods_name, g.default_image, gs.price, gs.stock, i.image_url " .
+            "FROM " . DB_PREFIX . "recommended_goods AS rg " .
+            "   LEFT JOIN " . DB_PREFIX . "goods AS g ON rg.goods_id = g.goods_id " .
+            "   LEFT JOIN " . DB_PREFIX . "goods_spec AS gs ON g.default_spec = gs.spec_id " .
+            "   LEFT JOIN " . DB_PREFIX . "store AS s ON g.store_id = s.store_id " .
+            "   LEFT JOIN " . DB_PREFIX . "business_image AS i on i.fk_id = g.goods_id and i.type = 'recommend' " .
+            "WHERE g.if_show = 1 AND g.closed = 0 AND s.state = 1 " .
+            "AND rg.recom_id " . db_create_in(array_keys($recoms)).
+            "AND g.goods_id IS NOT NULL " .
+            "ORDER BY rg.sort_order " ;
+
+        $res = $this->recommendModel->db->query($sql);
+        while ( $row = $this->recommendModel->db->fetchRow($res) ) {
+            empty( $row['default_image'] ) && $row['default_image'] = Conf::get('default_goods_image');
+            $row['image_url'] && $row['default_image'] = $row['image_url'];
+            $recoms[$row['recom_id']][] = $row;
+        }
+
+        $result = [
+            'daily' => array_values($recoms), // 返回的每日好货数据
+            'page' => $page, // 分页信息
+        ];
+
+        return $this->ej_json_success($result);
     }
 
     function index()

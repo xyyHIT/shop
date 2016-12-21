@@ -30,6 +30,7 @@
       <td width="10%" class="firstCell"><input type="checkbox" class="checkall" /></td>
       <td width="40">{$lang.recom_name}</td>
       <td width="20">{$lang.goods_count}</td>
+      <td width="20">排序</td>
       <td width="30"class="handler">{$lang.handler}</td>
     </tr>
     <!--{/if}-->
@@ -38,6 +39,7 @@
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$recommend.recom_id}" /></td>
       <td>{$recommend.recom_name|escape}</td>
       <td>{$recommend.goods_count|default:0}</td>
+      <td><span ectype="inline_edit" fieldname="sort" fieldid="{$recommend.recom_id}" required="1" class="editable" title="可编辑">{$recommend.sort}</span></td>
       <td class="handler"><a href="index.php?app=recommend&amp;act=edit&amp;id={$recommend.recom_id}">{$lang.edit}</a> | <a href="javascript:drop_confirm('{$lang.drop_confirm}', 'index.php?app=recommend&amp;act=drop&amp;id={$recommend.recom_id}');">{$lang.drop}</a> | <a href="index.php?app=recommend&amp;act=view_goods&amp;id={$recommend.recom_id}">{$lang.view_recommended_goods}</a></td>
     </tr>
     <!--{foreachelse}-->

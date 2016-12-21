@@ -29,7 +29,7 @@ class RecommendApp extends BackendApp
         $recommends = $this->_recommend_mod->find(array(
             'conditions' => '1=1' . $conditions,
             'count' => true,
-            'order' => 'recom_id desc',
+            'order' => 'sort asc',
             'limit' => $page['limit'],
         ));
         $count = $this->_recommend_mod->count_goods();
@@ -44,10 +44,11 @@ class RecommendApp extends BackendApp
         $this->assign('filtered', $conditions? 1 : 0); //是否有查询条件
         $this->assign('page_info', $page);
         /* 导入jQuery的表单验证插件 */
-        $this->import_resource(array(
-            'script' => 'jqtreetable.js',
-            'style'  => 'res:style/jqtreetable.css'
-        ));
+        $this->import_resource(array('script' => 'inline_edit.js'));
+//        $this->import_resource(array(
+//            'script' => 'jqtreetable.js',
+//            'style'  => 'res:style/jqtreetable.css'
+//        ));
         $this->display('recommend.index.html');
     }
 
@@ -249,6 +250,12 @@ class RecommendApp extends BackendApp
         {
             $data[$column] = $value;
             $this->_recommend_mod->createRelation('recommend_goods', $recom_id, array($goods_id => array('sort_order' => $value)));
+            if(!$this->_recommend_mod->has_error())
+            {
+                echo ecm_json_encode(true);
+            }
+        }else if(in_array($column,['sort'])){
+            $this->_recommend_mod->edit($id,[$column=>$value]);
             if(!$this->_recommend_mod->has_error())
             {
                 echo ecm_json_encode(true);
