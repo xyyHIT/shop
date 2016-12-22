@@ -956,7 +956,7 @@ class My_goodsApp extends StoreadminbaseApp
             $data['goods'][ $column ] = $value;
             $this->_goods_mod->edit($id, $data['goods']);
             if ( !$this->_goods_mod->has_error() ) {
-				$this->_ejclear_cache($id);
+				$this->_ejclear_cache();
                 return $this->ej_json_success();
             } else {
                 return $this->ej_json_failed(-1, current($this->_goods_mod->get_error()));
@@ -975,7 +975,7 @@ class My_goodsApp extends StoreadminbaseApp
                 if ( $column == 'price' ) {
                     $this->_goods_mod->edit($id, $data['specs']);
                 }
-				$this->_ejclear_cache($id);
+				$this->_ejclear_cache();
                 return $this->ej_json_success();
             } else {
                 return $this->ej_json_failed(-1, current($this->_spec_mod->get_error()));
@@ -2511,14 +2511,10 @@ class My_goodsApp extends StoreadminbaseApp
     }
 	
 	/* 清除缓存 */
-    function _ejclear_cache($id='')
+    function _ejclear_cache()
     {        
         $cache_server =& cache_server();
-        $cache_server->delete('function_get_store_data_' . $this->visitor->get('manage_store'));
-		if($id){
-			$cache_server->delete('page_of_goods_'.$id);
-		}
-		$cache_server->delete('goods_count_of_store');
+        $cache_server->clear();
     }
 }
 
