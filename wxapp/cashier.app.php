@@ -527,7 +527,7 @@ class CashierApp extends ShoppingbaseApp
 		curl_close($ch);
 		$outputarr = json_decode($output,true);
 		if(!$outputarr['resCode']){
-			return $this->ej_json_failed(3001);
+			return $this->ej_json_failed(1013);
 		}
 		//改变订单状态
 		if($type == '0'){
