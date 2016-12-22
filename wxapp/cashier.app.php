@@ -530,6 +530,7 @@ class CashierApp extends ShoppingbaseApp
 			return $this->ej_json_failed(1013);
 		}
 		//改变订单状态
+		$where = '';
 		if($type == '0'){
 			$where = " order_id = ".$order_info['order_id'];
 		}else{
@@ -538,6 +539,7 @@ class CashierApp extends ShoppingbaseApp
 		}
 		$where .= ' AND status=' . ORDER_PENDING;
 		$paytime =  time();
+		$data = array();
 		$data['pay_time'] = $paytime;
 		$data['status'] = ORDER_ACCEPTED;
 		$order_model->edit($where, $data);
