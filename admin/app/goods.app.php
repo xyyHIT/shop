@@ -108,29 +108,35 @@ class GoodsApp extends BackendApp
         }
         else
         {
-            $id = isset($_POST['id']) ? trim($_POST['id']) : '';
-            if (!$id)
+            $goodsIdsStr = isset($_POST['id']) ? trim($_POST['id']) : '';
+            if (!$goodsIdsStr)
             {
                 $this->show_warning('Hacking Attempt');
                 return;
             }
 
-            $recom_id = empty($_POST['recom_id']) ? 0 : intval($_POST['recom_id']);
-            if (!$recom_id)
+            $recommendID = empty($_POST['recom_id']) ? 0 : intval($_POST['recom_id']);
+            if (!$recommendID)
             {
                 $this->show_warning('recommend_required');
                 return;
             }
 
-            $ids = explode(',', $id);
+            $goodsIds = explode(',', $goodsIdsStr);
             $goodsModel = & m('goods');
-            $recom_mod =& bm('recommend', array('_store_id' => 0));
-            $recom_mod->createRelation('recommend_goods', $recom_id, $ids);
-            $goodsModel->edit($ids,['recommended'=>'1']);
+            $recommendMod = & bm('recommend', array('_store_id' => 0));
+
+            // 先删除
+            $recommendMod->db->query("delete from ecm_recommended_goods where goods_id " . db_create_in($goodsIds));
+
+            // 再新增
+            $recommendMod->createRelation('recommend_goods', $recommendID, $goodsIds);
+            $goodsModel->edit($goodsIds,['recommended'=>'1']);
+
             $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
             $this->show_message('recommend_ok',
                 'back_list', 'index.php?app=goods&page=' . $ret_page,
-                'view_recommended_goods', 'index.php?app=recommend&amp;act=view_goods&amp;id=' . $recom_id);
+                'view_recommended_goods', 'index.php?app=recommend&amp;act=view_goods&amp;id=' . $recommendID);
         }
     }
 
