@@ -17,7 +17,7 @@ $order_model =& m('order');
 //获取需要推送的订单  暂时通过流水表持久化完成此功能  后期待优化
 $times = time();
 $difftime = $times-24*3600;
-$streamarr = $order_model->db->getAll("SELECT order_id,openid,o.add_time,order_sn,order_amount FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id WHERE o.add_time >= $difftime AND status=11 AND o.if_cron = 0");
+$streamarr = $order_model->db->getAll("SELECT order_id,openid,o.add_time,order_sn,order_amount FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id WHERE o.add_time <= $difftime AND status=11 AND o.if_cron = 0");
 if($streamarr){
 	$sqlarr = array();
 	foreach($streamarr as $key=>$value){

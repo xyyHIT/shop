@@ -22,7 +22,7 @@ $model_ordergoods =& m('ordergoods');
 $times = time();
 $normal_difftime = $times-7*86400;//正常系统自动确认 7天自动收货
 $delay_difftime = $times-14*86400;//用户延长确认时间  延长7天自动收货时间
-$streamarr = $order_model->db->getAll("SELECT order_id,m.openid as bopenid,ms.openid as sopenid,o.ship_time,order_sn,order_amount,add_shiptime FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id LEFT JOIN ".DB_PREFIX."member ms ON o.seller_id = ms.user_id WHERE (o.ship_time >= $normal_difftime or (o.ship_time >= $delay_difftime AND o.add_shiptime=1)) AND status=30");
+$streamarr = $order_model->db->getAll("SELECT order_id,m.openid as bopenid,ms.openid as sopenid,o.ship_time,order_sn,order_amount,add_shiptime FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id LEFT JOIN ".DB_PREFIX."member ms ON o.seller_id = ms.user_id WHERE (o.ship_time <= $normal_difftime or (o.ship_time <= $delay_difftime AND o.add_shiptime=1)) AND status=30");
 if($streamarr){
 	$sqlarr = array();
 	foreach($streamarr as $key=>$value){
@@ -37,15 +37,15 @@ if($streamarr){
 			'remark'         => '系统自动完成订单',
 			'log_time'       => $times,
 		]);
-		/* 更新累计销售件数 */
+		/* 更新累计销售件数*/
 		$order_goods = $model_ordergoods->find("order_id=".$value['order_id']);
 		foreach ( $order_goods as $goods ) {
 			$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
 		}
 		//像流水表更新
-		$model_order->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$value['sopenid']."' WHERE order_id=".$value['order_id']);
+		$order_model->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$value['sopenid']."' WHERE order_id=".$value['order_id']);
 		//查出流水向拍卖对接
-		$sreamarr = $model_order->db->getRow("SELECT tran_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=".$value['order_id']);
+		 $sreamarr = $order_model->db->getRow("SELECT tran_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=".$value['order_id']);
 		$data['tran_id'] = $sreamarr['tran_id'];
 		$data['open_id'] = $sreamarr['sopen_id'];
 		$data['trade_amount'] = $sreamarr['trade_amount'];
@@ -57,9 +57,9 @@ if($streamarr){
 		$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
 		_confirmcurl(array('data'=>$serialjson));
 		if($value['add_shiptime'] == 1){
-			$remindtime = $value['add_shiptime']+14*86400;
+			$remindtime = $value['ship_time']+14*86400;
 		}else{
-			$remindtime = $value['add_shiptime']+7*86400;
+			$remindtime = $value['ship_time']+7*86400;
 		}
 		$data = [
 			'first'=>'亲，您的订单已于！"'.date('Y-m-d H:i',$remindtime).'"自动签收~',
