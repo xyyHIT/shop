@@ -372,6 +372,9 @@ class CashierApp extends ShoppingbaseApp
 			case 'wx':
 				$this->_ej_wxpay($order_info,$type);
 				break;
+			case 'balance':
+				$this->_ej_balancepay($order_info,$type);
+				break;
 			default:
 				return $this->ej_json_failed(3001);
 		}
@@ -469,6 +472,97 @@ class CashierApp extends ShoppingbaseApp
 			]);
         }
 
+			//艺加余额支付  0
+	function _ej_balancepay($order_info,$type=0){
+		$order_model =& m('order');
+		if($type==1){
+			$orderarr = json_decode($order_info['orderid'],true);
+			$idarr = array_keys($orderarr);//获取所有id
+			$idstr = '('.implode(',',$idarr).')';
+			//精确计算订单金额 为保证准确，重新计算
+			$amountinfo =  $order_model->db->getAll("select order_amount from ".DB_PREFIX."order where order_id in $idstr");
+			$amount = 0;
+			if($amountinfo){
+				foreach($amountinfo as $v){
+					$amount = $amount+$v['order_amount'];
+				}
+			}
+			$out_trade_on = $order_info['ordersn'];
+		}else{
+			$amount = $order_info['order_amount'];
+			$out_trade_on = $order_info['order_sn'];
+		}
+		$transaction_id = md5('bal'.$out_trade_on.time());
+		//获取openid对应的userid
+		$openid =  $order_model->db->getOne("select openid from ".DB_PREFIX."member where  user_id='".$this->visitor->get('user_id')."'");
+		if(!$openid){
+			return $this->ej_json_failed(3001);
+		}
+		$orderid = empty($type)?$order_info['order_id']:$order_info['id'];
+		//向yjpai更新商城扣除金额
+		$data = json_encode(array(
+				'tran_id'=> $transaction_id,
+				'open_id'=> $openid,
+				'trade_amount'=> $amount*100,//单位  分
+				'pay_type'=> 0,
+				'order_sn'=> $out_trade_on,
+				'title'=> '订单支付',
+				'trade_type'=> 20,
+				'order_id'=> $orderid
+		));
+		include ROOT_PATH . '/includes/aes.base.php', //加密库
+		$serialjson = Security::encrypt($data,'yijiawang.com#@!');
+		//POST数据
+		$curlPost = array(
+			'data'=>$serialjson
+		);
+		//初始化
+		$ch = curl_init("http://tst.yijiapai.com/yjpai/common/tools/addAccountCheck");
+		//设置
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POST, 1);    //设施post方式提交数据
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);    //设置POST的数据
+		//执行会话并获取内容
+		$output = curl_exec($ch);
+		curl_close($ch);
+		$outputarr = json_decode($output,true);
+		if(!$outputarr['resCode']){
+			return $this->ej_json_failed(3001);
+		}
+		//改变订单状态
+		if($type == '0'){
+			$where = " order_id = ".$order_info['order_id'];
+		}else{
+			$idstr = '('.implode(',',$idarr).')';
+			$where = " order_id in {$idstr}";
+		}
+		$where .= ' AND status=' . ORDER_PENDING;
+		$paytime =  time();
+		$data['pay_time'] = $paytime;
+		$data['status'] = ORDER_ACCEPTED;
+		$order_model->edit($where, $data);
+		//向订单流水表插入数据
+		$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id,pay_time)';
+		if($type == '0'){
+			$inordergoods = "('fin".$transaction_id."','".$openid."','".($amount*100)."','".$out_trade_on."',".$orderid.",'".$outputarr['data']."','".$paytime."')";
+		}else{
+			$idstr = '('.implode(',',$idarr).')';
+			$orderwhere = " order_id in {$idstr}";
+			$loop_order = $order_model->db->getAll("SELECT order_id,order_sn,order_amount FROM ".DB_PREFIX."order WHERE $orderwhere");
+			$inordergoods = '';
+			$endarr = end($loop_order);
+			foreach ($loop_order as $key => $value)
+			{
+				$inordergoods .= "('fin".$transaction_id.$value['order_id']."','".$openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."','".$paytime."')";
+				if($endarr != $value){
+					$inordergoods .= ',';
+				}
+			}
+		}
+		//执行操作
+		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inordergoods);
+		return $this->ej_json_success();
+	}
 }
 
 ?>
