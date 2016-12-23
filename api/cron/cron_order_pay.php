@@ -1,6 +1,6 @@
 <?php
 //配置计划任务相关 by newrain
-//error_reporting(E_ERROR | E_WARNING | E_PARSE);//满足版本升级 by xxy  20161026
+error_reporting(E_ERROR | E_WARNING | E_PARSE);//满足版本升级 by xxy  20161026
 define('IN_ECM', true);
 define('ROOT_PATH', dirname(dirname(dirname(__FILE__))));
 // composer 自动加载
