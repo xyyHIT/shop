@@ -254,6 +254,46 @@ class GoodsApp extends BackendApp
                 'back_list', 'index.php?app=goods&page=' . $ret_page);
         }
     }
+	
+	    /**
+     *    查看
+     *
+     *    @author    Garbin
+     *    @param    none
+     *    @return    void
+     */
+    function view()
+    {
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        if (!$id)
+        {
+            $this->show_warning('no_such_goods');
+
+            return;
+        }
+		$goods_mod = & m('goods');
+		$data = [ 'id' => $id ];
+		/* 商品信息 */
+		$goods = $goods_mod->get_info($id);
+		$goods['tags'] = $goods['tags'] ? explode(',', trim($goods['tags'], ',')) : [];
+		$goods['description'] = $goods['description'] ? html_script_reverse($goods['description']) : '';
+		$data['goods'] = $goods;
+		/* 店铺信息 */
+		if ( !$goods['store_id'] ) {
+            $this->show_warning('no_such_goods');
+            return;
+		}
+		$store_mod  =& m('store');
+		$store_info = $store_mod->get_info($goods['store_id']);
+		$data['store_data'] = $store_info;
+		$data['goods']['add_time'] = empty($data['goods']['add_time'])?'':date('Y-m-d H:i',$data['goods']['add_time']);  
+		$collect_store = $store_mod->getOne('select count(*) from ' . DB_PREFIX . "collect where type = 'store' and item_id=" . $goods['store_id']);
+		$data['store_data']['collect'] = $collect_store;
+		$this->assign('goods', $data['goods']);
+		$this->assign('goods_specs', $data['goods']['_specs']['0']);
+		$this->assign('goods_store', $data['store_data']);
+        $this->display('goods.view.html');
+    }
 }
 
 ?>

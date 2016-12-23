@@ -62,7 +62,7 @@ $(function(){
       <td class="table-center">推荐类型</td>
 
       <td><span ectype="order_by" fieldname="views">{$lang.views}</span></td>
-<!--       <td>{$lang.handler}</td> -->
+	  <td>{$lang.handler}</td>
     </tr>
     <!--{/if}-->
     <!--{foreach from=$goods_list item=goods}-->
@@ -81,7 +81,7 @@ $(function(){
       <td class="table-center">{$goods.recom_name}</td>
 
       <td class="table-center">{$goods.views|default:0}</td>
-<!--       <td><a target="_blank" href="{$site_url}/index.php?app=goods&amp;id={$goods.goods_id}">{$lang.view}</a></td> -->
+	  <td><a href="index.php?app=goods&amp;act=view&amp;id={$goods.goods_id}">{$lang.view}</a></td>
     </tr>
     <!--{foreachelse}-->
     <tr class="no_data info">
