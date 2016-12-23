@@ -51,9 +51,9 @@ class FrontendApp extends ECBaseApp
 					empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
 
 					/**
-					 * 重新登录并操作(添加购物车,喜欢,关注商品,关注店铺)
+					 * 重新登录并操作(添加购物车,喜欢商品,关注店铺)
 					 *
-					 * 这里进行登录,并重定向到商品页,前端完成添加购物车功能
+					 * 这里进行登录,并重定向到商品页
 					 */
 					strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
 
@@ -541,14 +541,17 @@ class MemberbaseApp extends MallbaseApp
     function _run_action()
     {
         /* 只有登录的用户才可访问 */
-        if ( !$this->visitor->has_login && !in_array(ACT, [ 'login', 'register', 'check_user' ]) ) {
-            if ( !IS_AJAX && !IS_WECHAT ) {
-                // header('Location:index.php?app=member&act=login&ret_url=' . rawurlencode($_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING']));
-                // return;
-            } else {
-                $this->ej_json_failed(3004);
+        if ( !$this->visitor->has_login ){
+            $app = strtolower(APP);
+            $act = strtolower(ACT);
+            if( ($app=='my_favorite' && $act=='index') || ($app=='my_favorite' && $act=='add') ){
+                // 商品详情中  需要登录重定向业务页
+                $this->ej_json_failed(3005);
                 exit();
             }
+
+            $this->ej_json_failed(3004);
+            exit();
         }
 
         parent::_run_action();
