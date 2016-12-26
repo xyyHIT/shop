@@ -201,6 +201,149 @@ class CycleImageApp extends BackendApp
        return ;
    }
 
+    /**
+     * 选择轮播图链接的商品
+     */
+   function select(){
+       $conditions = $this->_get_query_conditions(array(
+           array(
+               'field' => 'goods_name',
+               'equal' => 'like',
+           ),
+           array(
+               'field' => 'store_name',
+               'equal' => 'like',
+           ),
+           array(
+               'field' => 'brand',
+               'equal' => 'like',
+           ),
+           array(
+               'field' => 'closed',
+               'type'  => 'int',
+           ),
+       ));
+
+       // 分类
+       $cate_id = empty($_GET['cate_id']) ? 0 : intval($_GET['cate_id']);
+       if ($cate_id > 0)
+       {
+           $cate_mod =& bm('gcategory');
+           $cate_ids = $cate_mod->get_descendant_ids($cate_id);
+           $conditions .= " AND cate_id" . db_create_in($cate_ids);
+       }
+
+       //更新排序
+       if (isset($_GET['sort']) && isset($_GET['order']))
+       {
+           $sort  = strtolower(trim($_GET['sort']));
+           $order = strtolower(trim($_GET['order']));
+           if (!in_array($order,array('asc','desc')))
+           {
+               $sort  = 'goods_id';
+               $order = 'desc';
+           }
+       }
+       else
+       {
+           $sort  = 'goods_id';
+           $order = 'desc';
+       }
+
+       $page = $this->_get_page();
+       $goodsMod =& m('goods');
+       $goods_list = $goodsMod->get_list(array(
+           'conditions' => "1 = 1" . $conditions,
+           'count' => true,
+           'order' => "$sort $order",
+           'limit' => $page['limit'],
+       ),$scate_ids = [], $desc = false, $no_picture = true,$admin = true);
+       foreach ($goods_list as $key => $goods)
+       {
+           $goods_list[$key]['cate_name'] = $goodsMod->format_cate_name($goods['cate_name']);
+       }
+       $this->assign('goods_list', $goods_list);
+
+       $page['item_count'] = $goodsMod->getCount();
+       $this->_format_page($page);
+       $this->assign('page_info', $page);
+
+       // 第一级分类
+       $cate_mod =& bm('gcategory', array('_store_id' => 0));
+       $this->assign('gcategories', $cate_mod->get_options(0, true));
+       $this->import_resource(array('script' => 'mlselection.js'));
+
+
+       $this->assign('cycle_image_id',$_GET['cycle_image_id']);
+       $this->assign('cycle_type',$_GET['cycle_type']);
+
+       $this->display('cycle_image_select.index.html');
+   }
+
+    /**
+     * 设置轮播图链接地址
+     */
+   function setLink(){
+       $imageID = $_GET['cycle_image_id'];
+       $goodID = $_GET['goods_id'];
+       $cycleType = $_GET['cycle_type'];
+
+       $this->cycleImageModel->edit($imageID,['image_link' => SITE_URL.'/shop/html/index/goodsDetails.html?goodsId='.$goodID]);
+
+
+       if($cycleType == 'cycle'){
+           $this->show_message('设置轮播图链接成功','back_list', 'index.php?app=CycleImage');
+       }else if($cycleType == 'category'){
+           $this->show_message('设置轮播图链接成功','back_list', 'index.php?app=gcategory');
+       }
+
+   }
+
+    /**
+     * 获取查询条件
+     *
+     * @param $query_item
+     *
+     * @return string
+     */
+    function _get_query_conditions( $query_item )
+    {
+        $str = '';
+        $query = [];
+        foreach ( $query_item as $options ) {
+            if ( is_string($options) ) {
+                $field = $options;
+                $options['field'] = $field;
+                $options['name'] = $field;
+            }
+            !isset( $options['equal'] ) && $options['equal'] = '=';
+            !isset( $options['assoc'] ) && $options['assoc'] = 'AND';
+            !isset( $options['type'] ) && $options['type'] = 'string';
+            !isset( $options['name'] ) && $options['name'] = $options['field'];
+            !isset( $options['handler'] ) && $options['handler'] = 'trim';
+            if ( isset( $_REQUEST[ $options['name'] ] ) ) {
+                $input = $_REQUEST[ $options['name'] ];
+                $handler = $options['handler'];
+                $value = ( $input == '' ? $input : $handler($input) );
+                if ( $value === '' || $value === false )  //若未输入，未选择，或者经过$handler处理失败就跳过
+                {
+                    continue;
+                }
+                strtoupper($options['equal']) == 'LIKE' && $value = "%{$value}%";
+                if ( $options['type'] != 'numeric' ) {
+                    $value = "'{$value}'";      //加上单引号，安全第一
+                } else {
+                    $value = floatval($value);  //安全起见，将其转换成浮点型
+                }
+                $str .= " {$options['assoc']} {$options['field']} {$options['equal']} {$value}";
+                $query[ $options['name'] ] = $input;
+            }
+        }
+        $this->assign('query', stripslashes_deep($query));
+
+        return $str;
+    }
+
 
 }
 

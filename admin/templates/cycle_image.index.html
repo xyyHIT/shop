@@ -10,9 +10,6 @@
     <li><a class="btn1" href="index.php?app=CycleImage&amp;act=create">新增</a></li>
   </ul>
 </div>
-<div class="mrightTop1 info">
-  <div class="fontr">{include file=page.top.html}</div>
-</div>
 <div class="tdare">
   <table width="100%" cellspacing="0" class="dataTable">
     <!--{if $list}-->
@@ -21,19 +18,20 @@
       <td width="100"><span>图片名</span></td>
       <td width="150"><span>图片</span></td>
       <td width="150"><span>图片链接地址</span></td>
+      <td width="100"><span>添加时间</span></td>
       <td width="30"><span>排序</span></td>
-      <td width="30" class="handler"><span>操作</span></td>
+      <td width="30"><span>操作</span></td>
     </tr>
     <!--{/if}-->
     <!--{foreach from=$list item=image}-->
     <tr class="tatr2">
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$image.image_id}"/></td>
       <td><span ectype="inline_edit" fieldname="image_name" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.image_name|escape}</span></td>
-      <!--<td><span></span></td>-->
       <td><img src="{$image.image_url|escape}" style="max-width: 100%;height: auto;display: block;"></img></td>
-      <td><span ectype="inline_edit" fieldname="image_link" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.image_link|escape}</span></td>
+      <td><span>{$image.image_link}&nbsp;&nbsp;<a href="index.php?app=CycleImage&amp;act=select&amp;cycle_image_id={$image.image_id}&amp;cycle_type=cycle">选取</a></span></td>
+      <td>{$image.add_time|escape}</td>
       <td><span ectype="inline_edit" fieldname="sort" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.sort|escape}</span></td>
-      <td class="handler"><span><a href="index.php?app=CycleImage&amp;act=edit&amp;id={$image.image_id}">编辑</a></span></td>
+      <td><span><a href="index.php?app=CycleImage&amp;act=edit&amp;id={$image.image_id}">编辑</a></span></td>
     </tr>
     <!--{foreachelse}-->
     <tr class="no_data info">

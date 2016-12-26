@@ -1,0 +1,105 @@
+{include file="header.html"}
+<script type="text/javascript">
+  $(function(){
+    $('#gcategory').length>0 && gcategoryInit("gcategory");
+  });
+</script>
+<style>
+  .dataTable td {
+    text-align: center;
+  }
+</style>
+<div id="rightTop">
+  <p>商品</p>
+  <ul class="subnav">
+    <li><!--{if $smarty.get.closed}--><a class="btn1" href="index.php?app=CycleImage&amp;act=select">所有商品</a><!--{else}--><span>所有商品</span><!--{/if}--></li>
+    <li><!--{if $smarty.get.closed}--><span>禁售商品</span><!--{else}--><a class="btn1" href="index.php?app=CycleImage&amp;act=select&amp;closed=1">禁售商品</a><!--{/if}--></li>
+  </ul>
+</div>
+<div class="mrightTop1 info">
+  <div class="fontl">
+    <form method="get">
+      <input type="hidden" name="app" value="CycleImage" />
+      <input type="hidden" name="act" value="select" />
+      <input type="hidden" name="cycle_image_id" value="{$cycle_image_id}" />
+      <input type="hidden" name="cycle_type" value="{$cycle_type}" />
+      <!--{if $smarty.get.closed}-->
+      <input type="hidden" name="closed" value="1" />
+      <!--{/if}--> 商品名:
+      <input class="queryInput" type="text" name="goods_name" value="{$smarty.get.goods_name|escape}" />
+      店铺名:
+      <input class="queryInput" type="text" name="store_name" value="{$smarty.get.store_name|escape}" />
+      <span style="position: relative; top: 5px;">
+      <div class="left">
+          分类名:
+          <div id="gcategory" style="display:inline;">
+            <input type="hidden" name="cate_id" value="0" class="mls_id" />
+            <select class="querySelect">
+              <option>请选择</option>
+              {html_options options=$gcategories}
+            </select>
+          </div>
+          <input type="submit" class="formbtn" value="查询" />
+      </div>
+        <!--{if $smarty.get.cate_id or $query.goods_name or $query.store_name or $query.brand}-->
+      <a class="left formbtn1" href="index.php?app=CycleImage&act=select">撤销检索</a>
+        <!--{/if}-->
+      </span>
+    </form>
+  </div>
+  <div class="fontr">{include file=page.top.html}</div>
+</div>
+<div class="tdare">
+  <table width="100%" cellspacing="0" class="dataTable">
+    <!--{if $goods_list}-->
+    <tr class="tatr1">
+      <td width="30%"><span ectype="order_by" fieldname="goods_name">商品名</span></td>
+      <td width="10%"><span ectype="order_by" fieldname="store_name">店铺名</span></td>
+      <td><span ectype="order_by" fieldname="cate_id">分类名</span></td>
+      <td class="table-center"><span ectype="order_by" fieldname="if_show">上架</span></td>
+      <td class="table-center"><span ectype="order_by" fieldname="closed">禁售</span></td>
+      <td class="table-center">推荐类型</td>
+      <td><span ectype="order_by" fieldname="views">浏览数</span></td>
+      <td>{$lang.handler}</td>
+    </tr>
+    <!--{/if}-->
+    <!--{foreach from=$goods_list item=goods}-->
+    <tr class="tatr2">
+      <td>{$goods.goods_name|escape}</td>
+      <td>{$goods.store_name|escape}</td>
+      <td>{$goods.cate_name|nl2br}</td>
+      <td class="table-center">
+        <!-- {if $goods.if_show} -->
+          <img src="{res file=style/images/positive_enabled.gif}" />
+        <!--{else}-->
+          <img src="{res file=style/images/positive_disabled.gif}" />
+        <!-- {/if} -->
+      </td>
+      <td class="table-center">
+        <!-- {if $goods.closed} -->
+          <img src="{res file=style/images/negative_enabled.gif}" />
+        <!--{else}-->
+          <img src="{res file=style/images/negative_disabled.gif}" />
+        <!-- {/if} -->
+      </td>
+      <td class="table-center">{$goods.recom_name}</td>
+      <td class="table-center">{$goods.views|default:0}</td>
+      <td>
+        <a href="index.php?app=goods&amp;act=view&amp;id={$goods.goods_id}">查看</a>&nbsp;&nbsp;
+        <a href="index.php?app=CycleImage&amp;act=setLink&amp;goods_id={$goods.goods_id}&amp;cycle_image_id={$cycle_image_id}&amp;cycle_type={$cycle_type}">设为轮播</a>
+      </td>
+    </tr>
+    <!--{foreachelse}-->
+    <tr class="no_data info">
+      <td colspan="8">没有数据</td>
+    </tr>
+    <!--{/foreach}-->
+  </table>
+  <!--{if $goods_list}-->
+  <div id="dataFuncs">
+    <div class="pageLinks">{include file=page.bottom.html}</div>
+    <!--{/if}-->
+  </div>
+  <div class="clear"></div>
+</div>
+{include file="footer.html"}
