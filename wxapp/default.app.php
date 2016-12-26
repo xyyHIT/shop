@@ -133,7 +133,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 
         $fields = 'image_id,image_url,image_link,image_name';
 
-        $data = $this->businessImageModel->getList($fields,"type='cycle'",'sort asc');
+        $data = $this->businessImageModel->getList($fields," type='cycle' and CURDATE() >= start_at and CURDATE() <= end_at ",'sort asc');
 
 //Log::getLogger()->warning('获取轮播图',$data);
 

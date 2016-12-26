@@ -50,7 +50,10 @@ class CatinfoApp extends MallbaseApp
         $subData = $this->_ejcat_goodslist($stats['by_category'],$goods_list);
 
         // 分类轮播图
-        $cycleImage = $goods_mod->getAll("select image_url,image_link,image_name from ecm_business_image i where i.fk_id = {$param['cate_id']} and i.type = 'category_cycle' order by sort asc ");
+        $sql = "select image_url,image_link,image_name from ecm_business_image i 
+                where i.fk_id = {$param['cate_id']} and i.type = 'category_cycle' 
+                and CURDATE() >= start_at and CURDATE() <= end_at order by sort asc ";
+        $cycleImage = $goods_mod->getAll($sql);
 
         $result = [
             'cycle_image' => $cycleImage,

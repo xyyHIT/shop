@@ -18,8 +18,9 @@
             <td width="20%">轮播图</td>
             <td width="100">图片名称</td>
             <td width="100">链接地址</td>
-            <td width="100">添加时间</td>
+            <td width="150">有效时间</td>
             <td width="20">排序</td>
+            <td width="30"><span>操作</span></td>
         </tr>
         <!--{foreach from=$images item=image}-->
         <tr class="tatr2">
@@ -28,8 +29,9 @@
             <td><span ectype="inline_edit" fieldname="image_name" fieldid="{$image.image_id}" class="editable" title="可编辑">{$image.image_name|escape}</span></td>
             <!--<td><span ectype="inline_edit" fieldname="image_link" fieldid="{$image.image_id}" class="editable" title="可编辑">{$image.image_link|escape}</span></td>-->
             <td><span>{$image.image_link}&nbsp;&nbsp;<a href="index.php?app=CycleImage&amp;act=select&amp;cycle_image_id={$image.image_id}&amp;cycle_type=category">选取</a></span></td>
-            <td>{$image.add_time}</td>
+            <td>{$image.start_at} 至 {$image.end_at}</td>
             <td><span ectype="inline_edit" fieldname="sort" fieldid="{$image.image_id}" class="editable" title="可编辑">{$image.sort}</span></td>
+            <td><span><a href="index.php?app=GCategoryCycleImage&amp;act=edit&amp;id={$image.image_id}&cate_id={$cate_id}">编辑</a></span></td>
         </tr>
         <!--{foreachelse}-->
         <tr class="no_data">

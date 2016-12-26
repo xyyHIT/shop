@@ -26,6 +26,11 @@ class CycleImageApp extends BackendApp
     {
         $list = $this->cycleImageModel->getList('*',"type='cycle'",'sort asc');
 
+        foreach($list as &$image){
+            $image['start_at'] && $image['start_at'] = substr($image['start_at'],0,10);
+            $image['end_at'] && $image['end_at'] = substr($image['end_at'],0,10);
+        }
+
         $this->assign('list', $list);
 
         $this->import_resource(array('script' => 'inline_edit.js'));
@@ -73,10 +78,12 @@ class CycleImageApp extends BackendApp
             'image_size' => filesize($fileUrl),
             'image_name' => $_FILES['image']['name'],
             'image_url' => $cloudRetArr['data']['downloadUrl'],
-            'image_link' => $_GET['image_link'] ? $_GET['image_link'] : '',
+            'image_link' => $_REQUEST['image_link'] ? $_REQUEST['image_link'] : '',
             'cloud_image_id' => $cloudRetArr['data']['fileid'],
             'cloud_image_data' => json_encode($cloudRetArr),
-            'type' => 'cycle'
+            'type' => 'cycle',
+            'start_at' => $_REQUEST['start_at'] ? $_REQUEST['start_at'] : '',
+            'end_at' => $_REQUEST['end_at'] ? $_REQUEST['end_at'] : '',
         ];
         $imageID = $this->cycleImageModel->add($data);
         if ( !$imageID ) {
@@ -98,6 +105,9 @@ class CycleImageApp extends BackendApp
         $id = empty($_GET['id']) ? 0 : intval($_GET['id']);
         /* 是否存在 */
         $image = $this->cycleImageModel->get_info($id);
+        $image['start_at'] && $image['start_at'] = substr($image['start_at'],0,10);
+        $image['end_at'] && $image['end_at'] = substr($image['end_at'],0,10);
+
         if (!$image)
         {
             $this->show_warning('轮播图不存在');
@@ -145,7 +155,8 @@ class CycleImageApp extends BackendApp
             ];
         }
 
-        $data['image_link'] = $_REQUEST['image_link'] ? $_REQUEST['image_link'] : '';
+        $data['start_at'] = $_REQUEST['start_at'] ? $_REQUEST['start_at'] : '';
+        $data['end_at'] = $_REQUEST['end_at'] ? $_REQUEST['end_at'] : '';
 
         $imageID = $this->cycleImageModel->update($id,$data);
         if ( !$imageID ) {
