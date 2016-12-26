@@ -352,6 +352,16 @@
 			include ROOT_PATH.'/includes/aes.base.php';
 			$serialjson = Security::encrypt(json_encode($data),'yijiawang.com#@!');
 			$this->_confirmcurl(array('data'=>$serialjson));
+			//推送卖家确认收货消息
+			$data = [
+				'first'=>'您好，您的一个订单已经确认收货了。',
+				'keyword1'=>$sreamarr['order_sn'],
+				'keyword2'=>($sreamarr['trade_amount']/100)."元",
+				'keyword3'=>date('Y-m-d H:i'),
+				'remark'=>'请点击"详情"查看更多，如有任何疑问请联系我们。',
+			];
+			//获取相关提醒信息  进行提醒
+			$result = Wechat::sendNotice($sellArr['openid'],CONFIRM_SELLER,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
 			return $this->ej_json_success();
         }
 
