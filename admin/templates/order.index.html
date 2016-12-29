@@ -61,7 +61,11 @@ $(function(){
             <td>{$order.order_amount|price}</td>
             <td>{$order.payment_name|escape|default:-}</td>
             <td>{$order.status|modifier:order_status}</td>
-            <td><a href="index.php?app=order&amp;act=view&amp;id={$order.order_id}">{$lang.view}</a></td>
+            <td><a href="index.php?app=order&amp;act=view&amp;id={$order.order_id}">{$lang.view}</a>
+			<!--{if $order.status >= 30}-->
+			&nbsp;&nbsp;|&nbsp;&nbsp;<a href="index.php?app=order&amp;act=view_invoice&amp;no={$order.invoice_no}">查看物流</a>
+			<!--{/if}-->
+			</td>
         </tr>
         <!--{foreachelse}-->
         <tr class="no_data">

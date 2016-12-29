@@ -166,5 +166,25 @@ class OrderApp extends BackendApp
         $this->assign($order_detail['data']);
         $this->display('order.view.html');
     }
+	
+	//查看物流单号
+	function view_invoice()
+	{	
+		$invoice_no = isset($_GET['no']) ? intval($_GET['no']) : 0;
+		if (!$invoice_no)
+		{
+			die('no power');
+		}
+		//获取货物单号信息
+ 		require ROOT_PATH.'/includes/Http.php';
+		$http = new Http();
+		$url ='http://highapi.kuaidi.com/openapi-querycountordernumber.html';
+		$jsonArr = $http->parseJSON($http->get($url, [
+			'id' => '12f3f629d0d68fbe3bc8370843961c31',
+			'nu' => $invoice_no
+		]));
+		//$this->assign('data', $jsonArr['data']);
+		$this->display('order.invoice.html');
+	}
 }
 ?>
