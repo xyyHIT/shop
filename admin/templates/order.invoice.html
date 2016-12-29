@@ -562,7 +562,7 @@
                     <div class="mh-list">
                         <!--{if $data}-->
 							<ul>
-								<!--{foreach from=$data key=keys name=names iteam=values}-->
+								<!--{foreach from=$data name=names item=values}-->
 								<!--{if $smarty.foreach.names.iteration eq 1}-->
 								<li class="first">
 									<p>{$values.time}</p>
