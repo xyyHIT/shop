@@ -183,7 +183,7 @@ class OrderApp extends BackendApp
 			'id' => '12f3f629d0d68fbe3bc8370843961c31',
 			'nu' => $invoice_no
 		]));
-		//$this->assign('data', $jsonArr['data']);
+		$this->assign('data', $jsonArr['data']);
 		$this->display('order.invoice.html');
 	}
 }
