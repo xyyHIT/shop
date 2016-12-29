@@ -35,18 +35,22 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
         return $this->ej_json_success($allArr);
     }
 
-    public function ejRecommend(){
+    /**
+     * 首页每日好货
+     */
+    public function ejRecommend()
+    {
         $page = $this->_get_page(3);
 
-        $this->recommendModel = & m('recommend');
+        $this->recommendModel = &m('recommend');
 
         $count = $this->recommendModel->getOne("SELECT COUNT(*) FROM ecm_recommend ");
         $page['item_count'] = $count;
 
-        $res = $this->recommendModel->db->query("select recom_id from ecm_recommend order by sort asc limit {$page['limit']}");
+        $res = $this->recommendModel->db->query("select recom_id from ecm_recommend where is_publish = 1 order by sort asc limit {$page['limit']}");
         $recoms = [];
-        while ( $row = $this->recommendModel->db->fetchRow($res)){
-            $recoms[$row['recom_id']] = [];
+        while ( $row = $this->recommendModel->db->fetchRow($res) ) {
+            $recoms[ $row['recom_id'] ] = [];
         }
 
         # Todo 缓存...
@@ -59,20 +63,20 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
             "   LEFT JOIN " . DB_PREFIX . "store AS s ON g.store_id = s.store_id " .
             "   LEFT JOIN " . DB_PREFIX . "business_image AS i on i.fk_id = g.goods_id and i.type = 'recommend' " .
             "WHERE g.if_show = 1 AND g.closed = 0 AND s.state = 1 " .
-            "AND rg.recom_id " . db_create_in(array_keys($recoms)).
+            "AND rg.recom_id " . db_create_in(array_keys($recoms)) .
             "AND g.goods_id IS NOT NULL " .
-            "ORDER BY rg.sort_order " ;
+            "ORDER BY rg.sort_order ";
 
         $res = $this->recommendModel->db->query($sql);
         while ( $row = $this->recommendModel->db->fetchRow($res) ) {
             empty( $row['default_image'] ) && $row['default_image'] = Conf::get('default_goods_image');
             $row['image_url'] && $row['default_image'] = $row['image_url'];
-            $recoms[$row['recom_id']][] = $row;
+            $recoms[ $row['recom_id'] ][] = $row;
         }
 
         $result = [
             'daily' => array_values($recoms), // 返回的每日好货数据
-            'page' => $page, // 分页信息
+            'page'  => $page, // 分页信息
         ];
 
         return $this->ej_json_success($result);
@@ -128,12 +132,13 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
      *
      * by Gavin 20161215
      */
-    public function _ejCycleImages(){
+    public function _ejCycleImages()
+    {
         $this->businessImageModel =& m('BusinessImage');
 
         $fields = 'image_id,image_url,image_link,image_name';
 
-        $data = $this->businessImageModel->getList($fields," type='cycle' and CURDATE() >= start_at and CURDATE() <= end_at ",'sort asc');
+        $data = $this->businessImageModel->getList($fields, " type='cycle' and CURDATE() >= start_at and CURDATE() <= end_at ", 'sort asc');
 
 //Log::getLogger()->warning('获取轮播图',$data);
 
