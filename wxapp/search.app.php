@@ -39,7 +39,7 @@
             $goods_mod =& m('goods');
             $goods_list = $goods_mod->get_list([
                 'conditions' => $conditions,
-                'order'      => isset( $_REQUEST['order'] ) && isset( $orders[ $_REQUEST['order'] ] ) ? $_REQUEST['order'] : '',
+                'order'      => isset( $_REQUEST['order'] ) && isset( $orders[ $_REQUEST['order'] ] ) ? $_REQUEST['order'].',score desc' : 'score desc',
                 'limit'      => $page['limit'],
             ]);
 
