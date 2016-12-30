@@ -29,27 +29,18 @@ class WechatApp extends MallbaseApp
     public function notify()
     {
         $auctionID = $_GET['user_id'] ? $_GET['user_id'] : 0; // 拍卖用户ID
-//Log::getLogger()->warning('拍卖回调...用户',[$auctionID]);
         # Todo 考虑redis队列更新...
         if ( $auctionID ) {
             $memberModel = &m('member');
             $user = $memberModel->get("auction_id='{$auctionID}'"); // 用户信息
-//Log::getLogger()->warning('用户信息',[$user]);
 
             // 如果没有用户,直接返回
             if ( $user === false ) return;
 
             $openid = $user['openid'];// 微信openid
 
-            $storeModel =& m('store');
-            $store = $storeModel->get($user['user_id']); // 店铺信息
-//Log::getLogger()->warning('店铺信息',[$store]);
-
             // 确保拍卖redis存在,不存在就需要重定向获取
-            $auctionInfoArr = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');
-//Log::getLogger()->warning('拍卖redis信息',[$auctionInfoArr]);
-
-            Cache::store('default');// 使用完切换回default
+            $auctionInfoArr = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP');Cache::store('default');// 使用完切换回default
             // 拍卖微信数据
             $wxUserInfoArr = $auctionInfoArr['wxUserInfo'] ? $auctionInfoArr['wxUserInfo'] : [];
             // 拍卖用户数据
@@ -65,42 +56,45 @@ class WechatApp extends MallbaseApp
                 'portrait'  => $wxUserInfoArr['avatar'],
             ]);
 
+
             /**
+             * ***********之前的逻辑,目前已过时*****
+             *
              * 是否开启店铺
              * 更新数据
              */
-            if ( intval($userInfoArr['vip']) == 0 && $store ) {
-//Log::getLogger()->warning('取消vip');
-                $storeModel->edit($user['user_id'], [
-                    'state'        => 0,
-                    'close_reason' => 'vip已取消',
-                ]);
-            } else if ( intval($userInfoArr['vip']) == 1 ) {
-                if ( !$store ) {
-//Log::getLogger()->warning('新增vip');
-                    $data = [
-                        'store_id'    => $user['user_id'],
-                        'store_name'  => $userInfoArr['name'],
-                        'owner_name'  => $userInfoArr['name'],
-                        'owner_card'  => '',
-                        'region_id'   => '',
-                        'region_name' => $wxUserInfoArr['province'],
-                        'address'     => $wxUserInfoArr['country'] . $wxUserInfoArr['province'] . $wxUserInfoArr['city'],
-                        'zipcode'     => '',
-                        'tel'         => '',
-                        'store_logo'  => $wxUserInfoArr['avatar'],
-                        'sgrade'      => 1, // 店铺等级ID
-                        'state'       => 1, // 需要审核 0 ,不需要审核 1
-                        'add_time'    => gmtime(),
-                    ];
-                    $storeModel->add($data);
-                } else if ( $store['state'] == 0 ) {
-//Log::getLogger()->warning('更新vip');
-                    $storeModel->edit($user['user_id'], [
-                        'state' => 1
-                    ]);
-                }
-            }
+//            $storeModel =& m('store');
+//            $store = $storeModel->get($user['user_id']); // 店铺信息
+
+//            if ( intval($userInfoArr['vip']) == 0 && $store ) {
+//                $storeModel->edit($user['user_id'], [
+//                    'state'        => 0,
+//                    'close_reason' => 'vip已取消',
+//                ]);
+//            } else if ( intval($userInfoArr['vip']) == 1 ) {
+//                if ( !$store ) {
+//                    $data = [
+//                        'store_id'    => $user['user_id'],
+//                        'store_name'  => $userInfoArr['name'],
+//                        'owner_name'  => $userInfoArr['name'],
+//                        'owner_card'  => '',
+//                        'region_id'   => '',
+//                        'region_name' => $wxUserInfoArr['province'],
+//                        'address'     => $wxUserInfoArr['country'] . $wxUserInfoArr['province'] . $wxUserInfoArr['city'],
+//                        'zipcode'     => '',
+//                        'tel'         => '',
+//                        'store_logo'  => $wxUserInfoArr['avatar'],
+//                        'sgrade'      => 1, // 店铺等级ID
+//                        'state'       => 1, // 需要审核 0 ,不需要审核 1
+//                        'add_time'    => gmtime(),
+//                    ];
+//                    $storeModel->add($data);
+//                } else if ( $store['state'] == 0 ) {
+//                    $storeModel->edit($user['user_id'], [
+//                        'state' => 1
+//                    ]);
+//                }
+//            }
 
         }
 

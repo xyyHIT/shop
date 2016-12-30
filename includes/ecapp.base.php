@@ -1309,10 +1309,10 @@ EOT;
                     }
 
                     /**
-                     * 给加v用户生成一个店铺
+                     * 每个新的用户,都分配一个关闭的店铺,后台操作是否开启
                      */
-                    // 必须是拍卖vip用户 且 允许开店
-                    if ( $userInfoArr['vip'] && Conf::get('store_allow') ) {
+                    // 如果必须是拍卖vip才可申请店铺 $userInfoArr['vip']
+                    if ( Conf::get('store_allow') ) {
                         $storeModel =& m('store');
                         $store = $storeModel->get($userID);
 
@@ -1330,7 +1330,8 @@ EOT;
                                 'tel'         => '',
                                 'store_logo'  => $wxUserInfoArr['avatar'], // 店铺logo地址
                                 'sgrade'      => 1, // 店铺等级ID
-                                'state'       => 1, // 需要审核 0 ,不需要审核 1
+                                'state'       => 2, // 需要审核 0 , 不需审核，直接开启 1, 关闭店铺 2
+                                'close_reason' => '新用户添加店铺',
                                 'add_time'    => gmtime(),
                             ];
                             $storeModel->add($data);
@@ -1341,7 +1342,6 @@ EOT;
                             }
                         }
                     }
-
                 } else {
                     $userID = $userArr['user_id'];
                 }
