@@ -330,6 +330,8 @@
 			$order_goods = $model_ordergoods->find("order_id={$order_id}");
 			foreach ( $order_goods as $goods ) {
 				$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
+				$sales_total = $goods['quantity']*$goods['price'];
+				$model_goodsstatistics->edit($goods['goods_id'], "sales_total=sales_total+{$sales_total}");
 			}
 			//获取卖家的openid，记录流水表
 			$userModel =& m('member');

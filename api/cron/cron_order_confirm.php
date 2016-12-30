@@ -41,6 +41,8 @@ if($streamarr){
 		$order_goods = $model_ordergoods->find("order_id=".$value['order_id']);
 		foreach ( $order_goods as $goods ) {
 			$model_goodsstatistics->edit($goods['goods_id'], "sales=sales+{$goods['quantity']}");
+			$sales_total = $goods['quantity']*$goods['price'];
+			$model_goodsstatistics->edit($goods['goods_id'], "sales_total=sales_total+{$sales_total}");
 		}
 		//像流水表更新
 		$order_model->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$value['sopenid']."' WHERE order_id=".$value['order_id']);
