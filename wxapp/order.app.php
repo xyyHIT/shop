@@ -52,6 +52,18 @@ class OrderApp extends ShoppingbaseApp
 			$strstock = "您购买的".$str_tmp."目前库存不足，系统已为您自动配置！";
 			return $this->ej_json_failed(1005,$strstock);
         }
+		//检测购物商品店铺是否有效
+		$store_beyond = $this->_check_store_state($goodslist);
+		if ($store_beyond)
+        {
+            $str_tmp = '';
+            foreach ($store_beyond as $value)
+            {
+                $str_tmp .= $value['goods_name'] . ',';
+            }
+			$strstorestate = "您购买的".$str_tmp."目前商铺已关闭！";
+			return $this->ej_json_failed(1005,$strstorestate);
+        }
 		//拼装结果集
 		$result['list'] = $resultarr;
 		$result['totalamount'] = $totalamount;
@@ -105,6 +117,18 @@ class OrderApp extends ShoppingbaseApp
             }
 			$strstock = "您购买的".$str_tmp."请修改数量再重新提交哦！";
 			return $this->ej_json_failed(1005,$strstock);
+        }
+		//检测购物商品店铺是否有效
+		$store_beyond = $this->_check_store_state($goodslist);
+		if ($store_beyond)
+        {
+            $str_tmp = '';
+            foreach ($store_beyond as $value)
+            {
+                $str_tmp .= $value['goods_name'] . ',';
+            }
+			$strstorestate = "您购买的".$str_tmp."目前商铺已关闭！";
+			return $this->ej_json_failed(1005,$strstorestate);
         }
 		/* 在此获取生成订单的两个基本要素：用户提交的数据（POST），商品信息（包含商品列表，商品总价，商品总数量，类型），所属店铺 */
 		/* 优惠券数据处理   暂时不考虑团购  如2期添加  详情见index action中*/
@@ -185,7 +209,7 @@ class OrderApp extends ShoppingbaseApp
         /* 只有是自己购物车的项目才能购买 */
         $where_user_id = $this->visitor->get('user_id') ? " AND cart.user_id=" . $this->visitor->get('user_id') : '';
         $cart_model =& m('cart');
-		$sql =  "select cart.*,s.store_name,sp.stock,sp.shiprice,g.if_show,g.closed from ".DB_PREFIX."cart cart ".
+		$sql =  "select cart.*,s.store_name,sp.stock,sp.shiprice,g.if_show,g.closed,s.state from ".DB_PREFIX."cart cart ".
 				' LEFT JOIN '.DB_PREFIX.'store s on s.store_id = cart.store_id '.
 				' LEFT JOIN '.DB_PREFIX.'goods_spec sp on sp.goods_id = cart.goods_id '.
 				' LEFT JOIN '.DB_PREFIX.'goods g on g.goods_id = cart.goods_id '.
@@ -206,6 +230,7 @@ class OrderApp extends ShoppingbaseApp
             empty($item['goods_image']) && $item['goods_image'] = Conf::get('default_goods_image');
             $carts[$item['store_id']]['store_name'] = $item['store_name'];
             $carts[$item['store_id']]['store_id'] = $item['store_id'];
+            $carts[$item['store_id']]['store_state'] = $item['state'];
             $carts[$item['store_id']]['amount']     += $item['subtotal'];   //各店铺的总金额
             $carts[$item['store_id']]['quantity']   += $item['quantity'];   //各店铺的总数量
             $carts[$item['store_id']]['goods'][]    = $item;
@@ -277,4 +302,18 @@ class OrderApp extends ShoppingbaseApp
 		}
 		return $this->ej_json_success($result);
 	}
+	//检测店铺状态 by  newrain
+    function _check_store_state($goods_items)
+    {
+        $goods_store_state = array();
+        foreach ($goods_items as $goods)
+        {
+            if ($goods['state'] != 1)
+            {
+                $goods_store_state[$goods['spec_id']] = $goods;
+            }
+        }
+        return $goods_store_state;
+    }
+	
 }
