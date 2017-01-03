@@ -285,7 +285,7 @@
             $result['goods']['vediourl'] = '';//视频地址
             $result['goods']['detail_image'] = '';//详情图片地址   用假数据，后续用真实替换
             $result['goods']['detail_desc'] = $data['goods']['description'];//详情文字描述
-			if($data['goods']['if_show'] != 1 || $data['goods']['closed'] ==1){
+			if($data['goods']['if_show'] != 1 || $data['goods']['closed'] ==1 || $data['goods']['state'] != 1){
 				$result['goods']['if_lose'] = '1';//是否失效 1失效
 			}else{
 				$result['goods']['if_lose'] = '0';//是否失效 0微信
