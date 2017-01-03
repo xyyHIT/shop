@@ -41,7 +41,9 @@ class MemberApp extends MemberbaseApp
 		$ret['order_sta']=get_stats($this->visitor->get('user_id'));	//获取订单各个状态的数量
         # Todo 考虑缓存...
         $storeModel = & m('store');
-        $storeModel->get_info($userID) ? $ret['store_id'] = $userID : $ret['store_id'] = 0;
+        $storeInfo = $storeModel->get_info($userID);
+        $ret['store_id'] = $storeInfo['store_id'];
+        $ret['state'] = $storeInfo['state'];
 
         return $this->ej_json_success($ret);
     }
