@@ -744,13 +744,13 @@ if( !function_exists('auction_user') ){
 
 }
 	//前端获取订单等信息
-    function get_stats($userid)
+    function get_stats($userid,$type = 'buyer_id')
     {
         $user_mod =& m('member');
         return array(
-            'order_pending' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_PENDING . "' AND buyer_id = $userid "),
-            'order_accepted' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_ACCEPTED . "' AND buyer_id = $userid "),
-            'order_shipped' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_SHIPPED . "' AND buyer_id = $userid ")
+            'order_pending' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_PENDING . "' AND $type = $userid "),
+            'order_accepted' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_ACCEPTED . "' AND $type = $userid "),
+            'order_shipped' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_SHIPPED . "' AND $type = $userid ")
         );
     }
 
