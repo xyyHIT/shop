@@ -356,7 +356,7 @@
 			$this->_confirmcurl(array('data'=>$serialjson));
 			//推送卖家确认收货消息
 			$data = [
-				'first'=>'您好，您的一个订单已经确认收货了。',
+				'first'=>'报告主人，订单'.$sreamarr['order_sn'].'买家已确认收货，小艺把钱已装入您的钱包,请注意查收哦！',
 				'keyword1'=>$sreamarr['order_sn'],
 				'keyword2'=>($sreamarr['trade_amount']/100)."元",
 				'keyword3'=>date('Y-m-d H:i'),
@@ -713,7 +713,7 @@
 			$templateid = REMIND_SELLER;//消息模板id
 			$topenid = $member_info['openid'];
 			$data = [
-				'first'=>'您有一个新的待发货订单',
+				'first'=>'买家已经催单了，老板赶紧去发货吧!',
 				'keyword1'=>$order_info['order_sn'],
 				'keyword2'=>$order_info['order_amount'],
 				'keyword3'=>$order_info['buyer_name'],

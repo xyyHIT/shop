@@ -401,7 +401,7 @@
 				$jsonArr['company'] = '货物配送';
 			}
 			$data = [
-				'first'=>'您的货物已发货',
+				'first'=>'主人，小艺已穿戴整齐带着您拍下的商品，快马加鞭向您狂奔而来,您耐心等下哟~',
 				'keyword1'=>$order_info[$order_id]['order_sn'],
 				'keyword2'=>$jsonArr['company'],
 				'keyword3'=>$invoice_no,

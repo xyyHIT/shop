@@ -64,7 +64,7 @@ if($streamarr){
 			$remindtime = $value['ship_time']+7*86400;
 		}
 		$data = [
-			'first'=>'亲，您的订单已于！"'.date('Y-m-d H:i',$remindtime).'"自动签收~',
+			'first'=>'亲，您的订单已于"'.date('Y-m-d H:i',$remindtime).'"自动签收!感谢您的支持，如有疑问请联系艺加拍卖客服 400-630-4180',
 			'keyword1'=>$value['order_sn'],
 			'keyword2'=>'艺加商城商品',
 			'keyword3'=>date('Y-m-d H:i',$value['ship_time']),
