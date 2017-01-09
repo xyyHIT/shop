@@ -47,9 +47,10 @@ if($streamarr){
 		//像流水表更新
 		$order_model->db->query("UPDATE ".DB_PREFIX."order_stream SET sopen_id='".$value['sopenid']."' WHERE order_id=".$value['order_id']);
 		//查出流水向拍卖对接
-		 $sreamarr = $order_model->db->getRow("SELECT tran_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=".$value['order_id']);
+		 $sreamarr = $order_model->db->getRow("SELECT tran_id,bopen_id,sopen_id,trade_amount,order_sn FROM ".DB_PREFIX."order_stream WHERE order_id=".$value['order_id']);
 		$data['tran_id'] = $sreamarr['tran_id'];
 		$data['open_id'] = $sreamarr['sopen_id'];
+		$data['buyer'] = $sreamarr['bopen_id'];
 		$data['trade_amount'] = $sreamarr['trade_amount'];
 		$data['pay_type'] = 1;
 		$data['order_sn'] = $sreamarr['order_sn'];
