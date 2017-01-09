@@ -502,7 +502,7 @@ class CartApp extends MallbaseApp
         $cart_model =& m('cart');
         $cart_items = $cart_model->find([
             'conditions' => " 1=1 " . $where_store_id . $where_user_id,
-            'fields'     => 'this.*,store.store_name,goodsspec.stock,goods.closed,goods.if_show',
+            'fields'     => 'this.*,store.store_name,store.state,goodsspec.stock,goods.closed,goods.if_show',
             'join'       => 'belongs_to_store,belongs_to_goodsspec,belongs_to_goods',
         ]);
         if ( empty( $cart_items ) ) {
@@ -521,7 +521,8 @@ class CartApp extends MallbaseApp
             $carts[ $item['store_id'] ]['amount'] += $item['subtotal'];   //各店铺的总金额
             $carts[ $item['store_id'] ]['quantity'] += $item['quantity'];   //各店铺的总数量
 
-            if( in_array($item['if_show'],['0','2']) ){
+            // 商品被删除或禁售 店铺被关闭  商品显示为已下架
+            if( in_array($item['if_show'],['0','2']) || in_array($item['state'],['0','2']) ){
                 $item['closed'] = 1;
             }
 
