@@ -950,6 +950,7 @@ class StorebaseApp extends FrontendApp
         $store = $cache_server->get($key);
         if ( $store === false ) {
             $store = $this->_get_store_info();
+			/** 根据需求解除店铺限制
             if ( empty( $store ) ) {
                 $this->show_warning('the_store_not_exist');
                 exit;
@@ -957,7 +958,7 @@ class StorebaseApp extends FrontendApp
             if ( $store['state'] == 2 ) {
                 $this->show_warning('the_store_is_closed');
                 exit;
-            }
+            }**/
             $step = intval(Conf::get('upgrade_required'));
             $step < 1 && $step = 5;
             $store_mod =& m('store');
