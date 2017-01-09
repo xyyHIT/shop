@@ -65,9 +65,9 @@
       <!--{else}-->
       <span style="width: 100px">
 	  <!--{if 1==2}-->
-      <a href="index.php?app=user&amp;act=edit&amp;id={$user.user_id}">{$lang.edit}</a> | <!--{/if}--><a href="javascript:drop_confirm('{$lang.drop_confirm}', 'index.php?app=user&amp;act=drop&amp;id={$user.user_id}');">{$lang.drop}</a>
+      <a href="index.php?app=user&amp;act=edit&amp;id={$user.user_id}">{$lang.edit}</a> | <a href="javascript:drop_confirm('{$lang.drop_confirm}', 'index.php?app=user&amp;act=drop&amp;id={$user.user_id}');">{$lang.drop}</a> | <!--{/if}-->
         <!-- {if $user.store_id} -->
-        | <a href="index.php?app=store&amp;act=edit&amp;id={$user.store_id}" onclick="parent.openItem('store_manage', 'store');">{$lang.store}</a>
+        <a href="index.php?app=store&amp;act=edit&amp;id={$user.store_id}" onclick="parent.openItem('store_manage', 'store');">{$lang.store}</a>
         <!-- {/if} -->
       </span>
       </td>
