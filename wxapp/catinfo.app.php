@@ -44,7 +44,7 @@ class CatinfoApp extends MallbaseApp
 				}
 				
 			}
-Log::getLogger()->alert($sql);
+//Log::getLogger()->alert($sql);
 			$goods_list = $goods_mod->getAll($sql);
 		}
 
