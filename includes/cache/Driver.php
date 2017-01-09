@@ -224,7 +224,7 @@
          * 返回句柄对象，可执行其它高级方法
          *
          * @access public
-         * @return object
+         * @return Redis
          */
         public function handler() {
             return $this->handler;
