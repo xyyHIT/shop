@@ -75,7 +75,13 @@ $(function(){
       <td>{$goods.store_name|escape}</td>
       <td>{$goods.brand|escape}</td>
       <td>{$goods.cate_name|nl2br}</td>
-      <td class="table-center"><!-- {if $goods.if_show} --><img src="{res file=style/images/positive_enabled.gif}" /><!--{else}--><img src="{res file=style/images/positive_disabled.gif}" /><!-- {/if} --></td>
+      <td class="table-center">
+        <!-- {if $goods.if_show eq 1} -->
+        <img src="{res file=style/images/positive_enabled.gif}" />
+        <!--{else}-->
+        <img src="{res file=style/images/positive_disabled.gif}" />
+        <!-- {/if} -->
+      </td>
       <td class="table-center"><!-- {if $goods.closed} --><img src="{res file=style/images/negative_enabled.gif}" ectype="inline_edit" fieldname="closed" fieldid="{$goods.goods_id}" fieldvalue="1" title="{$lang.editable}"/><!--{else}--><img src="{res file=style/images/negative_disabled.gif}" ectype="inline_edit" fieldname="closed" fieldid="{$goods.goods_id}" fieldvalue="0" title="{$lang.editable}"/><!-- {/if} --></td>
 
       <td class="table-center">{$goods.recom_name}</td>
