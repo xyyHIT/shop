@@ -18,56 +18,56 @@ class FrontendApp extends ECBaseApp
                 $this->_do_login(USER_ID);
             }
         }
-		if(!in_array(strtolower(APP),['mlselection'])){
-			if( IS_WECHAT ){
-				if( empty( $_SESSION['wx_openid'] ) ){
-					if(strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'){
-						// 删除无用参数
-						$get = $_GET;
-						$modul = $get['modul'];
-						$action = $get['action'];
-						unset($get['app']);
-						unset($get['act']);
-						unset($get['modul']);
-						unset($get['action']);
+        if ( !in_array(strtolower(APP), [ 'mlselection' ]) ) {
+            if ( IS_WECHAT ) {
+                if ( empty( $_SESSION['wx_openid'] ) ) {
+                    if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml' ) {
+                        // 删除无用参数
+                        $get = $_GET;
+                        $modul = $get['modul'];
+                        $action = $get['action'];
+                        unset( $get['app'] );
+                        unset( $get['act'] );
+                        unset( $get['modul'] );
+                        unset( $get['action'] );
 
-						// 生成url query
-						$query = http_build_query($get);
+                        // 生成url query
+                        $query = http_build_query($get);
 
-						/**
-						 * 从微信获取openid
-						 */
-						$redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
-						$query && $redirectUrl .= '?' . $query;
-						$_SESSION['wx_target_url'] = $redirectUrl;
-						Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
-						exit();// 不再执行以下代码
-					}else if(!(strtolower(APP) === 'wechat' && in_array(strtolower(ACT),['oauthcallback','notify']))){
-						$this->ej_json_failed(3003); // 刷新当前页面
-						exit();
-					}
-				}else{
-					// 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
-					empty($_COOKIE['PLATWXUSER']) && ecm_setrawcookie('PLATWXUSER',$_SESSION['wx_openid'] . '#YJPAI',time() + 3600);
+                        /**
+                         * 从微信获取openid
+                         */
+                        $redirectUrl = "shop/html/$modul/$action.html"; // 微信回调地址
+                        $query && $redirectUrl .= '?' . $query;
+                        $_SESSION['wx_target_url'] = $redirectUrl;
+                        Wechat::handler()->oauth->redirect()->send(); // 重定向微信api
+                        exit();// 不再执行以下代码
+                    } else if ( !( strtolower(APP) === 'wechat' && in_array(strtolower(ACT), [ 'oauthcallback', 'notify' ]) ) ) {
+                        $this->ej_json_failed(3003); // 刷新当前页面
+                        exit();
+                    }
+                } else {
+                    // 拍卖使用cookie  ** 很重要,勿动 !!! ** by Gavin 20161209
+                    empty( $_COOKIE['PLATWXUSER'] ) && ecm_setrawcookie('PLATWXUSER', $_SESSION['wx_openid'] . '#YJPAI', time() + 3600);
 
-					/**
-					 * 重新登录并操作(添加购物车,喜欢商品,关注店铺)
-					 *
-					 * 这里进行登录,并重定向到商品页
-					 */
-					strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
+                    /**
+                     * 重新登录并操作(添加购物车,喜欢商品,关注店铺)
+                     *
+                     * 这里进行登录,并重定向到商品页
+                     */
+                    strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' && $this->checkLoginIdentity();
 
-					/**
-					 * 访问特定html时,需登录才可访问
-					 *
-					 * 这里进行登录并重定向
-					 */
-					strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
-					&& in_array(strtolower($_GET['modul']),['my','order','cart']) && $this->checkLoginIdentity();
-				}
+                    /**
+                     * 访问特定html时,需登录才可访问
+                     *
+                     * 这里进行登录并重定向
+                     */
+                    strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirecthtml'
+                    && in_array(strtolower($_GET['modul']), [ 'my', 'order', 'cart' ]) && $this->checkLoginIdentity();
+                }
 
-			}
-		}
+            }
+        }
 
     }
 
@@ -541,10 +541,10 @@ class MemberbaseApp extends MallbaseApp
     function _run_action()
     {
         /* 只有登录的用户才可访问 */
-        if ( !$this->visitor->has_login ){
+        if ( !$this->visitor->has_login ) {
             $app = strtolower(APP);
             $act = strtolower(ACT);
-            if( ($app=='my_favorite' && $act=='index') || ($app=='my_favorite' && $act=='add') ){
+            if ( ( $app == 'my_favorite' && $act == 'index' ) || ( $app == 'my_favorite' && $act == 'add' ) ) {
                 // 商品详情中  需要登录重定向业务页
                 $this->ej_json_failed(3005);
                 exit();
@@ -845,7 +845,12 @@ class StoreadminbaseApp extends MemberbaseApp
         if ( $state == 0 ) {
             return $this->ej_json_failed(-1, Lang::get('apply_not_agree'));
         } elseif ( $state == 2 ) {
-            return $this->ej_json_failed(-1, Lang::get('store_is_closed'));
+            $userID = intval($this->visitor->get('user_id'));
+            # Todo 考虑缓存...
+            $orderStatus = get_stats($userID, 'seller_id'); // 订单状态
+            if ( !( $orderStatus['order_pending'] != 0 || $orderStatus['order_accepted'] != 0 || $orderStatus['order_shipped'] != 0 ) ) {
+                return $this->ej_json_failed(-1, Lang::get('store_is_closed'));
+            }
         }
 
         /* 检查附加功能 */
@@ -950,15 +955,15 @@ class StorebaseApp extends FrontendApp
         $store = $cache_server->get($key);
         if ( $store === false ) {
             $store = $this->_get_store_info();
-			/** 根据需求解除店铺限制
-            if ( empty( $store ) ) {
-                $this->show_warning('the_store_not_exist');
-                exit;
-            }
-            if ( $store['state'] == 2 ) {
-                $this->show_warning('the_store_is_closed');
-                exit;
-            }**/
+            /** 根据需求解除店铺限制
+             * if ( empty( $store ) ) {
+             * $this->show_warning('the_store_not_exist');
+             * exit;
+             * }
+             * if ( $store['state'] == 2 ) {
+             * $this->show_warning('the_store_is_closed');
+             * exit;
+             * }**/
             $step = intval(Conf::get('upgrade_required'));
             $step < 1 && $step = 5;
             $store_mod =& m('store');
