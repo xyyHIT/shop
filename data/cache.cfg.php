@@ -44,6 +44,18 @@ return [
         'prefix'     => '',
     ],
 
+    'redis-mall-product' => [
+        'type' => 'redis',
+        'host' => '10.0.0.194',
+        'port'       => 6379,
+        'password'   => 'crs-lodfe5ga:TFH2016yijia',
+        'select'     => 0,
+        'timeout'    => 3600,
+        'expire'     => 0,
+        'persistent' => false,
+        'prefix'     => '',
+    ],
+
     // 文件缓存
     'file'      => [
         // 驱动方式
