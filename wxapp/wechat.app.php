@@ -32,6 +32,7 @@ class WechatApp extends MallbaseApp
         # Todo 考虑redis队列更新...
         if ( $auctionID ) {
             $memberModel = &m('member');
+            $storeModel = &m('store');
             $user = $memberModel->get("auction_id='{$auctionID}'"); // 用户信息
 
             // 如果没有用户,直接返回
@@ -55,6 +56,12 @@ class WechatApp extends MallbaseApp
                 'gender'    => $wxUserInfoArr['sex'],
                 'portrait'  => $wxUserInfoArr['avatar'],
             ]);
+            // 更新店铺名
+            $storeModel->edit($user['user_id'], [
+                'store_name' => $wxUserInfoArr['nickname'],
+                'owner_name' => $wxUserInfoArr['nickname'],
+            ]);
+
 
 
             /**
