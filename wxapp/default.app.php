@@ -44,7 +44,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 
         $this->recommendModel = &m('recommend');
 
-        $count = $this->recommendModel->getOne("SELECT COUNT(*) FROM ecm_recommend ");
+        $count = $this->recommendModel->getOne("SELECT COUNT(*) FROM ecm_recommend where is_publish = 1");
         $page['item_count'] = $count;
 
         $res = $this->recommendModel->db->query("select recom_id from ecm_recommend where is_publish = 1 order by sort asc limit {$page['limit']}");
