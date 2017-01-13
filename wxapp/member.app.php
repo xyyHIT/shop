@@ -30,14 +30,21 @@ class MemberApp extends MemberbaseApp
     {
         // 当前用户ID
         $userID = intval($this->visitor->get('user_id'));
+
         $userModel =& m('member');
         $profileArr = $userModel->find([
             'conditions' => "user_id='{$userID}'",
-            'fields'     => 'user_name,portrait',
+            'fields'     => 'user_name,portrait,auction_id,openid',
         ]);
 
         // 当前人的账户信息
         $ret = current($profileArr);
+
+        // 等级
+        $ret['level'] = auction_user($ret['auction_id'],$ret['openid'])['level'];
+        unset($ret['auction_id']);
+        unset($ret['openid']);
+
         // 关注数
         $ret['followers'] = $userModel->getOne("select count(1) from ecm_collect where type = 'store' and user_id = {$userID} ");
         $ret['order_sta'] = get_stats($this->visitor->get('user_id'));    //获取订单各个状态的数量

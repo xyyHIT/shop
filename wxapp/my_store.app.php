@@ -33,11 +33,17 @@ class My_storeApp extends StoreadminbaseApp
         $profileArr = $userModel->find([
             'conditions' => "user_id='{$userID}'",
             'join'       => 'has_store',
-            'fields'     => 'user_name,portrait,store.store_id',
+            'fields'     => 'user_name,portrait,store.store_id,auction_id,openid',
         ]);
 
         // 当前人的账户信息
         $ret = current($profileArr);
+
+        // 等级
+        $ret['level'] = auction_user($ret['auction_id'],$ret['openid'])['level'];
+        unset($ret['auction_id']);
+        unset($ret['openid']);
+
         // 粉丝数
         $ret['followers'] = $userModel->getOne('select count(*) from ' . DB_PREFIX . "collect where type = 'store' and item_id=" . $userID);
         // 总收入
