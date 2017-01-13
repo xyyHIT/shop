@@ -467,8 +467,13 @@
             $goodsstat_mod =& m('goodsstatistics');
             $goodsstat_mod->edit($id, "views = views + 1");
 
-            // 商品uv
-             Cache::handler()->sAdd('goods-uv_'.$id,intval($this->visitor->get('manage_store')));
+            $userID = intval($this->visitor->get('user_id'));
+            if( $userID && !empty($userID) ){
+                // key值集合
+                Cache::handler()->sAdd('goods-uv_ids',$id);
+                // 商品uv
+                Cache::handler()->sAdd('goods-uv_'.$id,$userID);
+            }
         }
 
         /**

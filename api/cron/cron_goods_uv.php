@@ -20,17 +20,18 @@ include ROOT_PATH . '/eccore/model/model.base.php';   //模型基础类
 ecm_define(ROOT_PATH . '/data/yijia_mall_test.cfg.php');
 include ROOT_PATH . '/includes/wx.base.php'; // 微信类库
 include ROOT_PATH . '/includes/Cache.php'; // 缓存库
+include ROOT_PATH . '/includes/Log.php'; // 日志
 
 // 商品统计表
 $goodsstatModel =& m('goodsstatistics');
 // redis操作句柄
 $redis = Cache::handler()->handler();
 // 统计pv的商品
-$goods = $redis->keys('goods-uv_*');
-foreach($goods as $good){
-    $goodID = explode('_',$good)[1];
-    $uv = $redis->sCard($good);
-    $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$goodID}");
+$goodsIDS = $redis->sMembers('mall_goods-uv_ids');
+
+foreach($goodsIDS as $id){
+    $uv = $redis->sCard('mall_goods-uv_'.$id);
+    $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$id}");
 }
 
 /**

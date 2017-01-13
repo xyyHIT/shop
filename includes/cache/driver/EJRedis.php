@@ -165,7 +165,7 @@ class EJRedis extends Driver
         if ( is_array($value) ) {
             return $this->handler->sAddArray($key, $value);
         } else {
-            return $this->handler->sAdd($name, $value);
+            return $this->handler->sAdd($key, $value);
         }
     }
 
