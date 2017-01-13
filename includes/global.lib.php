@@ -713,8 +713,13 @@ if( !function_exists('auction_user') ){
         ];
 
         $auctionInfoArr = Cache::store(WECHAT_USERINFO_REDIS)->get($openid . '#SHOP'); Cache::store('default');
-        // 拍卖卖家微信数据
+//Log::getLogger()->alert('微信数据',$auctionInfoArr);
+        // 拍卖卖家数据
         $salerInfoArr = $auctionInfoArr['saler'] ? $auctionInfoArr['saler'] : [];
+
+        // 拍卖买家买家
+        $buyerInfoArr = $auctionInfoArr['buyer'] ? $auctionInfoArr['buyer'] : [];
+
         // 拍卖用户数据
         $userInfoArr = $auctionInfoArr['userInfo'] ? $auctionInfoArr['userInfo'] : [];
 
@@ -729,7 +734,9 @@ if( !function_exists('auction_user') ){
             ]));
 
             if( $jsonArr['resCode'] == 1 ){
-                $reArr['level'] = $jsonArr['data']['saler']['level'];
+                $reArr['level'] = $jsonArr['data']['saler']['level']; // 卖家等级
+                $reArr['buyer_level'] = $jsonArr['data']['buyer']['level']; // 买家等级
+
                 if(isset($jsonArr['data']['mobile'])){
                     $reArr['mobile'] = $jsonArr['data']['mobile'];
                 }
@@ -737,6 +744,7 @@ if( !function_exists('auction_user') ){
         }else{
             // 从redis取
             $reArr['level'] = $salerInfoArr['level'];
+            $reArr['buyer_level'] = $buyerInfoArr['level'];
             $reArr['mobile'] = $userInfoArr['mobile'];
         }
         return $reArr;

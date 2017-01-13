@@ -41,7 +41,7 @@ class MemberApp extends MemberbaseApp
         $ret = current($profileArr);
 
         // 等级
-        $ret['level'] = auction_user($ret['auction_id'],$ret['openid'])['level'];
+        $ret['level'] = auction_user($ret['auction_id'],$ret['openid'])['buyer_level'];
         unset($ret['auction_id']);
         unset($ret['openid']);
 
