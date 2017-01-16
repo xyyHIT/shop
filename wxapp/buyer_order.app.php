@@ -220,7 +220,7 @@
 							$result['button'] = "<div class='dfixed'><a class='qufahuo'>去发货</a></div>";
 					break;
 					case 30://代收货
-							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
+							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a><a class='tixingshouhuo'>提醒收货</a></div>";
 					break;
 					case 40://待评价
 							$result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";

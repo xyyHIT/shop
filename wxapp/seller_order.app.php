@@ -662,7 +662,7 @@
 							$temp['button'] = "<div class='dOperate'><a class='qufahuo'>去发货</a></div>";
 							break;
 						case 30:
-							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a><a class='tixingshouhuo'>提醒收货</a></div>";
 							break;
 						case 40:
 							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
@@ -729,6 +729,45 @@
 
             return $array;
         }
+		//提醒买家收货
+		function remindreceipt(){
+			$order_id = isset($_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
+            }
+			//获取订单信息
+			$model_order =& m('order');
+            $order_info = $model_order->get("order_id={$order_id} AND seller_id=" . $this->visitor->get('user_id'));
+			if(empty($order_info)){
+				return $this->ej_json_failed(3001);
+			}
+			//判断是否属于待付款的状态
+			if($order_info['status'] != ORDER_SHIPPED){
+				return $this->ej_json_failed(3001);
+			}
+			//将提醒收货存入redis ，设置失效期为24小时
+			@if(Cache::get('mseller_'.$this->visitor->get('user_id'))){
+				return $this->ej_json_failed(1007);
+			}
+			Cache::set('mseller_'.$this->visitor->get('user_id'),1,86400);
+			//获取商家openid
+			//$model_member =& m('member');
+            //$member_info = $model_member->get("user_id=".$order_info['seller_id']." AND user_id !=" . $this->visitor->get('user_id'));
+			/*TODO 发送给卖家买家微信推送，交易完成 
+			$templateid = REMIND_SELLER;//消息模板id
+			$topenid = $member_info['openid'];
+			$data = [
+				'first'=>'买家已经催单了，老板赶紧去发货吧!',
+				'keyword1'=>$order_info['order_sn'],
+				'keyword2'=>$order_info['order_amount'],
+				'keyword3'=>$order_info['buyer_name'],
+				'keyword4'=>'已支付',
+				'remark'=>'客户已经付款，老板快去发货吧',
+			];
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
+			*/
+			return $this->ej_json_success();
+		}
     }
 
 ?>
