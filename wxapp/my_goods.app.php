@@ -2268,10 +2268,10 @@ class My_goodsApp extends StoreadminbaseApp
         if ( isset( $data['goods_file_id'][0] ) ) {
             $default_image = $this->_image_mod->get([
                 'fields'     => 'thumbnail',
-                'conditions' => "goods_id = '$goods_id' AND file_id = '{$data[goods_file_id][0]}'",
+                'conditions' => "goods_id = '$goods_id' AND file_id = '{$data['goods_file_id'][0]}'",
             ]);
             $this->_image_mod->edit("goods_id = $goods_id", [ 'sort_order' => 255 ]);
-            $this->_image_mod->edit("goods_id = $goods_id AND file_id = '{$data[goods_file_id][0]}'", [ 'sort_order' => 1 ]);
+            $this->_image_mod->edit("goods_id = $goods_id AND file_id = '{$data['goods_file_id'][0]}'", [ 'sort_order' => 1 ]);
         }
 
         $this->_goods_mod->edit($goods_id, [
