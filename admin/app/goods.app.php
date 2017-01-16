@@ -133,6 +133,35 @@ class GoodsApp extends BackendApp
             $recommendMod->createRelation('recommend_goods', $recommendID, $goodsIds);
             $goodsModel->edit($goodsIds,['recommended'=>'1']);
 
+            $businessImageModel = &m('BusinessImage');
+            $businessImageModel->drop(" type='recommend' and fk_id ".db_create_in($goodsIds));
+
+            // 默认推荐图为商品第一张图
+            $goods_list = $this->_goods_mod->find(
+                [
+                    'conditions' => 'goods_id ' . db_create_in($goodsIds),
+                ],
+                $scate_ids = [],
+                $desc = false,
+                $no_picture = false,
+                $admin = false
+            );
+            foreach ($goods_list as $key => $goods)
+            {
+                $data = [
+                    'image_type'       => '',
+                    'image_size'       => '',
+                    'image_name'       => '',
+                    'image_url'        => $goods['default_image'],
+                    'cloud_image_id'   => '',
+                    'cloud_image_data' => '',
+                    'fk_id'            => $goods['goods_id'],
+                    'type'             => 'recommend',
+                ];
+
+                $businessImageModel->add($data);
+            }
+
             $ret_page = isset($_GET['ret_page']) ? intval($_GET['ret_page']) : 1;
             $this->show_message('recommend_ok',
                 'back_list', 'index.php?app=goods&page=' . $ret_page,

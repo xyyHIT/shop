@@ -1302,7 +1302,7 @@ EOT;
                         'openid'     => $wxUserInfoArr['openId'],
                         'auction_id' => $wxUserInfoArr['userId'], // 拍卖ID
                     ]);
-
+//Log::getLogger()->alert("新增新用户（{$wxUserInfoArr['nickname']},{$userID}）");
                     if ( $memberModel->has_error() ) {
                         $this->ej_json_failed(-1);
                         exit();
@@ -1313,6 +1313,7 @@ EOT;
                      */
                     // 如果必须是拍卖vip才可申请店铺 $userInfoArr['vip']
                     if ( Conf::get('store_allow') ) {
+//Log::getLogger()->alert("允许新增店铺");
                         $storeModel =& m('store');
                         $store = $storeModel->get($userID);
 
@@ -1335,7 +1336,7 @@ EOT;
                                 'add_time'    => gmtime(),
                             ];
                             $storeModel->add($data);
-
+//Log::getLogger()->alert("新增店铺（{$userInfoArr['name']}）");
                             if ( $storeModel->has_error() ) {
                                 $this->ej_json_failed(-1);
                                 exit();
@@ -1349,7 +1350,7 @@ EOT;
                 // 直接登录
                 if ( $userID ) {
                     $this->_do_login($userID);
-
+//Log::getLogger()->alert("用户{$userID}登录了");
                     // 重定向
                     if ( strtolower(APP) === 'wechat' && strtolower(ACT) == 'redirectbusiness' ) {
                         if ( strlen(trim($_GET['url'])) > 1 ) {
