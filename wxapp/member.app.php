@@ -581,6 +581,27 @@ class MemberApp extends MemberbaseApp
 
         return $uploader->save('data/files/mall/portrait/' . ceil($user_id / 500), $user_id);
     }
+	//用户以卖家身份获取待付款，待发货，待收货金额
+	function get_sorder_money(){
+		$open_id = isset($_REQUEST['openid']) ? trim($_REQUEST['openid']) : '';
+        if (!$open_id)
+        {
+            return $this->ej_json_failed(2001);
+        }
+		$user_mod =& m('member');
+		$pending = $user_mod->getOne("SELECT sum(o.order_amount) FROM " . DB_PREFIX . "order as o left join ". DB_PREFIX . "member as m on o.seller_id = m.user_id   WHERE o.status = '" . ORDER_PENDING . "' AND m.openid = '".$open_id."'");
+		$order_pending = empty($pending)?'0':$pending;
+		$accepted = $user_mod->getOne("SELECT sum(o.order_amount) FROM " . DB_PREFIX . "order as o left join ". DB_PREFIX . "member as m on o.seller_id = m.user_id   WHERE o.status = '" .ORDER_ACCEPTED . "' AND m.openid = '".$open_id."'");
+		$order_accepted = empty($accepted)?'0':$accepted;
+		$shipped = $user_mod->getOne("SELECT sum(o.order_amount) FROM " . DB_PREFIX . "order as o left join ".DB_PREFIX . "member as m on o.seller_id = m.user_id   WHERE o.status = '" .ORDER_SHIPPED . "' AND m.openid = '".$open_id."'");
+		$order_shipped = empty($shipped)?'0':$shipped;
+        $orderarr = array(
+            'order_pending' => $order_pending,
+            'order_accepted' => $order_accepted,
+            'order_shipped' => $order_shipped
+        );
+		return $this->ej_json_success($orderarr);
+	}
 }
 
 ?>
