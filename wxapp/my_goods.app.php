@@ -2203,23 +2203,23 @@ class My_goodsApp extends StoreadminbaseApp
 
                 return false;
             }
-
             $goods_id = $id;
         } else {
             // add
             $goods_id = $this->_goods_mod->add($data['goods']);
             if ( !$goods_id ) {
                 $this->_error($this->_goods_mod->get_error());
-
                 return false;
             }
-            if ( ( $data['goods_file_id'] || $data['desc_file_id'] ) ) {
-                $uploadfiles = array_merge($data['goods_file_id'], $data['desc_file_id']);
-                $this->_uploadedfile_mod->edit(db_create_in($uploadfiles, 'file_id'), [ 'item_id' => $goods_id ]);
-            }
-            if ( !empty( $data['goods_file_id'] ) ) {
-                $this->_image_mod->edit(db_create_in($data['goods_file_id'], 'file_id'), [ 'goods_id' => $goods_id ]);
-            }
+        }
+
+        // 图片关联保存
+        if ( ( $data['goods_file_id'] || $data['desc_file_id'] ) ) {
+            $uploadfiles = array_merge($data['goods_file_id'], $data['desc_file_id']);
+            $this->_uploadedfile_mod->edit(db_create_in($uploadfiles, 'file_id'), [ 'item_id' => $goods_id ]);
+        }
+        if ( !empty( $data['goods_file_id'] ) ) {
+            $this->_image_mod->edit(db_create_in($data['goods_file_id'], 'file_id'), [ 'goods_id' => $goods_id ]);
         }
 
         /* 保存规格 */
