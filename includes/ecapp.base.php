@@ -1358,9 +1358,9 @@ EOT;
                         } else {
 //                            header('Location: ' . urldecode(trim($_GET['url'])));
                         }
-
                     } else {
                         header("Location: $redirectUrl");
+//Log::getLogger()->alert("重定向，{$redirectUrl}");
                     }
                     exit();// 不再执行以下代码
                 } else {
