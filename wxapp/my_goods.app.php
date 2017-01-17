@@ -956,7 +956,7 @@ class My_goodsApp extends StoreadminbaseApp
             $data['goods'][ $column ] = $value;
             $this->_goods_mod->edit($id, $data['goods']);
             if ( !$this->_goods_mod->has_error() ) {
-				$this->_ejclear_cache();
+//				$this->_ejclear_cache();
                 return $this->ej_json_success();
             } else {
                 return $this->ej_json_failed(-1, current($this->_goods_mod->get_error()));
@@ -975,7 +975,7 @@ class My_goodsApp extends StoreadminbaseApp
                 if ( $column == 'price' ) {
                     $this->_goods_mod->edit($id, $data['specs']);
                 }
-				$this->_ejclear_cache();
+//				$this->_ejclear_cache();
                 return $this->ej_json_success();
             } else {
                 return $this->ej_json_failed(-1, current($this->_spec_mod->get_error()));
