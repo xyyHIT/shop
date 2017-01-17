@@ -746,26 +746,25 @@
 				return $this->ej_json_failed(3001);
 			}
 			//将提醒收货存入redis ，设置失效期为24小时
-			@if(Cache::get('mseller_'.$this->visitor->get('user_id'))){
+			if(Cache::get('mseller_'.$order_id)){
 				return $this->ej_json_failed(1007);
 			}
-			Cache::set('mseller_'.$this->visitor->get('user_id'),1,86400);
-			//获取商家openid
-			//$model_member =& m('member');
-            //$member_info = $model_member->get("user_id=".$order_info['seller_id']." AND user_id !=" . $this->visitor->get('user_id'));
-			/*TODO 发送给卖家买家微信推送，交易完成 
-			$templateid = REMIND_SELLER;//消息模板id
+			Cache::set('mseller_'.$order_id,1,86400);
+			//获取商家openid*/
+			$model_member =& m('member');
+            $member_info = $model_member->get("user_id=".$order_info['buyer_id']." AND user_id !=" . $this->visitor->get('user_id'));
+			/*TODO 发送给卖家买家微信推送，交易完成*/ 
 			$topenid = $member_info['openid'];
+			//推送卖家确认收货消息
 			$data = [
-				'first'=>'买家已经催单了，老板赶紧去发货吧!',
+				'first'=>'亲，感谢您对'.$order_info['seller_name'].'的惠顾，收到宝贝后，请您点击确认收货 ^_^',
 				'keyword1'=>$order_info['order_sn'],
-				'keyword2'=>$order_info['order_amount'],
-				'keyword3'=>$order_info['buyer_name'],
-				'keyword4'=>'已支付',
-				'remark'=>'客户已经付款，老板快去发货吧',
+				'keyword2'=>$order_info['order_amount']."元",
+				'keyword3'=>date('Y-m-d H:i'),
+				'remark'=>'请点击"详情"查看更多，如有任何疑问请联系我们。',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
-			*/
+			//获取相关提醒信息  进行提醒
+			$result = Wechat::sendNotice($topenid,CONFIRM_SELLER,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=0");
 			return $this->ej_json_success();
 		}
     }
