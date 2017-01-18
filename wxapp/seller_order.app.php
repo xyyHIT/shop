@@ -347,6 +347,9 @@
                 'conditions' => "order_alias.order_id={$order_id} AND seller_id=" . $this->visitor->get('manage_store'),
                 'join'       => 'has_orderextm',
             ]);
+			if($order_info[$order_id]['if_fronzen'] == 1){
+				return $this->ej_json_failed(1023);
+			}
 			//判断订单详情是否为空
 			if(empty($order_info)){
 				return $this->ej_json_failed(2001);
@@ -738,6 +741,9 @@
 			//获取订单信息
 			$model_order =& m('order');
             $order_info = $model_order->get("order_id={$order_id} AND seller_id=" . $this->visitor->get('user_id'));
+			if($order_info['if_fronzen'] == 1){
+				return $this->ej_json_failed(1023);
+			}
 			if(empty($order_info)){
 				return $this->ej_json_failed(3001);
 			}
