@@ -471,8 +471,7 @@ class CashierApp extends ShoppingbaseApp
 				'log_time'       => gmtime(),
 			]);
         }
-
-			//艺加余额支付  0
+					//艺加余额支付  0
 	function _ej_balancepay($order_info,$type=0){
 		$order_model =& m('order');
 		if($type==1){
@@ -509,8 +508,8 @@ class CashierApp extends ShoppingbaseApp
 				'title'=> '订单支付',
 				'trade_type'=> 20,
 				'order_id'=> $orderid
-		));
-		include ROOT_PATH . '/includes/aes.base.php', //加密库
+		));	
+		include ROOT_PATH . '/includes/aes.base.php'; //加密库
 		$serialjson = Security::encrypt($data,'yijiawang.com#@!');
 		//POST数据
 		$curlPost = array(
@@ -544,9 +543,9 @@ class CashierApp extends ShoppingbaseApp
 		$data['status'] = ORDER_ACCEPTED;
 		$order_model->edit($where, $data);
 		//向订单流水表插入数据
-		$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id,pay_time)';
+		$sqlfields = 'order_stream(tran_id,bopen_id,trade_amount,order_sn,order_id,stream_id,pay_time,pay_type)';
 		if($type == '0'){
-			$inordergoods = "('fin".$transaction_id."','".$openid."','".($amount*100)."','".$out_trade_on."',".$orderid.",'".$outputarr['data']."','".$paytime."')";
+			$inordergoods = "('fin".$transaction_id."','".$openid."','".($amount*100)."','".$out_trade_on."',".$orderid.",'".$outputarr['data']."','".$paytime."',0)";
 		}else{
 			$idstr = '('.implode(',',$idarr).')';
 			$orderwhere = " order_id in {$idstr}";
@@ -555,7 +554,7 @@ class CashierApp extends ShoppingbaseApp
 			$endarr = end($loop_order);
 			foreach ($loop_order as $key => $value)
 			{
-				$inordergoods .= "('fin".$transaction_id.$value['order_id']."','".$openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."','".$paytime."')";
+				$inordergoods .= "('fin".$transaction_id.$value['order_id']."','".$openid."','".($value['order_amount']*100)."','".$value['order_sn']."','".$value['order_id']."','".$outputarr['data']."','".$paytime."',0)";
 				if($endarr != $value){
 					$inordergoods .= ',';
 				}
@@ -565,6 +564,7 @@ class CashierApp extends ShoppingbaseApp
 		$order_model->db->query('INSERT INTO '.DB_PREFIX.$sqlfields.' VALUES'.$inordergoods);
 		return $this->ej_json_success();
 	}
+
 }
 
 ?>
