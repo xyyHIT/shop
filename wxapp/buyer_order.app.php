@@ -306,7 +306,7 @@
             $model_order =& m('order');
             /* 只有已发货的订单可以确认 */
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status=" . ORDER_SHIPPED);
-			if($order_info['if_fronzen'] == 1){
+			if($order_info['if_fronzen'] >= 1){
 				return $this->ej_json_failed(1023);
 			}
             if ( empty( $order_info ) ) {
@@ -657,7 +657,7 @@
             $model_order =& m('order');
             /* 只有已发货的订单可以确认 */
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status=" . ORDER_SHIPPED);
-			if($order_info['if_fronzen'] == 1){
+			if($order_info['if_fronzen'] >= 1){
 				return $this->ej_json_failed(1023);
 			}
             if ( empty( $order_info ) ) {
@@ -695,7 +695,7 @@
 			//获取订单信息
 			$model_order =& m('order');
             $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
-			if($order_info['if_fronzen'] == 1){
+			if($order_info['if_fronzen'] >= 1){
 				return $this->ej_json_failed(1023);
 			}
 			if(empty($order_info)){
