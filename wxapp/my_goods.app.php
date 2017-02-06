@@ -213,7 +213,7 @@ class My_goodsApp extends StoreadminbaseApp
         }
 
         $ids = explode(',', $id);
-        if ( !$this->_goods_mod->edit($ids,['closed'=>1,'close_reason'=>'用户删除']) ) {
+        if ( !$this->_goods_mod->edit($ids, [ 'closed' => 1, 'close_reason' => '用户删除' ]) ) {
             return $this->ej_json_failed(-1, '删除失败');
         }
 
@@ -238,15 +238,15 @@ class My_goodsApp extends StoreadminbaseApp
 
             $this->_image_mod->drop($uploadedfile['image_id']);
 
-            if($uploadedfile['cloud_image_id']){
-                $arr = \Tencentyun\ImageV2::del(CLOUD_IMAGE_BUCKET,$uploadedfile['cloud_image_id']);
+            if ( $uploadedfile['cloud_image_id'] ) {
+                $arr = \Tencentyun\ImageV2::del(CLOUD_IMAGE_BUCKET, $uploadedfile['cloud_image_id']);
 //Log::getLogger()->warning(json_encode($arr));
             }
 
             return $this->ej_json_success();
         }
 
-        return $this->ej_json_failed(-1,Lang::get('no_image_droped'));
+        return $this->ej_json_failed(-1, Lang::get('no_image_droped'));
     }
 
     function index()
@@ -975,6 +975,7 @@ class My_goodsApp extends StoreadminbaseApp
                 if ( $column == 'price' ) {
                     $this->_goods_mod->edit($id, $data['specs']);
                 }
+
 //				$this->_ejclear_cache();
                 return $this->ej_json_success();
             } else {
@@ -2209,6 +2210,7 @@ class My_goodsApp extends StoreadminbaseApp
             $goods_id = $this->_goods_mod->add($data['goods']);
             if ( !$goods_id ) {
                 $this->_error($this->_goods_mod->get_error());
+
                 return false;
             }
         }
@@ -2509,10 +2511,10 @@ class My_goodsApp extends StoreadminbaseApp
     {
         return abs(floatval($price));
     }
-	
-	/* 清除缓存 */
+
+    /* 清除缓存 */
     function _ejclear_cache()
-    {        
+    {
         $cache_server =& cache_server();
         $cache_server->clear();
     }

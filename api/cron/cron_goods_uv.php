@@ -31,7 +31,7 @@ $goodsIDS = $redis->sMembers('mall_goods-uv_ids');
 
 foreach($goodsIDS as $id){
     $uv = $redis->sCard('mall_goods-uv_'.$id);
-    $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$id}");
+    $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$id} and unique_views < {$uv}");
 }
 
 /**
