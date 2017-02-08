@@ -13,7 +13,6 @@
 <div class="mrightTop">
   <div class="fontl"> {$lang.recommend}:
     <select class="infoTableSelect" onchange="location='index.php?app=recommend&act=view_goods&id=' + this.value">{html_options options=$recommends selected=$smarty.get.id}
-
     </select>
   </div>
   <div class="fontr"> {if $goods_list}{include file=page.top.html}{/if} </div>
@@ -33,7 +32,11 @@
       <td class="handler"><span>操作</span></td>
     </tr>
     <!--{foreach from=$goods_list item=goods}-->
+    <!--{if $goods.if_show}-->
     <tr class="tatr2">
+    <!--{else}-->
+    <tr class="tatr2" style="background-color: gold;" >
+    <!--{/if}-->
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$goods.goods_id}" /></td>
       <td>{$goods.goods_name|escape}</td>
       <td><img src="{$goods.recommend_image}" alt="推荐图" style="max-width: 100%;height: auto;display: block;"></td>

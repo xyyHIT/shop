@@ -22,7 +22,7 @@ class BusinessImageModel extends BaseModel {
      *
      * @return mixed
      */
-    public function getList($fields = '*',$conditions = '',$order = '',$limit = ''){
+    public function getList($fields = 'i.*',$conditions = '',$order = '',$limit = ''){
         $conditions = $this->_getConditions($conditions, true);
 
         if ( $order ) {
@@ -30,7 +30,7 @@ class BusinessImageModel extends BaseModel {
         }
         $limit && $limit = ' LIMIT ' . $limit;
 
-        $sql = "SELECT {$fields} FROM {$this->table}{$conditions}{$order}{$limit}";
+        $sql = "SELECT {$fields} FROM {$this->table} i left join ecm_goods g on i.fk_id = g.goods_id {$conditions}{$order}{$limit}";
 
         $list = $this->db->getAll($sql);
 

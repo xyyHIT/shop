@@ -24,7 +24,7 @@ class CycleImageApp extends BackendApp
     /* 商品列表 */
     function index()
     {
-        $list = $this->cycleImageModel->getList('*',"type='cycle'",'sort asc');
+        $list = $this->cycleImageModel->getList('i.*,g.if_show',"i.type='cycle'",'sort asc');
 
         foreach($list as &$image){
             $image['start_at'] && $image['start_at'] = substr($image['start_at'],0,10);
@@ -299,7 +299,7 @@ class CycleImageApp extends BackendApp
        $goodID = $_GET['goods_id'];
        $cycleType = $_GET['cycle_type'];
 
-       $this->cycleImageModel->edit($imageID,['image_link' => SITE_URL.'/shop/html/index/goodsDetails.html?goodsId='.$goodID]);
+       $this->cycleImageModel->edit($imageID,['image_link' => SITE_URL.'/shop/html/index/goodsDetails.html?goodsId='.$goodID, 'fk_id' => $goodID]);
 
 
        if($cycleType == 'cycle'){

@@ -26,10 +26,11 @@
                 <input class="queryInput" type="text" name="owner_name" value="{$smarty.get.owner_name|escape}"/>
                 {$lang.store_name}:
                 <input class="queryInput" type="text" name="store_name" value="{$smarty.get.store_name|escape}"/>
-                {$lang.sgrade}:
-                <select class="querySelect" name="sgrade">
+                店铺状态:
+                <select class="querySelect" name="state">
                     <option value="">{$lang.select_pls}</option>
-                    {html_options options=$sgrades selected=$smarty.get.sgrade}
+                    <option value="2">关闭</option>
+                    <option value="1">开启</option>
                 </select>
                 <input type="submit" class="formbtn" value="{$lang.query}"/>
             </div>
@@ -49,13 +50,7 @@
             <td>{$lang.owner_user_name} | {$lang.owner_real_name}</td>
             <td><span ectype="order_by" fieldname="store_name">{$lang.store_name}</span></td>
             <td><span ectype="order_by" fieldname="region_id">{$lang.region}</span></td>
-            <td><span ectype="order_by" fieldname="sgrade">{$lang.sgrade}</span></td>
-            <td class="table-center"><span ectype="order_by" fieldname="end_time">{$lang.end_time}</span></td>
             <td class="table-center"><span ectype="order_by" fieldname="state">{$lang.state}</span></td>
-            <!--{if !$smarty.get.wait_verify}-->
-            <td class="table-center"><span ectype="order_by" fieldname="sort_order">{$lang.sort_order}</span></td>
-            <td class="table-center"><span ectype="order_by" fieldname="recommended">{$lang.recommend}</td>
-            <!--{/if}-->
             <td class="handler">{$lang.handler}</td>
         </tr>
         <!--{/if}-->
@@ -65,19 +60,7 @@
             <td>{$store.user_name|escape} | {$store.owner_name|escape}</td>
             <td>{$store.store_name|escape}</td>
             <td>{$store.region_name|escape}</td>
-            <td>{$store.sgrade}</td>
-            <td class="table-center">{$store.end_time|date}</td>
             <td class="table-center">{$store.state}</td>
-            <!--{if !$smarty.get.wait_verify}-->
-            <td class="table-center"><span ectype="inline_edit" fieldname="sort_order" fieldid="{$store.store_id}"
-                                           datatype="pint" title="{$lang.editable}"
-                                           class="editable">{$store.sort_order}</span></td>
-            <td class="table-center"><!--{if $store.recommended}--><img
-                    src="templates/style/images/positive_enabled.gif" ectype="inline_edit" fieldname="recommended"
-                    fieldid="{$store.store_id}" fieldvalue="1" title="{$lang.editable}"/><!--{else}--><img
-                    src="templates/style/images/positive_disabled.gif" ectype="inline_edit" fieldname="recommended"
-                    fieldid="{$store.store_id}" fieldvalue="0" title="{$lang.editable}"/><!--{/if}--></td>
-            <!--{/if}-->
             <td class="handler">
                 <!--{if !$smarty.get.wait_verify}-->
                 <a href="index.php?app=store&amp;act=edit&amp;id={$store.store_id}">{$lang.edit}</a>

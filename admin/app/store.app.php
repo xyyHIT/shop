@@ -18,7 +18,11 @@ class StoreApp extends BackendApp
 
     function index()
     {
-        $conditions = empty($_GET['wait_verify']) ? "state <> '" . STORE_APPLYING . "'" : "state = '" . STORE_APPLYING . "'";
+        if(empty($_GET['wait_verify'])){
+            $conditions = empty($_GET['state']) ? "state <> '" . STORE_APPLYING . "'" : "state = '" . $_GET['state'] . "'";
+        }else{
+            $conditions = "state = '" . STORE_APPLYING . "'";
+        }
         $filter = $this->_get_query_conditions(array(
             array(
                 'field' => 'store_name',

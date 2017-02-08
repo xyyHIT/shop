@@ -24,7 +24,11 @@
     </tr>
     <!--{/if}-->
     <!--{foreach from=$list item=image}-->
+    <!--{if $image.if_show}-->
     <tr class="tatr2">
+    <!--{else}-->
+    <tr class="tatr2" style="background-color: gold;" >
+    <!--{/if}-->
       <td class="firstCell"><input type="checkbox" class="checkitem" value="{$image.image_id}"/></td>
       <td><span ectype="inline_edit" fieldname="image_name" fieldid="{$image.image_id}" required="1" class="editable" title="可编辑">{$image.image_name|escape}</span></td>
       <td><img src="{$image.image_url|escape}" style="max-width: 100%;height: auto;display: block;"></img></td>
