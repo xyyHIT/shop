@@ -188,9 +188,9 @@
 				case 30://代收货
 						$result['statusname'] = $this->ejstatus['20'];
 						if($order_info['add_shiptime'] == 1){//判断用户是否延长收货  默认延长收货为7天
-							$sumshiptime = $order_info['ship_time']+EJADD_SHIP*86400+20*86400;
+							$sumshiptime = $order_info['ship_time']+EJADD_SHIP*86400+7*86400;
 						}else{
-							$sumshiptime = $order_info['ship_time']+20*86400;
+							$sumshiptime = $order_info['ship_time']+7*86400;
 						}
 						$result['statusname'] = $this->ejstatus['30'];
 						$result['lefttime'] = ejlefttime($sumshiptime,$times);//剩余时间
