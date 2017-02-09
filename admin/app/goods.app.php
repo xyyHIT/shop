@@ -20,24 +20,38 @@ class GoodsApp extends BackendApp
     /* 商品列表 */
     function index()
     {
-        $conditions = $this->_get_query_conditions(array(
-            array(
-                'field' => 'goods_name',
-                'equal' => 'like',
-            ),
-            array(
-                'field' => 'store_name',
-                'equal' => 'like',
-            ),
-            array(
-                'field' => 'brand',
-                'equal' => 'like',
-            ),
-            array(
-                'field' => 'closed',
-                'type'  => 'int',
-            ),
-        ));
+        // 每页显示条数
+        $items_per_arr = [10, 20, 50, 100];
+        $items_per = empty($_GET['items_per']) ? 0 : intval($_GET['items_per']);
+
+        $conditions = $this->_get_query_conditions(
+            [
+                [
+                    'field' => 'goods_name',
+                    'equal' => 'like',
+                ],
+                [
+                    'field' => 'store_name',
+                    'equal' => 'like',
+                ],
+                [
+                    'field' => 'brand',
+                    'equal' => 'like',
+                ],
+                [
+                    'field' => 'closed',
+                    'type'  => 'int',
+                ]
+            ]
+        );
+
+        // 上下架
+        $if_show = empty($_GET['if_show']) ? 0 : intval($_GET['if_show']);
+        if($if_show == 1){
+            $conditions .= " AND if_show = 1 AND closed = 0";
+        }else if($if_show == 2){
+            $conditions .= " AND if_show <> 1 ";
+        }
 
         // 分类
         $cate_id = empty($_GET['cate_id']) ? 0 : intval($_GET['cate_id']);
@@ -64,8 +78,7 @@ class GoodsApp extends BackendApp
             $sort  = 'goods_id';
             $order = 'desc';
         }
-
-        $page = $this->_get_page();
+        $page = $this->_get_page($items_per_arr[$items_per]);
         $goods_list = $this->_goods_mod->get_list(array(
             'conditions' => "1 = 1" . $conditions,
             'count' => true,
@@ -76,17 +89,22 @@ class GoodsApp extends BackendApp
         {
             $goods_list[$key]['cate_name'] = $this->_goods_mod->format_cate_name($goods['cate_name']);
         }
-        $this->assign('goods_list', $goods_list);
 
+        $this->assign('goods_list', $goods_list);
         $page['item_count'] = $this->_goods_mod->getCount();
         $this->_format_page($page);
+        $page['items_per_arr'] = $items_per_arr;
+        $page['items_per'] = $items_per;
         $this->assign('page_info', $page);
 
         // 第一级分类
         $cate_mod =& bm('gcategory', array('_store_id' => 0));
+
         $this->assign('gcategories', $cate_mod->get_options(0, true));
-        $this->import_resource(array('script' => 'mlselection.js,inline_edit.js'));
         $this->assign('enable_radar', Conf::get('enable_radar'));
+
+        $this->import_resource(array('script' => 'mlselection.js,inline_edit.js'));
+
         $this->display('goods.index.html');
     }
 

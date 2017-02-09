@@ -213,7 +213,8 @@ class My_goodsApp extends StoreadminbaseApp
         }
 
         $ids = explode(',', $id);
-        if ( !$this->_goods_mod->edit($ids, [ 'closed' => 1, 'close_reason' => '用户删除' ]) ) {
+        // 删除商品，同时把商品状态变为下架
+        if ( !$this->_goods_mod->edit($ids, [ 'if_show' => 0,'closed' => 1, 'close_reason' => '用户删除' ]) ) {
             return $this->ej_json_failed(-1, '删除失败');
         }
 
