@@ -181,9 +181,10 @@ class RecommendApp extends BackendApp
         /* 取得推荐商品 */
         $page = $this->_get_page();
         $goods_mod =& m('goods');
+        # Todo... 这里库存数量是默认规格库存，不是所有商品
         $goods_list = $goods_mod->find([
-            'join'       => 'be_recommend, belongs_to_store, has_goodsstatistics',
-            'fields'     => 'g.goods_name, s.store_id, s.store_name, g.cate_name, g.brand, recommended_goods.sort_order, g.closed, g.if_show, views',
+            'join'       => 'be_recommend, belongs_to_store, has_goodsstatistics, has_default_spec',
+            'fields'     => 'g.goods_name, s.store_id, s.store_name, g.cate_name, g.brand, recommended_goods.sort_order, g.closed, g.if_show, views, gs.stock',
             'conditions' => "recommended_goods.recom_id = '$id'",
             'limit'      => $page['limit'],
             'order'      => 'recommended_goods.sort_order',

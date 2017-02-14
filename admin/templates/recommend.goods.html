@@ -32,7 +32,7 @@
       <td class="handler"><span>操作</span></td>
     </tr>
     <!--{foreach from=$goods_list item=goods}-->
-    <!--{if $goods.if_show}-->
+    <!--{if $goods.if_show and $goods.stock > 0}-->
     <tr class="tatr2">
     <!--{else}-->
     <tr class="tatr2" style="background-color: gold;" >

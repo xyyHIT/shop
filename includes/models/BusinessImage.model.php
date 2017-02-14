@@ -29,8 +29,8 @@ class BusinessImageModel extends BaseModel {
             $order = " ORDER BY {$order} ";
         }
         $limit && $limit = ' LIMIT ' . $limit;
-
-        $sql = "SELECT {$fields} FROM {$this->table} i left join ecm_goods g on i.fk_id = g.goods_id {$conditions}{$order}{$limit}";
+        # Todo... 这里库存数量是默认规格库存，不是所有商品
+        $sql = "SELECT {$fields} FROM {$this->table} i left join ecm_goods g on i.fk_id = g.goods_id left join ecm_goods_spec s on g.default_spec = s.spec_id {$conditions}{$order}{$limit}";
 
         $list = $this->db->getAll($sql);
 

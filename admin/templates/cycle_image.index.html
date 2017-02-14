@@ -24,7 +24,7 @@
     </tr>
     <!--{/if}-->
     <!--{foreach from=$list item=image}-->
-    <!--{if $image.if_show}-->
+    <!--{if $image.if_show and $image.stock > 0}-->
     <tr class="tatr2">
     <!--{else}-->
     <tr class="tatr2" style="background-color: gold;" >
