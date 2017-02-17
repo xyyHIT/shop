@@ -62,27 +62,11 @@ class GoodsApp extends BackendApp
             $conditions .= " AND cate_id" . db_create_in($cate_ids);
         }
 
-        //更新排序
-        if (isset($_GET['sort']) && isset($_GET['order']))
-        {
-            $sort  = strtolower(trim($_GET['sort']));
-            $order = strtolower(trim($_GET['order']));
-            if (!in_array($order,array('asc','desc')))
-            {
-             $sort  = 'goods_id';
-             $order = 'desc';
-            }
-        }
-        else
-        {
-            $sort  = 'goods_id';
-            $order = 'desc';
-        }
         $page = $this->_get_page($items_per_arr[$items_per]);
         $goods_list = $this->_goods_mod->get_list(array(
             'conditions' => "1 = 1" . $conditions,
             'count' => true,
-            'order' => "$sort $order",
+            'order' => "g.sort = 0,g.sort asc,gst.score desc",
             'limit' => $page['limit'],
         ),$scate_ids = [], $desc = false, $no_picture = true,$admin = true);
         foreach ($goods_list as $key => $goods)
@@ -246,7 +230,7 @@ class GoodsApp extends BackendApp
        $value  = isset($_GET['value']) ? trim($_GET['value']) : '';
        $data   = array();
 
-       if (in_array($column ,array('goods_name', 'brand', 'closed')))
+       if (in_array($column ,array('goods_name', 'brand', 'closed','sort')))
        {
            $data[$column] = $value;
            $this->_goods_mod->edit($id, $data);

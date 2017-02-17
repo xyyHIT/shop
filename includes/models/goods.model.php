@@ -146,7 +146,7 @@ class GoodsModel extends BaseModel {
             "LEFT JOIN {$gstat_mod->table} gst ON g.goods_id = gst.goods_id ";
 
         // 后台使用
-        $admin && $fields .= ",r.recom_name";
+        $admin && $fields .= ",r.recom_name,g.sort";
         $admin && $tables .= "left join ecm_recommended_goods rg on rg.goods_id = g.goods_id left join ecm_recommend r on r.recom_id = rg.recom_id";
 
         /* 条件(WHERE) */

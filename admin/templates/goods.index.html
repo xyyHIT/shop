@@ -65,16 +65,15 @@
             {if $enable_radar}
             <td width="10%">{$lang.enable_radar}</td>
             {/if}
-            <td width="30%"><span ectype="order_by" fieldname="goods_name">{$lang.goods_name}</span></td>
-            <td width="10%"><span ectype="order_by" fieldname="store_name">{$lang.store_name}</span></td>
-            <td><span ectype="order_by" fieldname="brand">{$lang.brand}</span></td>
-            <td><span ectype="order_by" fieldname="cate_id">{$lang.gcategory}</span></td>
-            <td class="table-center"><span ectype="order_by" fieldname="if_show">{$lang.if_show}</span></td>
-            <td class="table-center"><span ectype="order_by" fieldname="closed">{$lang.close}</span></td>
-
+            <td width="30%">{$lang.goods_name}</td>
+            <td width="10%">{$lang.store_name}</td>
+            <td>{$lang.brand}</td>
+            <td>{$lang.gcategory}</td>
+            <td class="table-center">{$lang.if_show}</td>
+            <td class="table-center">{$lang.close}</td>
             <td class="table-center">推荐类型</td>
-
-            <td><span ectype="order_by" fieldname="views">{$lang.views}</span></td>
+            <td class="table-center">{$lang.views}</td>
+            <td class="table-center">排序</td>
             <td>{$lang.handler}</td>
         </tr>
         <!--{/if}-->
@@ -109,6 +108,9 @@
             <td class="table-center">{$goods.recom_name}</td>
 
             <td class="table-center">{$goods.views|default:0}</td>
+            <td><span ectype="inline_edit" fieldname="sort" fieldid="{$goods.goods_id}" required="1"
+                      class="editable" title="{$lang.editable}">{$goods.sort|escape}</span></td>
+
             <td><a href="index.php?app=goods&amp;act=view&amp;id={$goods.goods_id}">{$lang.view}</a></td>
         </tr>
         <!--{foreachelse}-->
