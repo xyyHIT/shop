@@ -535,7 +535,25 @@
                     'field' => 'order_sn',
                 ],
             ];
-            $conditions = $this->_get_query_conditions($con);
+			$conditions = $this->_get_query_conditions($con);
+			//按照商品搜索
+			$search_bygoods = isset( $_REQUEST['search_goodsname'] ) ? trim($_REQUEST['search_goodsname']) : '';
+			if($search_bygoods){
+				$search_bygoodsql = "SELECT o.order_id from ".DB_PREFIX."order_goods as og left join ".DB_PREFIX."order as o on og.order_id = o.order_id  WHERE o.buyer_id=" . $this->visitor->get('user_id')." and og.goods_name like '%".$search_bygoods."%'";
+				$bygoods_orderarr = $model_order->db->getAll($search_bygoodsql);
+				if($bygoods_orderarr){
+					$endarr = end($bygoods_orderarr);
+					$search_bygoodstr = '';
+					foreach($bygoods_orderarr as $value){
+						if($endarr == $value){
+							$search_bygoodstr .= $value['order_id'];
+						}else{
+							$search_bygoodstr .= $value['order_id'].',';
+						}
+					}
+					$conditions .= " AND order_id in (".$search_bygoodstr.")";
+				}
+			}
             /* 查找订单 */
             $orders = $model_order->findAll([
                 'conditions' => "buyer_id=" . $this->visitor->get('user_id') . "{$conditions}",

@@ -63,7 +63,14 @@ $(function(){
             <td>{$order.status|modifier:order_status}</td>
             <td><a href="index.php?app=order&amp;act=view&amp;id={$order.order_id}">{$lang.view}</a>
 			<!--{if $order.status >= 30}-->
-			&nbsp;&nbsp;|&nbsp;&nbsp;<a href="index.php?app=order&amp;act=view_invoice&amp;no={$order.invoice_no}">查看物流</a>
+			|<a href="index.php?app=order&amp;act=view_invoice&amp;no={$order.invoice_no}">查看物流</a>
+			<!--{/if}-->
+			<!--{if $order.status >= 20 && $order.status !=40}-->
+			<!--{if $order.if_fronzen == 0}-->
+			|<a href="index.php?app=order&amp;act=edit_frozen&amp;id={$order.order_id}">冻结</a>
+			<!--{else}-->
+			|已冻结
+			<!--{/if}-->
 			<!--{/if}-->
 			</td>
         </tr>

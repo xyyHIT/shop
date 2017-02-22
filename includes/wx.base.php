@@ -127,4 +127,15 @@ class Wechat{
 		}
 		return false;
 	}
+	
+	//冻结退款
+	public static function reduce($attributes){
+		$app = new Application(self::options());
+		$payment = $app->payment;
+		$result = $payment->refundByTransactionId(trim($attributes['tran_id']), $attributes['refundNo'],$attributes['sum_amount'],$attributes['trade_amount']);
+		if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
+			return true;
+		}
+		return false;
+	}
 }

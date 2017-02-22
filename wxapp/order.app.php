@@ -287,6 +287,21 @@ class OrderApp extends ShoppingbaseApp
 			$order_info  = $order_model->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id'));
 			$result['ordersn'] = $order_info['order_sn'];
 			$result['amount'] = $order_info['order_amount'];
+			$sellorder = $order_model->db->getRow("SELECT m.openid,o.order_sn,o.order_amount,o.buyer_name FROM ".DB_PREFIX."order as o left join ".DB_PREFIX."member as m on m.user_id = o.seller_id WHERE o.order_id =".$order_id);
+			if($sellorder){
+				/*TODO 发送给卖家买家微信推送，交易完成 */
+				$templateid = REMIND_SELLER;//消息模板id
+				$topenid = $sellorder['openid'];
+				$datas = [
+					'first'=>'您有一个新的待发货订单，请及时处理 !',
+					'keyword1'=>$sellorder['order_sn'],
+					'keyword2'=>$sellorder['order_amount'],
+					'keyword3'=>$sellorder['buyer_name'],
+					'keyword4'=>'已支付',
+					'remark'=>'客户已经付款，老板快去发货吧',
+				];
+				Wechat::sendNotice($topenid,$templateid,$datas,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=1");
+			}
 		}else{
 			//合并订单详情
 			$order_info =  $order_model->db->getRow("select id,orderid,ordersn from ".DB_PREFIX."sumorder where id=".intval($order_id)." and userid=".$this->visitor->get('user_id'));
@@ -296,6 +311,25 @@ class OrderApp extends ShoppingbaseApp
 			$amount =  $order_model->db->getOne("select sum(order_amount) as sumamount from ".DB_PREFIX."order where order_id in (".$orderstr.')');
 			$result['ordersn'] = $order_info['ordersn'];
 			$result['amount'] = $amount;
+			$orderwhere = " order_id in ($orderstr)";
+			$loop_order = $order_model->db->getAll("SELECT o.order_id,o.order_sn,o.order_amount,m.openid,o.buyer_name FROM ".DB_PREFIX."order as o left join ".DB_PREFIX."member as m on m.user_id = o.seller_id WHERE $orderwhere");
+			$inordergoods = '';
+			$endarr = end($loop_order);
+			foreach ($loop_order as $key => $value)
+			{
+				/*TODO 发送给卖家买家微信推送，交易完成 */
+				$templateid = REMIND_SELLER;//消息模板id
+				$topenid = $value['openid'];
+				$datas = [
+					'first'=>'您有一个新的待发货订单，请及时处理 !',
+					'keyword1'=>$value['order_sn'],
+					'keyword2'=>$value['order_amount'],
+					'keyword3'=>$value['buyer_name'],
+					'keyword4'=>'已支付',
+					'remark'=>'客户已经付款，老板快去发货吧',
+				];
+				Wechat::sendNotice($topenid,$templateid,$datas,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$value['order_id']."&type=1");
+			}
 		}
 		if(!$result){
 			return $this->ej_json_failed(3001);

@@ -22,7 +22,7 @@ $model_ordergoods =& m('ordergoods');
 $times = time();
 $normal_difftime = $times-7*86400;//正常系统自动确认 7天自动收货$normal_difftime = $times-7*86400;
 $delay_difftime = $times-14*86400;//用户延长确认时间  延长7天自动收货时间$delay_difftime = $times-14*86400;
-$streamarr = $order_model->db->getAll("SELECT order_id,m.openid as bopenid,ms.openid as sopenid,o.ship_time,order_sn,order_amount,add_shiptime FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id LEFT JOIN ".DB_PREFIX."member ms ON o.seller_id = ms.user_id WHERE ((o.ship_time <= $normal_difftime    AND o.add_shiptime=0) or (o.ship_time <= $delay_difftime AND o.add_shiptime=1)) AND status=30");
+$streamarr = $order_model->db->getAll("SELECT order_id,m.openid as bopenid,ms.openid as sopenid,o.ship_time,order_sn,order_amount,add_shiptime FROM ".DB_PREFIX."order o LEFT JOIN ".DB_PREFIX."member m  ON o.buyer_id = m.user_id LEFT JOIN ".DB_PREFIX."member ms ON o.seller_id = ms.user_id WHERE ((o.ship_time <= $normal_difftime    AND o.add_shiptime=0) or (o.ship_time <= $delay_difftime AND o.add_shiptime=1)) AND status=30 AND o.if_fronzen =0");
 if($streamarr){
 	$sqlarr = array();
 	foreach($streamarr as $key=>$value){
