@@ -138,7 +138,7 @@ class DefaultApp extends MallbaseApp // MemberbaseApp MallbaseApp
 
         $fields = 'i.image_id,i.image_url,i.image_link,i.image_name';
 
-        $data = $this->businessImageModel->getList($fields, " i.type='cycle' and CURDATE() >= i.start_at and CURDATE() <= i.end_at ", 'sort asc');
+        $data = $this->businessImageModel->getList($fields, " i.type='cycle' and CURDATE() >= i.start_at and CURDATE() <= i.end_at ", 'i.sort asc');
 
         return $data;
     }

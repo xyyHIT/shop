@@ -24,7 +24,7 @@ class CycleImageApp extends BackendApp
     /* 商品列表 */
     function index()
     {
-        $list = $this->cycleImageModel->getList('i.*,g.if_show,s.stock',"i.type='cycle'",'sort asc');
+        $list = $this->cycleImageModel->getList('i.*,g.if_show,s.stock',"i.type='cycle'",'i.sort asc');
 
         foreach($list as &$image){
             $image['start_at'] && $image['start_at'] = substr($image['start_at'],0,10);
