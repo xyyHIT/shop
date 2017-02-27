@@ -240,8 +240,7 @@ class My_goodsApp extends StoreadminbaseApp
             $this->_image_mod->drop($uploadedfile['image_id']);
 
             if ( $uploadedfile['cloud_image_id'] ) {
-                $arr = \Tencentyun\ImageV2::del(CLOUD_IMAGE_BUCKET, $uploadedfile['cloud_image_id']);
-//Log::getLogger()->warning(json_encode($arr));
+                \Tencentyun\ImageV2::del(CLOUD_IMAGE_BUCKET, $uploadedfile['cloud_image_id']);
             }
 
             return $this->ej_json_success();

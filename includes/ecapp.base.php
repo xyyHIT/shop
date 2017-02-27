@@ -49,6 +49,7 @@ define('TYPE_GOODS', 1);
 define('BELONG_ARTICLE', 1);
 define('BELONG_GOODS', 2);
 define('BELONG_STORE', 3);
+define('BELONG_EVALUATE', 4); // 评价商品，店铺
 
 /* 二级域名开关 */
 !defined('ENABLED_SUBDOMAIN') && define('ENABLED_SUBDOMAIN', 0);
