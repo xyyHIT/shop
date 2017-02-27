@@ -776,6 +776,216 @@ class Buyer_orderApp extends MemberbaseApp
                 $model_order->edit($order_id, [ 'remindtime' => $remindtime ]);
             } else {
                 return $this->ej_json_failed(1007);
+        /**
+         *    获取订单列表
+         *
+         * @author    Garbin
+         * @return    void
+         */
+        function _get_orders() {
+            $page = $this->_get_page(10);
+            $model_order =& m('order');
+            !$_GET['type'] && $_GET['type'] = 'all_orders';
+            $con = [
+                [      //按订单状态搜索
+                    'field'   => 'status',
+                    'name'    => 'type',
+                    'handler' => 'order_status_translator',
+                ],
+                [      //按店铺名称搜索
+                    'field' => 'seller_name',
+                    'equal' => 'LIKE',
+                ],
+                [      //按下单时间搜索,起始时间
+                    'field'   => 'add_time',
+                    'name'    => 'add_time_from',
+                    'equal'   => '>=',
+                    'handler' => 'gmstr2time',
+                ],
+                [      //按下单时间搜索,结束时间
+                    'field'   => 'add_time',
+                    'name'    => 'add_time_to',
+                    'equal'   => '<=',
+                    'handler' => 'gmstr2time_end',
+                ],
+                [      //按订单号
+                    'field' => 'order_sn',
+                ],
+            ];
+			$conditions = $this->_get_query_conditions($con);
+			//按照商品搜索
+			$search_bygoods = isset( $_REQUEST['search_goodsname'] ) ? trim($_REQUEST['search_goodsname']) : '';
+			if($search_bygoods){
+				$search_bygoodsql = "SELECT o.order_id from ".DB_PREFIX."order_goods as og left join ".DB_PREFIX."order as o on og.order_id = o.order_id  WHERE o.buyer_id=" . $this->visitor->get('user_id')." and og.goods_name like '%".$search_bygoods."%'";
+				$bygoods_orderarr = $model_order->db->getAll($search_bygoodsql);
+				if($bygoods_orderarr){
+					$endarr = end($bygoods_orderarr);
+					$search_bygoodstr = '';
+					foreach($bygoods_orderarr as $value){
+						if($endarr == $value){
+							$search_bygoodstr .= $value['order_id'];
+						}else{
+							$search_bygoodstr .= $value['order_id'].',';
+						}
+					}
+					$conditions .= " AND order_id in (".$search_bygoodstr.")";
+				}
+			}
+            /* 查找订单 */
+            $orders = $model_order->findAll([
+                'conditions' => "buyer_id=" . $this->visitor->get('user_id') . "{$conditions}",
+                'fields'     => 'this.*',
+                'count'      => true,
+                'limit'      => $page['limit'],
+                'order'      => 'add_time DESC',
+                'include'    => [
+					'has_ordergoods',       //取出商品
+                ],
+            ]);
+			//'0'=>'交易取消','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成'
+			$result = array();
+			if($orders){
+				foreach ( $orders as $key1 => $order ) {
+					$temp['order_id'] = $order['order_id'];
+					$temp['seller_id'] = $order['seller_id'];
+					$temp['invoice_no'] = empty($order['invoice_no'])?'':trim($order['invoice_no']);
+					$temp['seller_name'] = $order['seller_name'];
+					$temp['buyer_id'] = $order['buyer_id'];
+					$temp['status'] = $order['status'];
+					$temp['statusname'] = $this->ejstatus[$order['status']];
+					switch ($order['status']) {
+						case 11:
+							$temp['button'] = "<div class='dOperate'><a class='quxiaodingdan'>取消订单</a><a class='qufukuan'>去付款</a></div>";
+							break;
+						case 20:
+							$temp['button'] = "<div class='dOperate'><a class='tixingfahuo'>提醒发货</a></div>";
+							break;
+						case 30:
+							$temp['button'] = "<div class='dOperate'><a class='yanchangshouhuo'>延长收货</a><a class='chakanwuliu'>查看物流</a><a class='querenshouhuo'>确认收货</a></div>";
+							break;
+						case 40:
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							break;
+						default:
+							$temp['button'] = '';
+					}
+					$temp['order_amount'] = $order['order_amount'];
+					$tmpgoods = array();
+					foreach($order['order_goods'] as $v){
+						$tmp['rec_id'] = $v['rec_id'];
+						$tmp['order_id'] = $v['order_id'];
+						$tmp['goods_id'] = $v['goods_id'];
+						$tmp['goods_name'] = $v['goods_name'];
+						$tmp['quantity'] = $v['quantity'];
+						$tmp['price'] = $v['price'];
+						$tmp['goods_image'] = $v['goods_image'];
+						array_push($tmpgoods,$tmp);
+					}
+					$temp['order_goods'] = $tmpgoods;
+					array_push($result,$temp);
+				}
+			}
+            $page['item_count'] = $model_order->getCount();
+			$res['orderlist'] = $result;
+			$res['page'] = $page;
+			return $res;
+        }
+
+        function _get_member_submenu() {
+            $menus = [
+                [
+                    'name' => 'order_list',
+                    'url'  => 'index.php?app=buyer_order',
+                ],
+            ];
+
+            return $menus;
+        }
+		
+	   /**
+		 *    响应支付
+		 *
+		 *    @author    Garbin
+		 *    @param     int    $order_id
+		 *    @param     array  $notify_result
+		 *    @return    bool
+		 */
+		function respond_notify($order_id, $notify_result)
+		{
+			$model_order =& m('order');
+			$where = "order_id = {$order_id}";
+			$data = array('status' => $notify_result['target']);
+			switch ($notify_result['target'])
+			{
+				case ORDER_ACCEPTED:
+					$where .= ' AND status=' . ORDER_PENDING;   //只有待付款的订单才会被修改为已付款
+					$data['pay_time']   =   gmtime();
+				break;
+				case ORDER_SHIPPED:
+					$where .= ' AND status=' . ORDER_ACCEPTED;  //只有等待发货的订单才会被修改为已发货
+					$data['ship_time']  =   gmtime();
+				break;
+				case ORDER_FINISHED:
+					$where .= ' AND status=' . ORDER_SHIPPED;   //只有已发货的订单才会被自动修改为交易完成
+					$data['finished_time'] = gmtime();
+				break;
+				case ORDER_CANCLED:                             //任何情况下都可以关闭
+					/* 加回商品库存 */
+					$model_order->change_stock('+', $order_id);
+				break;
+			}
+			return $model_order->edit($where, $data);
+		}
+		
+		/**
+         *    延长订单收货接口
+         *
+         * @author    newrain
+         * @return    void
+         */
+        function delayship() {
+            $order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
+            }
+			$delayval = 1;
+            $model_order =& m('order');
+            /* 只有已发货的订单可以确认 */
+            $order_info = $model_order->get("order_id={$order_id} AND buyer_id=" . $this->visitor->get('user_id') . " AND status=" . ORDER_SHIPPED);
+			if($order_info['if_fronzen'] >= 1){
+				return $this->ej_json_failed(1023);
+			}
+            if ( empty( $order_info ) ) {
+				return $this->ej_json_failed(3001);
+            }else{
+				//当用户已经点击过延长，再次点击为取消延长收货
+				if($order_info['add_shiptime']){
+					return $this->ej_json_failed(1008);
+				}
+			}
+			$model_order->edit($order_id, [ 'add_shiptime' => $delayval ]);
+			if ( $model_order->has_error() ) {
+				return $this->ej_json_failed(3001);
+			}
+			/* 记录订单操作日志 */
+			$order_log =& m('orderlog');
+			$order_log->add([
+				'order_id'       => $order_id,
+				'operator'       => addslashes($this->visitor->get('user_name')),
+				'order_status'   => order_status($order_info['status']),
+				'changed_status' => order_status($order_info['status']),
+				'remark'         => '延长收货',
+				'log_time'       => gmtime(),
+			]);
+			/*TODO 发送给卖家买家微信推送，交易完成 */
+			return $this->ej_json_success();
+        }
+		
+		//提醒卖家发货
+		function remindship(){
+			$order_id = isset($_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
+            if ( !$order_id ) {
+				return $this->ej_json_failed(2001);
             }
         }
         //获取商家openid
