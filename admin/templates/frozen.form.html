@@ -1,0 +1,48 @@
+{include file="header.html"}
+<div id="rightTop">
+    <p>冻结订单</p>
+</div>
+<div class="info">
+    <form method="post" enctype="multipart/form-data" action="index.php?app=order&act=edit_frozen" >
+        <table class="infoTable">
+            <tr>
+                <th class="paddingT15">
+                    订单号:</th>
+                <td class="paddingT15 wordSpacing5">
+					{$data.order_sn}
+				</td>
+            </tr>
+            <tr>
+                <th class="paddingT15">
+                    <label for="parent_id">买家:</label></th>
+                <td class="paddingT15 wordSpacing5">
+					{$data.buyer_name}
+				</td>
+            </tr>
+            <tr>
+                <th class="paddingT15">
+                    卖家:</th>
+                <td class="paddingT15 wordSpacing5">
+					{$data.seller_name}
+				</td>
+            </tr>
+            <tr>
+              <th class="paddingT15">冻结原因:</th>
+              <td class="paddingT15 wordSpacing5"><p>
+                <label>
+					<textarea name="frozen_reason"></textarea>
+				</label>
+			</td>
+            </tr>
+          <tr>
+            <th></th>
+            <td class="ptb20">
+				<input type="hidden" name="orderid" value="{$data.order_id}">
+                <input class="formbtn" type="submit" name="Submit" value="冻结" />
+                <input class="formbtn" type="reset" name="reset" value="重置" />
+			</td>
+        </tr>
+        </table>
+    </form>
+</div>
+{include file="footer.html"}

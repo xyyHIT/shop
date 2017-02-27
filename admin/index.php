@@ -27,6 +27,7 @@ ECMall::startup(array(
         ROOT_PATH . '/includes/plugin.base.php',
         APP_ROOT . '/app/backend.base.php',
         ROOT_PATH . '/includes/wx.base.php', // 微信类库
+        ROOT_PATH . '/includes/Cache.php', // 缓存库
         ROOT_PATH . '/includes/Log.php', // 日志
     ),
 ));
