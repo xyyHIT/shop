@@ -16,7 +16,7 @@ class StoreApp extends StorebaseApp
         $storeArr = $memberModel->get([
             'conditions' => "user_id='{$storeID}'",
             'join' => 'has_store',
-            'fields' => 'user_name,portrait,auction_id,openid', // 商户名 头像 拍卖id 微信openid
+            'fields' => 'user_name,portrait,auction_id,openid,desc_stars,logi_stars,serv_stars', // 商户名 头像 拍卖id 微信openid
         ]);
 
         $storeModel =& m('store');

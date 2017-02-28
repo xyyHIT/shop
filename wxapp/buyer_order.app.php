@@ -104,11 +104,17 @@ class Buyer_orderApp extends MemberbaseApp
                 'serv_stars'        => $servStars,
             ]);
 
-            /* 更新卖家信用度及好评率 */
+            // 获取商家的平均评分
+            $avg = $model_order->getOne("select AVG(desc_stars) desc_stars, AVG(logi_stars) logi_stars, AVG(serv_stars) serv_stars from ecm_order where seller_id = {$order_info['seller_id']} and evaluation_status = 1");
+
+            /* 更新卖家信用度,好评率,平均评分 */
             $model_store =& m('store');
             $model_store->edit($order_info['seller_id'], [
                 'credit_value' => $model_store->recount_credit_value($order_info['seller_id']),
-                'praise_rate'  => $model_store->recount_praise_rate($order_info['seller_id'])
+                'praise_rate'  => $model_store->recount_praise_rate($order_info['seller_id']),
+                'desc_stars' => $avg['desc_stars'],
+                'logi_stars' => $avg['logi_stars'],
+                'serv_stars' => $avg['serv_stars'],
             ]);
 
             /* 更新商品评价数 */

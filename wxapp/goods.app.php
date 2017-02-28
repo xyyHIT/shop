@@ -345,6 +345,10 @@ class GoodsApp extends StorebaseApp
         $result['store']['auction_id'] = $data['store_data']['store_owner']['auction_id'];
         $result['store']['collect_count'] = $this->_ejget_collect_num('store', $data['goods']['store_id']);
         $result['store']['tel'] = empty($paiowner['mobile']) ? '' : $paiowner['mobile'];//店铺等级;//店铺联系电话（和卖家的区分）
+
+        $result['store']['desc_stars'] = $data['store_data']['desc_stars'];
+        $result['store']['logi_stars'] = $data['store_data']['logi_stars'];
+        $result['store']['serv_stars'] = $data['store_data']['serv_stars'];
         return $result;
     }
 
