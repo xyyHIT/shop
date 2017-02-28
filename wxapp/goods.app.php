@@ -466,12 +466,13 @@ class GoodsApp extends StorebaseApp
         $comments = $order_goods_mod->find([
             'conditions' => "goods_id = '$goods_id' AND evaluation_status = '1'" . $condition,
             'join'       => 'belongs_to_order',
-            'fields'     => 'rec_id, buyer_id, buyer_name, anonymous, evaluation_time, comment, evaluation, is_reply,reply',
+            'fields'     => 'rec_id, buyer_id, anonymous, evaluation_time, comment, evaluation, is_reply,reply',
             'count'      => true,
             'order'      => 'evaluation_time desc',
             'limit'      => $page['limit'],
         ]);
 
+        $userModel =& m('member');
         foreach ($comments as &$comment){
             // file_id,file_name,file_path,item_id
             $imgArr = $order_goods_mod->getAll("select file_path from ecm_uploaded_file where belong= 4 and item_id = {$comment['rec_id']}");
@@ -480,6 +481,16 @@ class GoodsApp extends StorebaseApp
                 $imgs[] = $img['file_path'];
             }
             $comment['imgs'] = array_values($imgs);
+
+            # todo... 待优化
+
+            $userArr = $userModel->get([
+                'conditions' => "user_id='{$comment['buyer_id']}'",
+                'fields'     => 'user_name, portrait, auction_id, openid',
+            ]);
+            $comment['buyer_name'] = $userArr['user_name'];
+            $comment['level'] = auction_user($userArr['auction_id'],$userArr['openid'])['buyer_level'];
+            $comment['portrait'] = $userArr['portrait'];
         }
 
         $data['comments'] = $comments;
