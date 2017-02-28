@@ -1,4 +1,10 @@
 <?php
+/*******************************************************************************
+ * 艺加商城
+ *
+ * (c)  2016  Gavin(田宇)  <tianyu_0723@hotmail.com>
+ *
+ ******************************************************************************/
 
 /**
  *    买家的订单管理控制器
@@ -127,7 +133,7 @@ class Buyer_orderApp extends MemberbaseApp
      */
     function ejDropImage()
     {
-        $fileID = empty($_REQUEST['img_id']) ? 0 : intval($_REQUEST['img_id']);
+        $fileID = empty($_REQUEST['file_id']) ? 0 : intval($_REQUEST['file_id']);
         $uploadedFileMod =& m('uploadedfile');
         $store_id = intval($this->visitor->get('manage_store'));
         $uploadedFile = $uploadedFileMod->get([
