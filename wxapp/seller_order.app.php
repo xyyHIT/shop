@@ -8,6 +8,35 @@
      */
     class Seller_orderApp extends StoreadminbaseApp {
 		var $ejstatus = array('0'=>'交易关闭','11'=>'等待买家付款','20'=>'买家已付款','30'=>'卖家已发货','40'=>'交易完成');
+
+        /**
+         * 需要回复的评价信息
+         *
+         * by Gavin 20170228
+         */
+		public function ejEvaluate(){
+            $rec_id = isset( $_REQUEST['rec_id'] ) ? intval($_REQUEST['rec_id']) : 0;
+            if ( empty( $rec_id ) ) {
+                return $this->ej_json_failed(2001);
+            }
+
+            $orderGoodsModel =& m('ordergoods');
+            $comment = $orderGoodsModel->get([
+                'conditions' => "rec_id = $rec_id",
+                'fields'     => 'rec_id, comment, evaluation, is_reply, reply, is_img',
+            ]);
+
+            $imgArr = $orderGoodsModel->getAll("select file_path from ecm_uploaded_file where belong= 4 and item_id = {$rec_id}");
+            $imgs = [];
+            foreach ($imgArr as $img){
+                $imgs[] = $img['file_path'];
+            }
+
+            $comment['imgs'] = array_values($imgs);
+
+            return $this->ej_json_success($comment);
+        }
+
         /**
          * 回复商品评价
          *
