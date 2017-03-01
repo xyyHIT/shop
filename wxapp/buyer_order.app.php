@@ -28,9 +28,10 @@ class Buyer_orderApp extends MemberbaseApp
         $descStars = isset($_REQUEST['desc_stars']) ? intval($_REQUEST['desc_stars']) : 5; // 描述评级
         $logiStars = isset($_REQUEST['logi_stars']) ? intval($_REQUEST['logi_stars']) : 5; // 物流评级
         $servStars = isset($_REQUEST['serv_stars']) ? intval($_REQUEST['serv_stars']) : 5; // 服务评级
-            if ( !$order_id ) {
-                return $this->ej_json_failed(-1, Lang::get('no_such_order'));
-            }
+
+        if ( !$order_id ) {
+            return $this->ej_json_failed(-1, Lang::get('no_such_order'));
+        }
 
         // 现在改成传json 字符串
         $evaluationArr = json_decode(stripslashes($_REQUEST['evaluations']), true);
@@ -105,7 +106,7 @@ class Buyer_orderApp extends MemberbaseApp
             ]);
 
             // 获取商家的平均评分
-            $avg = $model_order->getOne("select AVG(desc_stars) desc_stars, AVG(logi_stars) logi_stars, AVG(serv_stars) serv_stars from ecm_order where seller_id = {$order_info['seller_id']} and evaluation_status = 1");
+            $avg = $model_order->getRow("select AVG(desc_stars) desc_stars, AVG(logi_stars) logi_stars, AVG(serv_stars) serv_stars from ecm_order where seller_id = {$order_info['seller_id']} and evaluation_status = 1 ");
 
             /* 更新卖家信用度,好评率,平均评分 */
             $model_store =& m('store');
@@ -125,8 +126,7 @@ class Buyer_orderApp extends MemberbaseApp
                 $goods_ids[] = $goods['goods_id'];
             }
             $model_goodsstatistics->edit($goods_ids, 'comments=comments+1');
-
-            $this->ej_json_success();
+            return $this->ej_json_success();
         } else {
             // 必须post请求
             return $this->ej_json_failed(-1, 2001);
