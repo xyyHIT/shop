@@ -24,7 +24,7 @@
             $comment = $orderGoodsModel->get([
                 'conditions' => "rec_id = $rec_id",
                 'join'       => 'belongs_to_order',
-                'fields'     => 'rec_id, buyer_id, comment, evaluation, is_reply, reply, is_img, evaluation_time',
+                'fields'     => 'rec_id, buyer_id, comment, evaluation, is_reply, reply, is_img, evaluation_time, goods_image',
             ]);
 
             // 评论图
@@ -64,7 +64,7 @@
             }
 
             $orderGoodsModel =& m('ordergoods');
-            $orderGoodsArr = $orderGoodsModel->find([
+            $orderGoodsArr = $orderGoodsModel->get([
                 'conditions' => "rec_id = {$rec_id} AND is_valid = 1 AND evaluation_status = 1 ",
                 'join'       => 'belongs_to_order',
                 'fields'     => 'status,evaluation_status,is_reply',
@@ -76,11 +76,7 @@
             }
             if ( $orderGoodsArr['status'] != ORDER_FINISHED ) {
                 /* 不是已完成的订单，无法评价 */
-                return $this->ej_json_failed(-1, Lang::get('cant_evaluate'));
-            }
-            if ( $orderGoodsArr['evaluation_status'] != 1 ) {
-                /* 买家未评价 */
-                return $this->ej_json_failed(1022);
+                return $this->ej_json_failed(-1, '无法评价此订单');
             }
             if ( $orderGoodsArr['is_reply'] != 0 ){
                 // 已回复
