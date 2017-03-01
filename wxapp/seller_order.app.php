@@ -95,7 +95,7 @@
                 $this->ej_json_success();
             } else {
                 // 必须post请求
-                return $this->ej_json_failed(-1, 2001);
+                return $this->ej_json_failed(2001);
             }
 
         }
