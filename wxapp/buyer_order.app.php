@@ -613,8 +613,13 @@ class Buyer_orderApp extends MemberbaseApp
 							$search_bygoodstr .= $value['order_id'].',';
 						}
 					}
-					$conditions .= " AND order_id in (".$search_bygoodstr.")";
+					$conditions .= " AND order_alias.order_id in (".$search_bygoodstr.")";
+				}else{
+					$conditions .= " AND order_alias.order_id in (0)";
 				}
+			}
+			if($_GET['type'] == 'finished'){
+				$conditions .= " AND order_alias.evaluation_status = 0 ";
 			}
             /* 查找订单 */
             $orders = $model_order->findAll([
@@ -649,7 +654,10 @@ class Buyer_orderApp extends MemberbaseApp
 							$temp['button'] = "<div class='dOperate'><a class='yanchangshouhuo'>延长收货</a><a class='chakanwuliu'>查看物流</a><a class='querenshouhuo'>确认收货</a></div>";
 							break;
 						case 40:
-							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a><a class='qupingjia'>去评价</a></div>";
+							if($order['evaluation_status'] == 1){
+								$temp['button'] = "<div class='dOperate'><a class='chakanwuliu'>查看物流</a></div>";
+							}
 							break;
 						default:
 							$temp['button'] = '';
