@@ -23,15 +23,28 @@
             $orderGoodsModel =& m('ordergoods');
             $comment = $orderGoodsModel->get([
                 'conditions' => "rec_id = $rec_id",
-                'fields'     => 'rec_id, comment, evaluation, is_reply, reply, is_img',
+                'join'       => 'belongs_to_order',
+                'fields'     => 'rec_id, buyer_id, comment, evaluation, is_reply, reply, is_img, evaluation_time',
             ]);
 
+            // 评论图
             $imgArr = $orderGoodsModel->getAll("select file_path from ecm_uploaded_file where belong= 4 and item_id = {$rec_id}");
             $imgs = [];
             foreach ($imgArr as $img){
                 $imgs[] = $img['file_path'];
             }
 
+            // 买家信息
+            $userModel =& m('member');
+            $userArr = $userModel->get([
+                'conditions' => "user_id='{$comment['buyer_id']}'",
+                'fields'     => 'user_name, portrait, auction_id, openid',
+            ]);
+
+
+            $comment['buyer_name'] = $userArr['user_name'];
+            $comment['level'] = auction_user($userArr['auction_id'],$userArr['openid'])['buyer_level'];
+            $comment['portrait'] = $userArr['portrait'];
             $comment['imgs'] = array_values($imgs);
 
             return $this->ej_json_success($comment);
@@ -365,7 +378,7 @@
          * @author    newrain
          * @return    void
          */
-        function shipped() {	
+        function shipped() {
 			$order_id = isset( $_GET['order_id'] ) ? intval($_GET['order_id']) : 0;
 			$invoice_no = isset( $_GET['invoice_no'] ) ? intval($_GET['invoice_no']) : 0;
 			if ( !$order_id || !$invoice_no) {
@@ -388,7 +401,7 @@
 				return $this->ej_json_failed(3001);
 			}
 			//判断当前状态是否可以发货
-			if($order_info[$order_id]['status'] != ORDER_ACCEPTED && $order_info[$order_id]['status'] != ORDER_SUBMITTED){			
+			if($order_info[$order_id]['status'] != ORDER_ACCEPTED && $order_info[$order_id]['status'] != ORDER_SUBMITTED){
 				return $this->ej_json_failed(3001);
 			}
 			$edit_data = [ 'status' => ORDER_SHIPPED, 'invoice_no' => $invoice_no ];
@@ -440,8 +453,8 @@
 				'keyword4'=>$order_info[$order_id]['consignee'].$order_info[$order_id]['address'],
 				'remark'=>'请您耐心等待',
 			];
-			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=0");	
-			
+			$result = Wechat::sendNotice($topenid,$templateid,$data,SITE_URL."/shop/html/order/orderDetail.html?orderId=".$order_id."&type=0");
+
 			return $this->ej_json_success();
         }
 
@@ -639,7 +652,7 @@
             $model_order =& m('order');
             !$_GET['type'] && $_GET['type'] = 'all_orders';
             $conditions = '';
-            // 团购订单  暂时去掉团购部分代码为满足v1.0  
+            // 团购订单  暂时去掉团购部分代码为满足v1.0
             $conditions .= $this->_get_query_conditions([
                 [      //按订单状态搜索
                     'field'   => 'status',
@@ -805,7 +818,7 @@
 			//获取商家openid*/
 			$model_member =& m('member');
             $member_info = $model_member->get("user_id=".$order_info['buyer_id']." AND user_id !=" . $this->visitor->get('user_id'));
-			/*TODO 发送给卖家买家微信推送，交易完成*/ 
+			/*TODO 发送给卖家买家微信推送，交易完成*/
 			$topenid = $member_info['openid'];
 			//推送卖家确认收货消息
 			$data = [
