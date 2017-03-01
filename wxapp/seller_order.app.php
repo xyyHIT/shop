@@ -690,8 +690,13 @@
 							$search_bygoodstr .= $value['order_id'].',';
 						}
 					}
-					$conditions .= " AND order_id in (".$search_bygoodstr.")";
+					$conditions .= " AND order_alias.order_id in (".$search_bygoodstr.")";
+				}else{
+					$conditions .= " AND order_alias.order_id in (0)";
 				}
+			}
+			if($_GET['type'] == 'finished'){
+				$conditions .= " AND order_alias.evaluation_status = 1 ";
 			}
             /* 查找订单 */
             $orders = $model_order->findAll([
@@ -740,6 +745,10 @@
 						$tmp['quantity'] = $v['quantity'];
 						$tmp['is_reply'] = $v['is_reply'];
 						$tmp['reply'] = $v['reply'];
+						$tmp['button'] = "";
+						if($v['is_reply']==0 && $value['evaluation_status'] == 1){
+								$tmp['button'] = "<div class='dOperate'><a class='huifupinglun'>回复评论</a></div>";
+						}
 						array_push($tmparr,$tmp);
 					}
 					$temp['order_goods'] = $tmparr;
