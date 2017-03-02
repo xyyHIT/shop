@@ -704,7 +704,7 @@
 				}
 			}
 			if($_GET['type'] == 'finished'){
-				$conditions .= " AND order_alias.evaluation_status = 1 ";
+				$conditions .= " AND order_alias.is_reply_cpl = 0 ";
 			}
             /* 查找订单 */
             $orders = $model_order->findAll([
