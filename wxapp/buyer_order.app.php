@@ -304,7 +304,7 @@ class Buyer_orderApp extends MemberbaseApp
                 case 40://待评价
                     $result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
 					if($order_info['evaluation_status'] == 0){
-						 $result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a><a class='qupingjia'>去评价</a></div>";
+						 $result['button'] = "<div class='dfixed dfixed2'><a class='chakanwuliu'>查看物流</a><a class='qupingjia'>去评价</a></div>";
 					}
                     break;
                 default:
