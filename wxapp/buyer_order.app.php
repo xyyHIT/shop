@@ -75,7 +75,7 @@ class Buyer_orderApp extends MemberbaseApp
                 $isImg = 0;
 
                 // 更新评论图片关联评论 ID
-                $img_id_arr = explode(',', $evaluation['img_id']);
+                $img_id_arr = strlen(trim($evaluation['img_id'])) ? explode(',', trim($evaluation['img_id'])) : [];
                 if ( !empty($img_id_arr) ) {
                     $isImg = 1;
                     $uploadedFileMod =& m('uploadedfile');
