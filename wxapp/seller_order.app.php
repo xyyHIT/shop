@@ -67,7 +67,7 @@
             $orderGoodsArr = $orderGoodsModel->get([
                 'conditions' => "rec_id = {$rec_id} AND is_valid = 1 AND evaluation_status = 1 ",
                 'join'       => 'belongs_to_order',
-                'fields'     => 'status,evaluation_status,is_reply',
+                'fields'     => 'status,evaluation_status,is_reply,order.order_id',
                 'count'      => false,
             ]);
 
@@ -89,6 +89,14 @@
                     'is_reply' => 1,
                     'reply'    => $reply,
                 ]);
+
+                $noReplyNum = $orderGoodsModel->getOne("select count(1) from ecm_order_goods where order_id = {$orderGoodsArr['order_id']} and is_reply = 0");
+                if(intval($noReplyNum) == 0){
+                    $orderModel = &m('order');
+                    $orderModel->edit($orderGoodsArr['order_id'],[
+                        'is_reply_cpl' => 1
+                    ]);
+                }
 
                 # Todo 发送消息
 
