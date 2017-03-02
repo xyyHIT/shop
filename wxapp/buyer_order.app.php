@@ -202,6 +202,12 @@ class Buyer_orderApp extends MemberbaseApp
         $order_detail = $order_type->get_order_detail($order_id, $order_info);
         foreach ( $order_detail['data']['goods_list'] as $key => $goods ) {
             empty($goods['goods_image']) && $order_detail['data']['goods_list'][ $key ]['goods_image'] = Conf::get('default_goods_image');
+			$order_detail['data']['goods_list'][ $key ]['button'] = '';
+			if($type == 1){
+				if($order_detail['data']['goods_list'][ $key ]['is_reply'] == 0 ){
+					$order_detail['data']['goods_list'][ $key ]['button'] = "<div class='dOperate'><a class='qupingjia'>回复评价</a></div>";
+				}
+			}
         }
         $result['order_id'] = $order_info['order_id'];
         $result['order_sn'] = $order_info['order_sn'];
@@ -297,6 +303,9 @@ class Buyer_orderApp extends MemberbaseApp
                     break;
                 case 40://待评价
                     $result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a></div>";
+					if($order_info['evaluation_status'] == 0){
+						 $result['button'] = "<div class='dfixed'><a class='chakanwuliu'>查看物流</a><a class='qupingjia'>去评价</a></div>";
+					}
                     break;
                 default:
                     $result['button'] = '';
