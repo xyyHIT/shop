@@ -497,6 +497,14 @@ class GoodsApp extends StorebaseApp
             $comment['portrait'] = $userArr['portrait'];
         }
 
+        $numSql = "select 
+                  count(case when evaluation > 0 and evaluation < 3 and goods_id = {$goods_id} then 1 else null end) as bad, 
+                  count(case when evaluation > 2 and evaluation < 5 and goods_id = {$goods_id} then 1 else null end) as common,
+                  count(case when evaluation = 5 and goods_id = {$goods_id} then 1 else null end) as good,
+                  count(case when evaluation > 0 and is_img = 1 and goods_id = {$goods_id} then 1 else null end) as have_img
+                from ecm_order_goods";
+        $data['type_amount'] = $order_goods_mod->getRow($numSql);
+
         $data['comments'] = $comments;
 
         $page['item_count'] = $order_goods_mod->getCount();
