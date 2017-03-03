@@ -755,10 +755,15 @@ if( !function_exists('auction_user') ){
     function get_stats($userid,$type = 'buyer_id')
     {
         $user_mod =& m('member');
+		$evaluation = 'evaluation_status';
+		if($type == 'seller_id'){
+			$evaluation = 'is_reply_cpl';
+		}
         return array(
             'order_pending' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_PENDING . "' AND $type = $userid "),
             'order_accepted' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_ACCEPTED . "' AND $type = $userid "),
-            'order_shipped' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_SHIPPED . "' AND $type = $userid ")
+            'order_shipped' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE status = '" . ORDER_SHIPPED . "' AND $type = $userid "),
+            'order_penevaluation' => $user_mod->getOne("SELECT COUNT(*) FROM " . DB_PREFIX . "order WHERE $evaluation = 0  AND $type = $userid ")
         );
     }
 
