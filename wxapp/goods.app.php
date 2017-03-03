@@ -474,6 +474,7 @@ class GoodsApp extends StorebaseApp
             'count'      => true,
             'order'      => 'evaluation_time desc',
             'limit'      => $page['limit'],
+            'index_key'  => ''
         ]);
 
         $userModel =& m('member');
