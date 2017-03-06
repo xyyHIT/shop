@@ -27,11 +27,19 @@ $goodsstatModel =& m('goodsstatistics');
 // redis操作句柄
 $redis = Cache::handler()->handler();
 // 统计pv的商品
-$goodsIDS = $redis->sMembers('mall_goods-uv_ids');
+$goodsIDS = $redis->sMembers('goods-uv_ids');
+//Log::getLogger()->alert('mall_goods-uv_ids',$redis->sMembers('mall_goods-uv_ids'));
+//Log::getLogger()->alert('goods-uv_ids',$redis->sMembers('goods-uv_ids'));
 
 foreach($goodsIDS as $id){
-    $uv = $redis->sCard('mall_goods-uv_'.$id);
-    $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$id} and unique_views < {$uv}");
+    $uv = $redis->sCard('goods-uv_'.$id);
+    $uvOut = intval($redis->get('goods-uv_'.$id.'_out'));
+
+    if( $uv > $uvOut){
+        $redis->set('goods-uv_'.$id.'_out', $uv);
+        $goodsstatModel->db->query("update ecm_goods_statistics set score = sales_total * 2 + {$uv} + collects,unique_views = {$uv} where goods_id = {$id} and unique_views < {$uv}");
+    }
+
 }
 
 /**
