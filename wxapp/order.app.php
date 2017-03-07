@@ -177,6 +177,10 @@ class OrderApp extends ShoppingbaseApp
 		$model_cart =& m('cart');
         foreach ($goods_items as $rec_id => $goods)
         {
+			if($goods['quantity'] == 0){
+				$goods_beyond_stock[$goods['spec_id']] = $goods;
+				continue;
+			}
             if ($goods['quantity'] > $goods['stock'])
             {
                 $goods_beyond_stock[$goods['spec_id']] = $goods;
