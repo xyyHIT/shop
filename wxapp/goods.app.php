@@ -85,7 +85,6 @@ class GoodsApp extends StorebaseApp
 
         // 商品，店铺信息
         $info = $this->_get_common_info($id);
-
         require_once ROOT_PATH . '/includes/Http.php';
         $http = new Http();
         $url = WECHAT_USERINFO_URL . "/yjpai/common/tools/genCodeImage";
@@ -93,7 +92,7 @@ class GoodsApp extends StorebaseApp
             'uid'       => 'good_' . $id,
             'bannerURL' => $info['goods']['default_image'],
             'name'      => $info['store_data']['store_name'],
-            'title'     => $info['goods']['goods_name'],
+            'title'     => mb_substr($info['goods']['goods_name'],0,20,'utf-8'),
             'shareURL'  => SITE_URL . "/shop/html/index/goodsDetails.html?goodsId={$id}",
         ];
 
