@@ -74,6 +74,36 @@ class StoreApp extends StorebaseApp
         $this->display('store.index.html');
     }
 
+    /**
+     * 生成店铺二维码
+     */
+    function ejQRCode(){
+        $id = empty($_GET['id']) ? 0 : intval($_GET['id']);
+        if ( !$id ) {
+            return $this->ej_json_failed(-1);
+        }
+
+        // 获取拍卖ID
+        $memberModel =& m('member');
+        $memberArr = $memberModel->get_info($id);
+
+        require_once ROOT_PATH . '/includes/Http.php';
+        $http = new Http();
+        $url = WECHAT_USERINFO_URL . "/yjpai/common/tools/shopCodeImage";
+        $params = [
+            'uid' => $memberArr['auction_id'],
+            'shareURL'  => SITE_URL . "/shop/html/my/sellerStore.html?storeId={$id}",
+        ];
+
+        $jsonArr = $http->parseJSON($http->get($url, $params));
+
+        if ( $jsonArr['resCode'] == 0 ) {
+            return $this->ej_json_failed(1025);
+        }
+
+        return $this->ej_json_success([ 'img' => $jsonArr['data'] ]);
+    }
+
     function search()
     {
         /* 店铺信息 */
