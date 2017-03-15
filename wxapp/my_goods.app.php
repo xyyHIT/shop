@@ -1846,15 +1846,23 @@ class My_goodsApp extends StoreadminbaseApp
 //        }
 
         /* 判断商品数是否已超过限制 */
-        $store_mod =& m('store');
-        $settings = $store_mod->get_settings($this->_store_id);
-        if ( $settings['goods_limit'] > 0 ) {
-            $goods_count = $this->_goods_mod->get_count();
-            if ( $goods_count >= $settings['goods_limit'] ) {
-                $res = Lang::get('goods_limit_arrived');
-                $this->ej_json_failed(-1, $res);
-                exit ( 0 );
-            }
+//        $store_mod =& m('store');
+//        $settings = $store_mod->get_settings($this->_store_id);
+//        if ( $settings['goods_limit'] > 0 ) {
+//            $goods_count = $this->_goods_mod->get_count();
+//            if ( $goods_count >= $settings['goods_limit'] ) {
+//                $res = Lang::get('goods_limit_arrived');
+//                $this->ej_json_failed(-1, $res);
+//                exit ( 0 );
+//            }
+//        }
+
+        $memberModel = & m('member');
+        $member = $memberModel->get_info($this->_store_id);
+        $mobile = trim(auction_user($member['auction_id'], $member['openid'])['mobile']);
+        if(strlen($mobile) == 0 || empty($mobile)){
+            $this->ej_json_failed(1014);
+            exit(0);
         }
 
         return true;

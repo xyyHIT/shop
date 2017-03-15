@@ -12,3 +12,5 @@
 /data/page_config
 # 去除composer 依赖包
 /vendor
+phpinfo.php
+data/mailtemplate/

@@ -49,6 +49,7 @@
             <td width="20" class="firstCell"><input type="checkbox" class="checkall"/></td>
             <td>{$lang.owner_user_name} | {$lang.owner_real_name}</td>
             <td><span ectype="order_by" fieldname="store_name">{$lang.store_name}</span></td>
+            <td><span fieldname="store_tel">店主电话</span></td>
             <td><span ectype="order_by" fieldname="region_id">{$lang.region}</span></td>
             <td class="table-center"><span ectype="order_by" fieldname="state">{$lang.state}</span></td>
             <td class="handler">{$lang.handler}</td>
@@ -59,6 +60,7 @@
             <td class="firstCell"><input type="checkbox" class="checkitem" value="{$store.store_id}"/></td>
             <td>{$store.user_name|escape} | {$store.owner_name|escape}</td>
             <td>{$store.store_name|escape}</td>
+            <td>{$store.store_tel|escape}</td>
             <td>{$store.region_name|escape}</td>
             <td class="table-center">{$store.state}</td>
             <td class="handler">

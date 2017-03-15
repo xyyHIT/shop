@@ -61,7 +61,7 @@ class StoreApp extends BackendApp
         $stores = $this->_store_mod->find(array(
             'conditions' => $conditions,
             'join'  => 'belongs_to_user',
-            'fields'=> 'this.*,member.user_name',
+            'fields'=> 'this.*,member.user_name,member.auction_id,member.openid',
             'limit' => $page['limit'],
             'count' => true,
             'order' => "$sort $order"
@@ -77,7 +77,9 @@ class StoreApp extends BackendApp
         );
         foreach ($stores as $key => $store)
         {
+            $auctionData = auction_user($store['auction_id'], $store['openid']);
             $stores[$key]['sgrade'] = $grades[$store['sgrade']];
+            $stores[$key]['store_tel'] = empty($auctionData['mobile']) ? '' : $auctionData['mobile'];
             $stores[$key]['state'] = $states[$store['state']];
             $certs = empty($store['certification']) ? array() : explode(',', $store['certification']);
             for ($i = 0; $i < count($certs); $i++)
