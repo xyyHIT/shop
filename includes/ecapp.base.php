@@ -80,7 +80,13 @@ define('SHIP_SELLER', 'WCcktrkpPqrI9YCoCk56aGi1K_-SzUOYIPv1YBw43Jk');//卖家发
 define('CONFIRM_SELLER', 'A1R4SzSVBqDEv9hMLFrhGlNYqpB9X_nx-P21lm1hwQs');//卖家确认收货
 define('REDUCE_BUYER', '2NOq3aQWMyiKbKh6S9_jHVMdXHcIUECEn_j2pMSnu8M');//买家退款
 
-
+/* 退款订单状态说明 */
+define('REFUND_APPLY', 1);//已申请
+define('REFUND_REFUSE', 2);//已拒绝
+define('REFUND_ACCESS', 3);//已通过
+define('REFUND_SHIP', 4);//已发货
+define('REFUND_FINISH', 5);//已完成
+define('REFUND_CANCEL', 0);//已取消
 /**
  *    ECBaseApp
  *
