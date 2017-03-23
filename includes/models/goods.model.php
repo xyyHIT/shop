@@ -160,7 +160,8 @@ class GoodsModel extends BaseModel {
 
         /* 排序(ORDER BY) */
         if ( $order ) {
-            $order = ' ORDER BY ' . $this->getRealFields($order) . ', s.sort_order ';
+//            $order = ' ORDER BY ' . $this->getRealFields($order) . ', s.sort_order';
+            $order = ' ORDER BY ' . $this->getRealFields($order) . ', g.goods_id desc ';
         }
 
         /* 分页(LIMIT) */
