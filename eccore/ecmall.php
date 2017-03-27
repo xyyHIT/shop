@@ -554,7 +554,7 @@ function &db()
                 $cfg['path'] = str_replace('/', '', $cfg['path']);
             }
 
-            $charset = ( CHARSET == 'utf-8' ) ? 'utf8' : CHARSET;
+            $charset = ( CHARSET == 'utf-8' ) ? 'utf8mb4' : CHARSET;
             $db = new cls_mysql();
             $db->cache_dir = ROOT_PATH . '/temp/query_caches/';
             $db->connect($cfg['host'] . ':' . $cfg['port'], $cfg['user'],
